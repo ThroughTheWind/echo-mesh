@@ -1,87 +1,644 @@
 {
   "type": {
     "note": "Roboto Flex, bundled in the APK as a font resource (OFL-1.1). Never the downloadable-fonts provider: it goes through Google Play Services and the network. Minimum size anywhere is 13sp; body text is never under 16sp. Sunlight theme adds +100 weight (Roboto Flex is variable).",
-    "families": { "brand": "\"Roboto Flex\", Roboto, system-ui, sans-serif" },
+    "families": {
+      "brand": "\"Roboto Flex\", Roboto, system-ui, sans-serif"
+    },
     "sunWeightBoost": 100,
     "groups": [
-      { "name": "Glance", "family": "brand", "styles": [
-        { "name": "glance-numeral", "fontSize": "40px", "lineHeight": "44px", "fontWeight": 700, "letterSpacing": "-0.5px", "tabular": true, "usage": "The one number that matters on a screen: panic-hold countdown, minutes left in a report detail." },
-        { "name": "glance-title", "fontSize": "24px", "lineHeight": "30px", "fontWeight": 700, "letterSpacing": "0px", "usage": "Report type in its detail sheet (\"Tear gas\"). Readable at arm's length." },
-        { "name": "glance-label", "fontSize": "18px", "lineHeight": "22px", "fontWeight": 700, "letterSpacing": "0.1px", "usage": "Report picker tiles, big buttons." }
-      ]},
-      { "name": "Headline & title", "family": "brand", "styles": [
-        { "name": "headline-medium", "fontSize": "28px", "lineHeight": "36px", "fontWeight": 600, "letterSpacing": "0px", "usage": "Onboarding screen titles." },
-        { "name": "headline-small", "fontSize": "24px", "lineHeight": "32px", "fontWeight": 600, "letterSpacing": "0px", "usage": "Sheet titles for destructive or important flows (wipe, join)." },
-        { "name": "title-large", "fontSize": "22px", "lineHeight": "28px", "fontWeight": 600, "letterSpacing": "0px", "usage": "Top bar title, group name." },
-        { "name": "title-medium", "fontSize": "18px", "lineHeight": "24px", "fontWeight": 600, "letterSpacing": "0.1px", "usage": "Sheet titles, list primary line." }
-      ]},
-      { "name": "Body", "family": "brand", "styles": [
-        { "name": "body-large", "fontSize": "18px", "lineHeight": "26px", "fontWeight": 400, "letterSpacing": "0.2px", "usage": "Onboarding and honesty copy." },
-        { "name": "body-medium", "fontSize": "16px", "lineHeight": "24px", "fontWeight": 400, "letterSpacing": "0.2px", "usage": "Default body. The smallest size for any sentence." }
-      ]},
-      { "name": "Label", "family": "brand", "styles": [
-        { "name": "label-large", "fontSize": "16px", "lineHeight": "20px", "fontWeight": 700, "letterSpacing": "0.2px", "usage": "Buttons." },
-        { "name": "label-medium", "fontSize": "14px", "lineHeight": "18px", "fontWeight": 700, "letterSpacing": "0.3px", "usage": "Chips, list secondary lines, status." },
-        { "name": "label-small", "fontSize": "13px", "lineHeight": "16px", "fontWeight": 700, "letterSpacing": "0.5px", "usage": "Pin badges, map scale. The floor: nothing is smaller." }
-      ]}
+      {
+        "name": "Glance",
+        "family": "brand",
+        "styles": [
+          {
+            "name": "glance-numeral",
+            "fontSize": "40px",
+            "lineHeight": "44px",
+            "fontWeight": 700,
+            "letterSpacing": "-0.5px",
+            "tabular": true,
+            "usage": "The one number that matters on a screen: panic-hold countdown, minutes left in a report detail."
+          },
+          {
+            "name": "glance-title",
+            "fontSize": "24px",
+            "lineHeight": "30px",
+            "fontWeight": 700,
+            "letterSpacing": "0px",
+            "usage": "Report type in its detail sheet (\"Tear gas\"). Readable at arm's length."
+          },
+          {
+            "name": "glance-label",
+            "fontSize": "18px",
+            "lineHeight": "22px",
+            "fontWeight": 700,
+            "letterSpacing": "0.1px",
+            "usage": "Report picker tiles, big buttons."
+          }
+        ]
+      },
+      {
+        "name": "Headline & title",
+        "family": "brand",
+        "styles": [
+          {
+            "name": "headline-medium",
+            "fontSize": "28px",
+            "lineHeight": "36px",
+            "fontWeight": 600,
+            "letterSpacing": "0px",
+            "usage": "Onboarding screen titles."
+          },
+          {
+            "name": "headline-small",
+            "fontSize": "24px",
+            "lineHeight": "32px",
+            "fontWeight": 600,
+            "letterSpacing": "0px",
+            "usage": "Sheet titles for destructive or important flows (wipe, join)."
+          },
+          {
+            "name": "title-large",
+            "fontSize": "22px",
+            "lineHeight": "28px",
+            "fontWeight": 600,
+            "letterSpacing": "0px",
+            "usage": "Top bar title, group name."
+          },
+          {
+            "name": "title-medium",
+            "fontSize": "18px",
+            "lineHeight": "24px",
+            "fontWeight": 600,
+            "letterSpacing": "0.1px",
+            "usage": "Sheet titles, list primary line."
+          }
+        ]
+      },
+      {
+        "name": "Body",
+        "family": "brand",
+        "styles": [
+          {
+            "name": "body-large",
+            "fontSize": "18px",
+            "lineHeight": "26px",
+            "fontWeight": 400,
+            "letterSpacing": "0.2px",
+            "usage": "Onboarding and honesty copy."
+          },
+          {
+            "name": "body-medium",
+            "fontSize": "16px",
+            "lineHeight": "24px",
+            "fontWeight": 400,
+            "letterSpacing": "0.2px",
+            "usage": "Default body. The smallest size for any sentence."
+          }
+        ]
+      },
+      {
+        "name": "Label",
+        "family": "brand",
+        "styles": [
+          {
+            "name": "label-large",
+            "fontSize": "16px",
+            "lineHeight": "20px",
+            "fontWeight": 700,
+            "letterSpacing": "0.2px",
+            "usage": "Buttons."
+          },
+          {
+            "name": "label-medium",
+            "fontSize": "14px",
+            "lineHeight": "18px",
+            "fontWeight": 700,
+            "letterSpacing": "0.3px",
+            "usage": "Chips, list secondary lines, status."
+          },
+          {
+            "name": "label-small",
+            "fontSize": "13px",
+            "lineHeight": "16px",
+            "fontWeight": 700,
+            "letterSpacing": "0.5px",
+            "usage": "Pin badges, map scale. The floor: nothing is smaller."
+          }
+        ]
+      }
     ]
   },
   "spacing": {
     "note": "Same 4dp scale as Zapper.",
     "tokens": [
-      { "name": "space-xxs", "value": "2px" }, { "name": "space-xs", "value": "4px" },
-      { "name": "space-sm", "value": "8px" }, { "name": "space-md", "value": "12px", "usage": "Minimum gap between two touch targets (gloves are imprecise)." },
-      { "name": "space-lg", "value": "16px", "usage": "Screen margin, card padding." }, { "name": "space-xl", "value": "20px", "usage": "Sheet padding." },
-      { "name": "space-xxl", "value": "24px" }, { "name": "space-xxxl", "value": "32px" },
-      { "name": "space-huge", "value": "48px" }, { "name": "space-giant", "value": "64px" }
+      {
+        "name": "space-xxs",
+        "value": "2px"
+      },
+      {
+        "name": "space-xs",
+        "value": "4px"
+      },
+      {
+        "name": "space-sm",
+        "value": "8px"
+      },
+      {
+        "name": "space-md",
+        "value": "12px",
+        "usage": "Minimum gap between two touch targets (gloves are imprecise)."
+      },
+      {
+        "name": "space-lg",
+        "value": "16px",
+        "usage": "Screen margin, card padding."
+      },
+      {
+        "name": "space-xl",
+        "value": "20px",
+        "usage": "Sheet padding."
+      },
+      {
+        "name": "space-xxl",
+        "value": "24px"
+      },
+      {
+        "name": "space-xxxl",
+        "value": "32px"
+      },
+      {
+        "name": "space-huge",
+        "value": "48px"
+      },
+      {
+        "name": "space-giant",
+        "value": "64px"
+      }
     ]
   },
   "radius": {
     "note": "Zapper's radius scale minus the key styles. Pin shapes carry meaning, so they are not user-selectable.",
     "tokens": [
-      { "name": "radius-xs", "value": "4px", "usage": "Badges." }, { "name": "radius-sm", "value": "8px", "usage": "Blocked pin (square), chips." },
-      { "name": "radius-md", "value": "12px", "usage": "Cards, list rows." }, { "name": "radius-lg", "value": "16px", "usage": "Report picker tiles, big buttons." },
-      { "name": "radius-xl", "value": "28px", "usage": "Bottom sheets, dialogs." }, { "name": "radius-full", "value": "9999px", "usage": "Safe pin (circle), status chips, FAB." }
+      {
+        "name": "radius-xs",
+        "value": "4px",
+        "usage": "Badges."
+      },
+      {
+        "name": "radius-sm",
+        "value": "8px",
+        "usage": "Blocked pin (square), chips."
+      },
+      {
+        "name": "radius-md",
+        "value": "12px",
+        "usage": "Cards, list rows."
+      },
+      {
+        "name": "radius-lg",
+        "value": "16px",
+        "usage": "Report picker tiles, big buttons."
+      },
+      {
+        "name": "radius-xl",
+        "value": "28px",
+        "usage": "Bottom sheets, dialogs."
+      },
+      {
+        "name": "radius-full",
+        "value": "9999px",
+        "usage": "Safe pin (circle), status chips, FAB."
+      }
     ]
   },
   "shadow": {
     "note": "Tonal elevation only on the map; one shadow for sheets so they read above a busy map.",
     "tokens": [
-      { "name": "elevation-1", "value": "0px 1px 2px rgba(0,0,0,0.40), 0px 1px 3px 1px rgba(0,0,0,0.20)", "usage": "Map overlay chips and FABs." },
-      { "name": "elevation-3", "value": "0px 4px 8px 3px rgba(0,0,0,0.25), 0px 1px 3px rgba(0,0,0,0.40)", "usage": "Bottom sheets over the map." }
+      {
+        "name": "elevation-1",
+        "value": "0px 1px 2px rgba(0,0,0,0.40), 0px 1px 3px 1px rgba(0,0,0,0.20)",
+        "usage": "Map overlay chips and FABs."
+      },
+      {
+        "name": "elevation-3",
+        "value": "0px 4px 8px 3px rgba(0,0,0,0.25), 0px 1px 3px rgba(0,0,0,0.40)",
+        "usage": "Bottom sheets over the map."
+      }
     ]
   },
   "size": {
     "note": "Street sizes. Zapper's touch-min is 56dp for eyes-on-TV use; here it is 64dp because gloves and cold or shaking hands miss more (SPEC NFR-11 asks for at least 56dp).",
     "tokens": [
-      { "name": "touch-min", "value": "64px", "usage": "Smallest hit area of anything tappable, including map pins." },
-      { "name": "touch-comfort", "value": "72px", "usage": "Buttons in sheets, list rows, picker tiles' minimum height." },
-      { "name": "touch-hero", "value": "88px", "usage": "The Report FAB and the panic-hold button." },
-      { "name": "top-bar-height", "value": "64px", "usage": "Map top bar." },
-      { "name": "pin-size", "value": "44px", "usage": "Visual size of a report pin; its hit area is touch-min." },
-      { "name": "pin-size-large", "value": "56px", "usage": "Settings > Display > Large pins." },
-      { "name": "pin-halo", "value": "3px", "usage": "Separation ring around every pin, in pin-halo colour; group reports use their group colour instead." },
-      { "name": "expiry-ring", "value": "4px", "usage": "Stroke of the time-left ring around a pin." },
-      { "name": "focus-ring", "value": "3px", "usage": "Keyboard and switch-access focus." },
-      { "name": "icon-sm", "value": "20px" }, { "name": "icon-md", "value": "28px" }, { "name": "icon-pin", "value": "24px" }, { "name": "icon-lg", "value": "36px", "usage": "Picker tiles." },
-      { "name": "thumb-zone", "value": "0.45", "usage": "Fraction of screen height, from the bottom, that holds every frequent action." }
+      {
+        "name": "touch-min",
+        "value": "64px",
+        "usage": "Smallest hit area of anything tappable, including map pins."
+      },
+      {
+        "name": "touch-comfort",
+        "value": "72px",
+        "usage": "Buttons in sheets, list rows, picker tiles' minimum height."
+      },
+      {
+        "name": "touch-hero",
+        "value": "88px",
+        "usage": "The Report FAB and the panic-hold button."
+      },
+      {
+        "name": "top-bar-height",
+        "value": "64px",
+        "usage": "Map top bar."
+      },
+      {
+        "name": "pin-size",
+        "value": "44px",
+        "usage": "Visual size of a report pin; its hit area is touch-min."
+      },
+      {
+        "name": "pin-size-large",
+        "value": "56px",
+        "usage": "Settings > Display > Large pins."
+      },
+      {
+        "name": "pin-halo-width",
+        "value": "3px",
+        "usage": "Separation ring around every pin, in pin-halo colour; group reports use their group colour instead."
+      },
+      {
+        "name": "expiry-ring",
+        "value": "4px",
+        "usage": "Stroke of the time-left ring around a pin."
+      },
+      {
+        "name": "focus-ring",
+        "value": "3px",
+        "usage": "Keyboard and switch-access focus."
+      },
+      {
+        "name": "icon-sm",
+        "value": "20px"
+      },
+      {
+        "name": "icon-md",
+        "value": "28px"
+      },
+      {
+        "name": "icon-pin",
+        "value": "24px"
+      },
+      {
+        "name": "icon-lg",
+        "value": "36px",
+        "usage": "Picker tiles."
+      },
+      {
+        "name": "thumb-zone",
+        "value": "0.45",
+        "usage": "Fraction of screen height, from the bottom, that holds every frequent action."
+      }
     ]
   },
   "opacity": {
     "note": "M3 state layers plus the 'probably gone' fade (SPEC FR-6.4).",
     "tokens": [
-      { "name": "state-pressed", "value": "0.12" }, { "name": "state-focus", "value": "0.12" },
-      { "name": "disabled-content", "value": "0.38" }, { "name": "disabled-container", "value": "0.12" },
-      { "name": "probably-gone", "value": "0.45", "usage": "Pin and label when dismissals outweigh confirmations. The pin stays tappable." },
-      { "name": "scrim-opacity", "value": "0.50", "usage": "Scrim behind sheets: stronger than Zapper's 0.32 so a sheet reads clearly over a busy map." }
+      {
+        "name": "state-pressed",
+        "value": "0.12"
+      },
+      {
+        "name": "state-focus",
+        "value": "0.12"
+      },
+      {
+        "name": "disabled-content",
+        "value": "0.38"
+      },
+      {
+        "name": "disabled-container",
+        "value": "0.12"
+      },
+      {
+        "name": "probably-gone",
+        "value": "0.45",
+        "usage": "Pin and label when dismissals outweigh confirmations. The pin stays tappable."
+      },
+      {
+        "name": "scrim-opacity",
+        "value": "0.50",
+        "usage": "Scrim behind sheets: stronger than Zapper's 0.32 so a sheet reads clearly over a busy map."
+      }
     ]
   },
   "discreet": {
     "note": "Behaviour tokens for discreet mode, read by the theme, not by components.",
     "tokens": [
-      { "name": "discreet-brightness", "value": "0.12", "usage": "Window brightness override (0..1) while discreet mode is on and the app is in front." },
-      { "name": "discreet-haptics", "value": "off", "usage": "No vibration at all (SPEC FR-13.1)." },
-      { "name": "discreet-sound", "value": "off", "usage": "The app never plays sounds in any mode; listed for completeness." }
+      {
+        "name": "discreet-brightness",
+        "value": "0.12",
+        "usage": "Window brightness override (0..1) while discreet mode is on and the app is in front."
+      },
+      {
+        "name": "discreet-haptics",
+        "value": "off",
+        "usage": "No vibration at all (SPEC FR-13.1)."
+      },
+      {
+        "name": "discreet-sound",
+        "value": "off",
+        "usage": "The app never plays sounds in any mode; listed for completeness."
+      }
+    ]
+  },
+  "motion": {
+    "note": "Durations and easings for CSS previews; Compose uses the spring tokens in foundations/Motion. Spatial springs may overshoot, effects never do.",
+    "tokens": [
+      {
+        "name": "duration-short",
+        "value": "100ms",
+        "usage": "State layers, pressed feedback."
+      },
+      {
+        "name": "duration-medium",
+        "value": "250ms",
+        "usage": "Sheets, fades, expiry removal."
+      },
+      {
+        "name": "duration-long",
+        "value": "400ms",
+        "usage": "Theme cross-fade."
+      },
+      {
+        "name": "easing-standard",
+        "value": "cubic-bezier(0.2, 0, 0, 1)",
+        "usage": "Everything that doesn't overshoot."
+      },
+      {
+        "name": "easing-pop",
+        "value": "cubic-bezier(0.3, 1.6, 0.6, 1)",
+        "usage": "A new pin arriving, only."
+      },
+      {
+        "name": "hold-to-confirm",
+        "value": "2000ms",
+        "usage": "Panic wipe hold (SPEC FR-11.1)."
+      },
+      {
+        "name": "hold-tick",
+        "value": "500ms",
+        "usage": "Haptic tick interval while holding."
+      },
+      {
+        "name": "send-grace",
+        "value": "5000ms",
+        "usage": "Time to cancel a report before it leaves the phone."
+      }
+    ]
+  },
+  "component": {
+    "note": "Tier 3: component tokens. Each value is a reference to a tier 2 token in braces, or a literal. Components read these, never palettes. tools/tokens.py check fails on a reference that doesn't resolve.",
+    "components": [
+      {
+        "name": "button",
+        "usage": "Buttons",
+        "tokens": {
+          "height": "{touch-comfort}",
+          "radius": "{radius-lg}",
+          "label": "{label-large}",
+          "gap": "{space-md}",
+          "primary-container": "{primary}",
+          "primary-content": "{on-primary}",
+          "tonal-container": "{secondary-container}",
+          "tonal-content": "{on-secondary-container}",
+          "outlined-border": "{outline}",
+          "outlined-border-width": "2px",
+          "danger-container": "{error}",
+          "danger-content": "{on-error}",
+          "danger-tonal-container": "{error-container}",
+          "danger-tonal-content": "{on-error-container}",
+          "text-content": "{primary}"
+        }
+      },
+      {
+        "name": "icon-button",
+        "usage": "Icon buttons",
+        "tokens": {
+          "size": "{touch-min}",
+          "icon": "{icon-md}",
+          "filled-container": "{surface-container-high}",
+          "content": "{on-surface}"
+        }
+      },
+      {
+        "name": "fab",
+        "usage": "Floating action button (Report)",
+        "tokens": {
+          "height": "{touch-hero}",
+          "radius": "{radius-full}",
+          "container": "{primary}",
+          "content": "{on-primary}",
+          "label": "{glance-label}"
+        }
+      },
+      {
+        "name": "chip",
+        "usage": "Chips",
+        "tokens": {
+          "height": "48px",
+          "hit": "{touch-min}",
+          "radius": "{radius-full}",
+          "container": "{surface-container-high}",
+          "content": "{on-surface}",
+          "selected-container": "{secondary-container}",
+          "selected-content": "{on-secondary-container}",
+          "label": "{label-medium}"
+        }
+      },
+      {
+        "name": "segmented",
+        "usage": "Segmented buttons",
+        "tokens": {
+          "height": "{touch-min}",
+          "radius": "{radius-lg}",
+          "border": "{outline}",
+          "selected-container": "{secondary-container}",
+          "selected-content": "{on-secondary-container}"
+        }
+      },
+      {
+        "name": "switch",
+        "usage": "Switch",
+        "tokens": {
+          "width": "60px",
+          "height": "36px",
+          "track-on": "{primary}",
+          "handle-on": "{on-primary}",
+          "track-off": "{surface-container-highest}",
+          "handle-off": "{outline}"
+        }
+      },
+      {
+        "name": "selection",
+        "usage": "Radio buttons and checkboxes",
+        "tokens": {
+          "size": "28px",
+          "hit": "{touch-min}",
+          "on": "{primary}",
+          "on-content": "{on-primary}",
+          "off": "{outline}"
+        }
+      },
+      {
+        "name": "text-field",
+        "usage": "Text fields",
+        "tokens": {
+          "height": "{touch-comfort}",
+          "radius": "{radius-md}",
+          "border": "{outline}",
+          "border-width": "2px",
+          "focus-border": "{primary}",
+          "error-border": "{error}",
+          "label": "{label-medium}",
+          "input": "{body-large}",
+          "support": "{on-surface-variant}"
+        }
+      },
+      {
+        "name": "list-item",
+        "usage": "List items",
+        "tokens": {
+          "min-height": "{touch-comfort}",
+          "container": "{surface-container-high}",
+          "headline": "{title-medium}",
+          "support": "{on-surface-variant}"
+        }
+      },
+      {
+        "name": "card",
+        "usage": "Cards",
+        "tokens": {
+          "radius": "{radius-md}",
+          "container": "{surface-container-high}",
+          "padding": "{space-lg}"
+        }
+      },
+      {
+        "name": "callout",
+        "usage": "Callouts (inline banners)",
+        "tokens": {
+          "radius": "{radius-md}",
+          "info-container": "{surface-container-high}",
+          "warn-container": "{blocked-container}",
+          "warn-content": "{on-blocked-container}",
+          "danger-container": "{error-container}",
+          "danger-content": "{on-error-container}"
+        }
+      },
+      {
+        "name": "snackbar",
+        "usage": "Snackbar",
+        "tokens": {
+          "min-height": "64px",
+          "radius": "{radius-md}",
+          "container": "{inverse-surface}",
+          "content": "{inverse-on-surface}",
+          "action": "{inverse-primary}"
+        }
+      },
+      {
+        "name": "sheet",
+        "usage": "Bottom sheets",
+        "tokens": {
+          "container": "{surface-container}",
+          "radius": "{radius-xl}",
+          "scrim": "{scrim}",
+          "scrim-opacity": "{scrim-opacity}",
+          "shadow": "{elevation-3}"
+        }
+      },
+      {
+        "name": "dialog",
+        "usage": "Dialogs",
+        "tokens": {
+          "container": "{surface-container-high}",
+          "radius": "{radius-xl}",
+          "width": "312px",
+          "title": "{headline-small}"
+        }
+      },
+      {
+        "name": "progress",
+        "usage": "Progress indicators",
+        "tokens": {
+          "height": "8px",
+          "track": "{surface-container-highest}",
+          "indicator": "{primary}"
+        }
+      },
+      {
+        "name": "hold",
+        "usage": "Hold-to-confirm button",
+        "tokens": {
+          "height": "{touch-hero}",
+          "duration": "{hold-to-confirm}",
+          "tick": "{hold-tick}",
+          "container": "{error-container}",
+          "content": "{on-error-container}",
+          "fill": "{error}",
+          "fill-content": "{on-error}"
+        }
+      },
+      {
+        "name": "avatar",
+        "usage": "Avatars",
+        "tokens": {
+          "size": "40px",
+          "size-large": "48px",
+          "container": "{secondary-container}",
+          "content": "{on-secondary-container}",
+          "ring": "{primary}"
+        }
+      },
+      {
+        "name": "badge",
+        "usage": "Badges",
+        "tokens": {
+          "size": "24px",
+          "container": "{inverse-surface}",
+          "content": "{inverse-on-surface}",
+          "label": "{label-small}"
+        }
+      },
+      {
+        "name": "top-app-bar",
+        "usage": "Top app bar",
+        "tokens": {
+          "height": "{top-bar-height}",
+          "container": "{surface}",
+          "title": "{title-large}"
+        }
+      },
+      {
+        "name": "focus",
+        "usage": "Focus indicator",
+        "tokens": {
+          "ring-width": "{focus-ring}",
+          "ring-color": "{secondary}"
+        }
+      },
+      {
+        "name": "pin",
+        "usage": "Report pin",
+        "tokens": {
+          "size": "{pin-size}",
+          "hit": "{touch-min}",
+          "halo-width": "{pin-halo-width}",
+          "halo": "{pin-halo}",
+          "ring-width": "{expiry-ring}",
+          "ring": "{on-surface}",
+          "ring-track": "{surface}"
+        }
+      }
     ]
   }
 }

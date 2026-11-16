@@ -28,7 +28,7 @@ data class DisplayPrefs(
     val nearbyHazardBuzz: Boolean = false,
 )
 
-/** Which theme applies, given the prefs and whether the ambient light sensor currently reads outdoor sun (the caller owns the sensor and its hysteresis, see theming-and-customisation.md). */
+/** Which theme applies, given the prefs and whether the ambient light sensor currently reads outdoor sun (the caller owns the sensor and its hysteresis, see docs/design/foundations/Themes/README.md). */
 fun resolveMode(
     prefs: DisplayPrefs,
     bright: Boolean,

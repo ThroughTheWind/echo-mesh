@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build components/icons.svg, the preview icon sprite, from Material Symbols Rounded (Apache-2.0).
+"""Build assets/icons.svg, the preview icon sprite, from Material Symbols Rounded (Apache-2.0).
 
   npm pack @material-symbols/svg-500 && tar -xzf material-symbols-svg-500-*.tgz
   python3 tools/icons.py package/rounded
@@ -31,7 +31,7 @@ def main(src):
         paths = "".join(re.findall(r"<path[^>]*/>", svg))
         out.append(f'<symbol id="i-{name}" viewBox="0 -960 960 960">{paths}</symbol>')
     out.append("</svg>")
-    dest = Path(__file__).resolve().parent.parent / "components" / "icons.svg"
+    dest = Path(__file__).resolve().parent.parent / "assets" / "icons.svg"
     dest.write_text("\n".join(out) + "\n")
     print(f"wrote {dest} ({len(ICONS)} icons)")
 
