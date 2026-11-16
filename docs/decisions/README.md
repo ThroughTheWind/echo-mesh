@@ -15,6 +15,7 @@ it is superseded by a new record that names it.
 | [ADR-0001](ADR-0001-kotlin-compose-multi-module.md) | Build the app natively in Kotlin and Jetpack Compose, as a multi-module Gradle project with convention plugins | accepted | 2026-11-16 |
 | [ADR-0002](ADR-0002-transport-adapters.md) | Reach other phones through radio transport adapters behind a capability contract, one module per radio | accepted | 2026-11-16 |
 | [ADR-0003](ADR-0003-gpl-no-servers-no-proprietary-dependencies.md) | License the app GPL-3.0, run no server, ask for no internet, and ship no proprietary or tracking dependency | accepted | 2026-11-16 |
+| [ADR-0004](ADR-0004-crypto-design.md) | Secure the mesh with signed frames, a ratcheted group key and a Noise join, built on Tink | proposed | 2026-11-16 |
 <!-- rungs:end adr-index -->
 
 ## Admission rule
