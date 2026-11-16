@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Working title until Antoine names the app; scripts/rename-app.sh replaces it. -->
+    <string name="app_name">Protest Map</string>
+    <string name="placeholder">Nothing to show yet. The map arrives with the first roadmap phase.</string>
+</resources>
