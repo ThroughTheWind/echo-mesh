@@ -43,6 +43,13 @@ tier    = "fast"
 command = "node scripts/gates/privacy.mjs"
 why     = "ADR-0003 in seconds and without the Android SDK: no source manifest asks for INTERNET and no catalog entry is a Play Services, Firebase or tracker artifact. Gradle's checkManifestPermissions and checkForbiddenDependencies remain the authority in CI."
 
+[[gates]]
+id      = "design-tokens"
+kind    = "command"
+tier    = "fast"
+command = "python3 -B docs/design/tools/tokens.py check"
+why     = "Color.kt and the previews are generated from tokens.json, and street contrast (7:1 text in Dark and Sun) is the design system's promise; a hand edit or a weaker colour fails here, not on a sunny street."
+
 # ── module gates ──────────────────────────────────────────────────────────────
 # Generated. Edit the owning module's parameters, not these entries.
 
