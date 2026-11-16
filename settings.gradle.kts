@@ -21,7 +21,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "protestmap"
+rootProject.name = "echo"
 
 include(":app")
 include(":core:model")

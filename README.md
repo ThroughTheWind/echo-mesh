@@ -1,6 +1,4 @@
-# Protest Map
-
-> Working name. The app is not named yet; `scripts/rename-app.sh` renames it in one commit.
+# Echo
 
 A free, open-source Android app that works like Waze for people at a protest. Phones nearby share
 short-lived, map-pinned reports with each other ("police line here", "medic", "exit open") over

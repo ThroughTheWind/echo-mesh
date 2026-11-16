@@ -23,8 +23,8 @@ defaults:
     shell: bash
 
 env:
-  # The working name until the app is named; scripts/rename-app.sh rewrites it.
-  APP_ID: protestmap
+  # Names the release assets: echo-X.Y.Z.apk.
+  APP_ID: echo
 
 jobs:
   release:

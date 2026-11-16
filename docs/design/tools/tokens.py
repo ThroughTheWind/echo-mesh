@@ -23,8 +23,8 @@ CSS = DESIGN / "components" / "tokens.css"
 GALLERY = DESIGN / "preview" / "index.html"
 COMPONENTS = DESIGN / "components"
 # Path inside the app repo once it exists. Package root is a placeholder until the app is named.
-KOTLIN_PACKAGE = "io.github.throughthewind.protestmap.core.designsystem.theme"
-COLOR_KT = DESIGN.parent.parent / "core" / "designsystem" / "src" / "main" / "kotlin" / "io" / "github" / "throughthewind" / "protestmap" / "core" / "designsystem" / "theme" / "Color.kt"
+KOTLIN_PACKAGE = "io.github.throughthewind.echo.core.designsystem.theme"
+COLOR_KT = DESIGN.parent.parent / "core" / "designsystem" / "src" / "main" / "kotlin" / "io" / "github" / "throughthewind" / "echo" / "core" / "designsystem" / "theme" / "Color.kt"
 
 M3_ROLES = [
     ("primary", "Accent: Report FAB, your position, primary buttons, the mesh-on state."),

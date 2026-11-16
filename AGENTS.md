@@ -1,4 +1,4 @@
-# AGENTS.md — protestmap
+# AGENTS.md — Echo
 
 Canonical agent policy for this repository. Read in full before making changes.
 
@@ -21,7 +21,6 @@ may be targeted, so **security and privacy are the product.** **The property tha
 the app talks to nothing but other phones running it over peer-to-peer radio, puts no stable
 identifier on the air, relays nothing unauthenticated, and ships no proprietary or tracking
 dependency** ([ADR-0003](docs/decisions/ADR-0003-gpl-no-servers-no-proprietary-dependencies.md)).
-"protestmap" is a working name until the app is named; `scripts/rename-app.sh` renames it.
 
 ## Validation matrix
 
@@ -97,7 +96,7 @@ it is a wrong value that passes review.
 - Module build files apply a convention plugin from `build-logic/` (`conventions.jvm.library`,
   `conventions.android.library`, `conventions.android.application`), which also wires the gates.
 - Package root is `app.packageRoot` in `gradle.properties`; module namespaces append the module path
-  (`…protestmap.core.mesh`).
+  (`…echo.core.mesh`).
 - Never log a key, a report, a position or a peer handle, in any build ([crypto rule](.ai/rules/crypto.md)).
 - English only, no translations until the spec says otherwise.
 - No dependency injection framework until the container passes about thirty bindings (ADR-0001).

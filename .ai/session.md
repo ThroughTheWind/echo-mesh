@@ -16,13 +16,12 @@ Nothing. No work item is open yet.
 
 ## Resume from
 
-Once `docs/SPEC.md` and `docs/ROADMAP.md` land, create the first work items from the roadmap's first phase with `/work-item`. If the app is still called "protestmap", run `scripts/rename-app.sh` first.
+Once `docs/SPEC.md` and `docs/ROADMAP.md` land, create the first work items from the roadmap's first phase with `/work-item`.
 
 ## Up next
 
-1. Name the app and run `scripts/rename-app.sh <id> "<Display Name>"`.
-2. The crypto ADR (ADR-0004) and the wire-format ADR, then `:core:crypto`.
-3. The first transport adapter (BLE needs no `INTERNET`; see ADR-0003).
+1. The crypto ADR (ADR-0004) and the wire-format ADR, then `:core:crypto`.
+2. The first transport adapter (BLE needs no `INTERNET`; see ADR-0003).
 
 ## Active constraints — do not reopen
 
@@ -30,6 +29,7 @@ Once `docs/SPEC.md` and `docs/ROADMAP.md` land, create the first work items from
 - Radios are adapters behind `MeshTransport` capabilities, moving opaque frames, fixed by [ADR-0002](../docs/decisions/ADR-0002-transport-adapters.md).
 - GPL-3.0, no servers, no `INTERNET` permission by default, no proprietary or tracking dependency, no crash reporting of any kind, fixed by [ADR-0003](../docs/decisions/ADR-0003-gpl-no-servers-no-proprietary-dependencies.md). The gates enforce it; never weaken one to pass.
 - No home-made cryptography; only `core/crypto/` imports a crypto API ([crypto rule](rules/crypto.md)).
+- The app is named Echo, package `io.github.throughthewind.echo` (Antoine, 2026-11-16).
 - English only, distributed through GitHub Releases, F-Droid later, no Play Store at first.
 - rungs is development tooling installed into this repo. It is not a runtime dependency and is not shipped in the app.
 
@@ -40,7 +40,7 @@ Once `docs/SPEC.md` and `docs/ROADMAP.md` land, create the first work items from
 
 ## Open questions
 
-- The app name, repo name and reference phones (asked by the spec thread). Not blocking the scaffold.
+- The repo name and reference phones. The repo is needed before the first push; not blocking local work.
 
 ## Archive
 

@@ -16,7 +16,7 @@ installed = "2026-11-16"
 [modules.instructions]
 version = "1.4.0"
 state   = "managed"
-params  = { project_name = "protestmap", harnesses = ["claude","agents-md"], core_budget = 200 }
+params  = { project_name = "echo", harnesses = ["claude","agents-md"], core_budget = 200 }
 [modules.instructions.hashes]
 ".ai/rules/README.md" = "5435cf6d3287"
 

@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ImportBoundariesTest {
-    private val root = "io.github.throughthewind.protestmap"
+    private val root = "io.github.throughthewind.echo"
     private val registration = setOf("TransportRegistration.kt")
 
     private fun transport(
