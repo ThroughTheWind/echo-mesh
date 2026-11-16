@@ -8,7 +8,7 @@
 | **Date** | 2026-11-16 |
 | **Platform** | Android 12+ phones only (minSdk 31) |
 | **License** | GPL-3.0-only (free, open source) |
-| **Repository** | TBD (asked Antoine) |
+| **Repository** | https://github.com/ThroughTheWind/echo-mesh |
 | **First transport** | Bluetooth LE only (advertising for discovery, GATT/L2CAP to sync reports), per the [transport research](research/peer-to-peer-transports.md) |
 | **Reference phones** | TBD, at least two (asked Antoine) |
 | **Repo tooling** | `rungs` (`@rungs/cli`), as in Zapper |
@@ -371,7 +371,7 @@ A second transport (Wi-Fi Aware) comes after 1.0, unless the field test shows BL
 1. ~~**License**~~ — **Decided:** GPL-3.0-only.
 2. ~~**Platform and distribution**~~ — **Decided:** Android phones, GitHub Releases first, F-Droid later.
 3. ~~**Language**~~ — **Decided:** English only.
-4. **App name** — **Decided by Antoine (2026-11-16):** Echo, package `io.github.throughthewind.echo`. Repo name ⏳ (repo setup thread).
+4. **App name** — **Decided by Antoine (2026-11-16):** Echo, package `io.github.throughthewind.echo`. Repo: `ThroughTheWind/echo-mesh`.
 5. **Reference phones** — ⏳ asked Antoine (at least two models).
 6. ~~**Public reports to strangers**~~ — **Decided by Antoine (2026-11-16):** yes, shown as unverified and visually distinct from group reports (FR-4.3, FR-9.2).
 7. **Default group lifetime** — *Proposed:* 24 h, up to 7 days (FR-8.1). Short-lived groups limit what an infiltrator or a seized phone exposes.
