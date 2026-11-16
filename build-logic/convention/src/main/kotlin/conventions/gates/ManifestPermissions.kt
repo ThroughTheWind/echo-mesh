@@ -1,9 +1,9 @@
 package conventions.gates
 
-import java.io.StringReader
-import javax.xml.parsers.DocumentBuilderFactory
 import org.w3c.dom.Element
 import org.xml.sax.InputSource
+import java.io.StringReader
+import javax.xml.parsers.DocumentBuilderFactory
 
 /** The manifest gate's reader (ADR-0003): which permissions a merged manifest asks for. */
 object ManifestPermissions {

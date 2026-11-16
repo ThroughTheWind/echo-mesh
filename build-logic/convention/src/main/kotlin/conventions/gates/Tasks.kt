@@ -137,21 +137,28 @@ abstract class ImportBoundariesTask : DefaultTask() {
                 val relative = file.relativeTo(root).invariantSeparatorsPath
                 val lines = file.readLines()
                 when (rule.get()) {
-                    Rule.TRANSPORT ->
+                    Rule.TRANSPORT -> {
                         ImportBoundaries.transportViolations(relative, lines, packageRoot.get(), registrationFiles.get())
-                    Rule.CRYPTO -> ImportBoundaries.cryptoViolations(relative, lines, cryptoPackages.get())
+                    }
+
+                    Rule.CRYPTO -> {
+                        ImportBoundaries.cryptoViolations(relative, lines, cryptoPackages.get())
+                    }
                 }
             }
         if (violations.isNotEmpty()) {
             val why =
                 when (rule.get()) {
-                    Rule.TRANSPORT ->
+                    Rule.TRANSPORT -> {
                         "app/ and core/ reach transports only through the MeshTransport contract, and adapters " +
                             "never import each other (ADR-0002). Only these app files may name an adapter: " +
                             registrationFiles.get().sorted().joinToString()
-                    Rule.CRYPTO ->
+                    }
+
+                    Rule.CRYPTO -> {
                         "Only core/crypto/ may import a cryptographic API, so every primitive is reviewed in one " +
                             "place (.ai/rules/crypto.md)"
+                    }
                 }
             throw GradleException("$why.\n" + violations.joinToString("\n") { "  $it" })
         }

@@ -34,14 +34,24 @@ class ImportBoundariesTest {
     fun `an adapter may import itself but not another adapter`() {
         assertTrue(transport("adapters/ble/src/main/kotlin/A.kt", "import $root.adapters.ble.internal.Gatt").isEmpty())
         val violations = transport("adapters/ble/src/main/kotlin/A.kt", "", "import $root.adapters.wifidirect.Group")
-        assertEquals(listOf(ImportBoundaries.Violation("adapters/ble/src/main/kotlin/A.kt", 2, "$root.adapters.wifidirect.Group")), violations)
+        assertEquals(
+            listOf(ImportBoundaries.Violation("adapters/ble/src/main/kotlin/A.kt", 2, "$root.adapters.wifidirect.Group")),
+            violations,
+        )
     }
 
     @Test
     fun `crypto APIs are refused outside core crypto`() {
         val packages = listOf("javax.crypto", "java.security")
-        assertEquals(1, ImportBoundaries.cryptoViolations("core/mesh/src/main/kotlin/A.kt", listOf("import javax.crypto.Cipher"), packages).size)
-        assertTrue(ImportBoundaries.cryptoViolations("core/crypto/src/main/kotlin/A.kt", listOf("import javax.crypto.Cipher"), packages).isEmpty())
-        assertTrue(ImportBoundaries.cryptoViolations("core/mesh/src/main/kotlin/A.kt", listOf("import java.securityx.Foo"), packages).isEmpty())
+        assertEquals(
+            1,
+            ImportBoundaries.cryptoViolations("core/mesh/src/main/kotlin/A.kt", listOf("import javax.crypto.Cipher"), packages).size,
+        )
+        assertTrue(
+            ImportBoundaries.cryptoViolations("core/crypto/src/main/kotlin/A.kt", listOf("import javax.crypto.Cipher"), packages).isEmpty(),
+        )
+        assertTrue(
+            ImportBoundaries.cryptoViolations("core/mesh/src/main/kotlin/A.kt", listOf("import java.securityx.Foo"), packages).isEmpty(),
+        )
     }
 }

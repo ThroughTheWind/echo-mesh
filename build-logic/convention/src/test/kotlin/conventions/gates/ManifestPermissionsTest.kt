@@ -40,6 +40,10 @@ class ManifestPermissionsTest {
     fun `something that is not a manifest fails loudly`() {
         assertFails { ManifestPermissions.declared("<resources />") }
         assertFails { ManifestPermissions.declared("not xml") }
-        assertFails { ManifestPermissions.declared("<!DOCTYPE manifest [<!ENTITY x SYSTEM \"file:///etc/passwd\">]><manifest>&x;</manifest>") }
+        assertFails {
+            ManifestPermissions.declared(
+                "<!DOCTYPE manifest [<!ENTITY x SYSTEM \"file:///etc/passwd\">]><manifest>&x;</manifest>",
+            )
+        }
     }
 }

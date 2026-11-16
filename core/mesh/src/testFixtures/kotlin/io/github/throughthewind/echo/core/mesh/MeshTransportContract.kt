@@ -1,8 +1,8 @@
 package io.github.throughthewind.echo.core.mesh
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
@@ -18,8 +18,7 @@ abstract class MeshTransportContract {
     /** Two started-or-not transports that are in range of each other. */
     protected abstract fun CoroutineScope.inRange(): Pair<MeshTransport, MeshTransport>
 
-    private suspend fun MeshTransport.nextPeer() =
-        withTimeout(5_000) { events.filterIsInstance<TransportEvent.PeerSeen>().first().peer }
+    private suspend fun MeshTransport.nextPeer() = withTimeout(5_000) { events.filterIsInstance<TransportEvent.PeerSeen>().first().peer }
 
     @Test
     fun `two phones in range see each other and exchange a frame`() =

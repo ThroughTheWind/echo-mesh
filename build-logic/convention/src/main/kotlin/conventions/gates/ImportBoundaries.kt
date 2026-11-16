@@ -34,10 +34,11 @@ object ImportBoundaries {
         val guarded = path.startsWith("app/") || path.startsWith("core/") || ownAdapter != null
         if (!guarded) return emptyList()
         if (path.startsWith("app/") && path.substringAfterLast('/') in registrationFiles) return emptyList()
-        return imports(lines).filter { (_, imported) ->
-            imported.startsWith(adaptersPackage) &&
-                (ownAdapter == null || !imported.startsWith("$adaptersPackage$ownAdapter."))
-        }.map { (line, imported) -> Violation(path, line, imported) }
+        return imports(lines)
+            .filter { (_, imported) ->
+                imported.startsWith(adaptersPackage) &&
+                    (ownAdapter == null || !imported.startsWith("$adaptersPackage$ownAdapter."))
+            }.map { (line, imported) -> Violation(path, line, imported) }
     }
 
     /**

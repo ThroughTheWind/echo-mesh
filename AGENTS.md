@@ -35,7 +35,7 @@ everything is slow enough to get skipped; running the wrong subset proves nothin
 | a dependency, a manifest, or a permission | `./gradlew checkForbiddenDependencies checkManifestPermissions` |
 | `build-logic/` (convention plugins and gate logic) | `./gradlew -p build-logic test` |
 | `core/data/`, `core/map/`, `core/designsystem/`, `app/` | `./gradlew :app:assembleDebug lint` |
-| any `*.kt` or `*.kts` | `./gradlew spotlessCheck` (`spotlessApply` to fix) |
+| any `*.kt` or `*.kts` | `./gradlew spotlessCheck` (`spotlessApply` to fix); if Spotless cannot resolve, `java -jar ktlint-cli-<ktlint>-all.jar --format` (Maven Central, the catalog's version) gives the same result |
 | `gradle/libs.versions.toml`, build files | `./gradlew test :app:assembleDebug`, then CI |
 | anything | `node .ai/rungs.mjs check` |
 

@@ -45,9 +45,10 @@ class ForbiddenDependenciesTest {
 
     @Test
     fun `the repository's own rule file parses and forbids Play Services`() {
-        val file = generateSequence(File("").absoluteFile) { it.parentFile }
-            .map { File(it, "gradle/forbidden-dependencies.txt") }
-            .first { it.isFile }
+        val file =
+            generateSequence(File("").absoluteFile) { it.parentFile }
+                .map { File(it, "gradle/forbidden-dependencies.txt") }
+                .first { it.isFile }
         val repoRules = ForbiddenDependencies.parse(file.readText())
         assertNotNull(repoRules.match("com.google.android.gms", "play-services-nearby"))
         assertNotNull(repoRules.match("com.google.firebase", "firebase-analytics"))

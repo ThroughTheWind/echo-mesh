@@ -25,10 +25,11 @@ internal const val FORBIDDEN_DEPENDENCIES_TASK = "checkForbiddenDependencies"
  * Running it from the root runs it in every module (ADR-0003).
  */
 internal fun Project.forbiddenDependenciesLifecycle() =
-    tasks.register(FORBIDDEN_DEPENDENCIES_TASK) {
-        group = "verification"
-        description = "Fails if a resolved runtime classpath contains a forbidden artifact (ADR-0003)."
-    }.also { lifecycle -> tasks.named("check") { dependsOn(lifecycle) } }
+    tasks
+        .register(FORBIDDEN_DEPENDENCIES_TASK) {
+            group = "verification"
+            description = "Fails if a resolved runtime classpath contains a forbidden artifact (ADR-0003)."
+        }.also { lifecycle -> tasks.named("check") { dependsOn(lifecycle) } }
 
 /** One dependency-gate task for one resolvable configuration, wired into the lifecycle task. */
 internal fun Project.checkForbiddenDependencies(configuration: Configuration) {
