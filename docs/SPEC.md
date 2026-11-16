@@ -10,7 +10,7 @@
 | **License** | GPL-3.0-only (free, open source) |
 | **Repository** | https://github.com/ThroughTheWind/echo-mesh |
 | **First transport** | Bluetooth LE only (advertising for discovery, GATT/L2CAP to sync reports), per the [transport research](research/peer-to-peer-transports.md) |
-| **Reference phones** | TBD, at least two (asked Antoine) |
+| **Reference phones** | Google Pixel 11 Pro, Google Pixel 9a, OPPO Find X3 Pro (ColorOS, to test an OEM battery manager) |
 | **Repo tooling** | `rungs` (`@rungs/cli`), as in Zapper |
 | **Sibling project** | [Zapper](https://github.com/ThroughTheWind/zapper): same methodology, tooling and quality bar |
 
@@ -299,7 +299,7 @@ Mesh (on/off, background relaying), Groups (list, create, join, leave), Maps (do
 
 ## 7. Acceptance criteria (MVP definition of done)
 
-Tested on the two reference phones, and on the loopback mesh where marked (L).
+Tested on the three reference phones (A, B and C below are any of them; every pair is tried at least once, including the OPPO), and on the loopback mesh where marked (L).
 
 **Map and onboarding**
 - [ ] AC-1 First launch shows the "what this app protects / doesn't" screens before any permission request.
@@ -310,6 +310,7 @@ Tested on the two reference phones, and on the loopback mesh where marked (L).
 - [ ] AC-4 With both phones in range and the mesh on, a public report dropped on phone A appears on phone B within 10 s, at the right place, with type and time left.
 - [ ] AC-5 Phone B keeps receiving with its screen off and the app in the background.
 - [ ] AC-6 A report disappears from both phones at expiry, and was never written to storage.
+- [ ] AC-6a With A and C out of range of each other and B between them, a report from A reaches C through B (a real two-hop relay).
 - [ ] AC-7 A confirmation from B shows on A within 10 s and extends time left, never beyond twice the default lifetime.
 - [ ] AC-8 Dismissals mark a report "probably gone" without removing it.
 - [ ] AC-9 (L) A report crosses 5 hops in a 200-phone simulation; 90% coverage in under 60 s.
@@ -343,7 +344,7 @@ Tested on the two reference phones, and on the loopback mesh where marked (L).
 | Milestone | Content | Exit criteria |
 |---|---|---|
 | **M0 — Foundations** | Repo with rungs, CI and gates, module skeleton, `MeshTransport` contract, loopback adapter, design tokens, threat model v1, wire format ADR. | AC-20 → AC-22 (build part), AC-23 |
-| **M1 — Two phones, one report** | First transport, signed expiring public reports, relay and de-dup, encrypted store, offline map. The basics. | AC-1 → AC-6, AC-9 → AC-12 |
+| **M1 — Two phones, one report** | First transport, signed expiring public reports, relay and de-dup, encrypted store, offline map. The basics. | AC-1 → AC-6a, AC-9 → AC-12 |
 | **M2 — Groups** | QR join, encrypted group reports, verified style, confirm/dismiss, position sharing. | AC-7, AC-8, AC-13 → AC-16, AC-24, AC-25 |
 | **M3 — Safety and street use** | Panic wipe, discreet mode, onboarding final copy, field test in a crowd. | AC-17 → AC-19 |
 | **M4 — Release 1.0** | Independent security review and fixes, accessibility pass, docs, signed reproducible release. | All ACs |
@@ -372,7 +373,7 @@ A second transport (Wi-Fi Aware) comes after 1.0, unless the field test shows BL
 2. ~~**Platform and distribution**~~ — **Decided:** Android phones, GitHub Releases first, F-Droid later.
 3. ~~**Language**~~ — **Decided:** English only.
 4. **App name** — **Decided by Antoine (2026-11-16):** Echo, package `io.github.throughthewind.echo`. Repo: `ThroughTheWind/echo-mesh`.
-5. **Reference phones** — ⏳ asked Antoine (at least two models).
+5. ~~**Reference phones**~~ — **Answered by Antoine (2026-11-16):** Pixel 11 Pro, Pixel 9a, OPPO Find X3 Pro. Android versions to record during the BLE spike.
 6. ~~**Public reports to strangers**~~ — **Decided by Antoine (2026-11-16):** yes, shown as unverified and visually distinct from group reports (FR-4.3, FR-9.2).
 7. **Default group lifetime** — *Proposed:* 24 h, up to 7 days (FR-8.1). Short-lived groups limit what an infiltrator or a seized phone exposes.
 8. **No `INTERNET` permission** — *Proposed:* map download goes through the browser and is imported (FR-2.3). To settle in an ADR.

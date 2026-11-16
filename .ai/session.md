@@ -40,7 +40,7 @@ Once `docs/SPEC.md` and `docs/ROADMAP.md` land, create the first work items from
 
 ## Open questions
 
-- The reference phones (SPEC.md §10). Not blocking.
+- None blocking. Reference phones: Pixel 11 Pro, Pixel 9a, OPPO Find X3 Pro (SPEC.md).
 
 ## Archive
 

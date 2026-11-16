@@ -10,7 +10,7 @@ before groups, a second transport or any extras. Work item ids are assigned when
 | Phase | Goal | Exit (spec acceptance criteria) |
 | --- | --- | --- |
 | 0. Foundations | Repo, stack, CI and gates, transport contract, loopback mesh, threat model v1, wire format | AC-20 → AC-23 |
-| **1. Two phones, one report** | A signed, expiring public report crosses from one reference phone to the other over one transport and shows on an offline map. Ships as **0.1.0** | AC-1 → AC-6, AC-9 → AC-12 |
+| **1. Two phones, one report** | A signed, expiring public report crosses from one reference phone to the other over one transport and shows on an offline map. Ships as **0.1.0** | AC-1 → AC-6a, AC-9 → AC-12 |
 | 2. Groups | QR join, encrypted group reports, confirm/dismiss, position sharing, mute a member. Ships as **0.2.0** | AC-7, AC-8, AC-13 → AC-16, AC-24, AC-25 |
 | 3. Safety and street use | Panic wipe, discreet mode, final onboarding copy, a crowd field test. Ships as **0.3.0** | AC-17 → AC-19 |
 | 4. Release 1.0 | Independent security review and fixes, accessibility, docs, reproducible signed release. Ships as **1.0.0** | All ACs |
@@ -29,7 +29,7 @@ Nothing user-visible, but everything after depends on it.
 
 Order matters: the spike settles the radio facts the rest depends on.
 
-1. **BLE spike on the reference phones**: prove BLE can discover a peer and move one message both ways, screen off, with the permissions planned. Needs Antoine and both phones.
+1. **BLE spike on the reference phones**: prove BLE can discover a peer and move one message both ways, screen off, with the permissions planned, on the Pixel 11 Pro, Pixel 9a and OPPO Find X3 Pro. The OPPO tests whether ColorOS's battery manager kills the relay service. Record each phone's Android version and extended-advertising support. Needs Antoine and the phones.
 2. Report model, signing and validation in `:core:model` and `:core:crypto`, tested on loopback including hostile peers.
 3. Relay with hop limit, de-duplication, per-peer rate limits and expiry in `:core:mesh`.
 4. The first transport adapter.
