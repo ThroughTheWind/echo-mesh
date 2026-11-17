@@ -8,20 +8,21 @@ Keep it short. This document is read at the start of every session, and a long o
 
 ## Current objective
 
-Bootstrap: the build, gates, CI and ADR-0001 to 0003 are in place; the spec, roadmap, threat model, transport research and design system arrive from their own threads. Next is the first roadmap phase: two reference phones exchanging a signed, expiring report over one transport and showing it on an offline map.
+Phase 1 of the [roadmap](../docs/ROADMAP.md) (epic WI-006): two reference phones exchanging a signed, expiring public report over BLE and showing it on an offline map, shipped as 0.1.0. Phase 0 (epic WI-001) closes first.
 
 ## In progress
 
-Nothing. No work item is open yet.
+Nothing. Every roadmap phase is an epic in the [backlog](../docs/backlog/BACKLOG.md) with its deliverables as children; none is started.
 
 ## Resume from
 
-Once `docs/SPEC.md` and `docs/ROADMAP.md` land, create the first work items from the roadmap's first phase with `/work-item`.
+Pick the next planned item with `/work-item`. WI-002 (accept the crypto ADR) needs Antoine; WI-003 (wire format) and WI-005 (loopback crowd simulator) can start without him.
 
 ## Up next
 
-1. The crypto ADR (ADR-0004) and the wire-format ADR, then `:core:crypto`.
-2. The first transport adapter (BLE needs no `INTERNET`; see ADR-0003).
+1. WI-002 accept ADR-0004, then WI-003 wire format ADR and fuzzing.
+2. WI-007 BLE spike on the reference phones (needs the phones), in parallel with WI-004 map renderer spike.
+3. WI-008 public report signing, once WI-002 and WI-003 are done.
 
 ## Active constraints — do not reopen
 

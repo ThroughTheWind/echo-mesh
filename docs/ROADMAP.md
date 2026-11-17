@@ -5,15 +5,15 @@
 
 The MVP from the [spec](SPEC.md), cut into phases. **Basics first:** two reference phones reliably
 exchanging a signed, expiring report over one transport and showing it on an offline map ships
-before groups, a second transport or any extras. Work item ids are assigned when the repo exists.
+before groups, a second transport or any extras. Each phase is an epic work item in the [backlog](backlog/BACKLOG.md); its children are the deliverables.
 
-| Phase | Goal | Exit (spec acceptance criteria) |
-| --- | --- | --- |
-| 0. Foundations | Repo, stack, CI and gates, transport contract, loopback mesh, threat model v1, wire format | AC-20 → AC-23 |
-| **1. Two phones, one report** | A signed, expiring public report crosses from one reference phone to the other over one transport and shows on an offline map. Ships as **0.1.0** | AC-1 → AC-6a, AC-9 → AC-12 |
-| 2. Groups | QR join, encrypted group reports, confirm/dismiss, position sharing, mute a member. Ships as **0.2.0** | AC-7, AC-8, AC-13 → AC-16, AC-24, AC-25 |
-| 3. Safety and street use | Panic wipe, discreet mode, final onboarding copy, a crowd field test. Ships as **0.3.0** | AC-17 → AC-19 |
-| 4. Release 1.0 | Independent security review and fixes, accessibility, docs, reproducible signed release. Ships as **1.0.0** | All ACs |
+| Phase | Goal | Exit (spec acceptance criteria) | Epic |
+| --- | --- | --- | --- |
+| 0. Foundations | Repo, stack, CI and gates, transport contract, loopback mesh, threat model v1, wire format | AC-20 → AC-23 | WI-001 |
+| **1. Two phones, one report** | A signed, expiring public report crosses from one reference phone to the other over one transport and shows on an offline map. Ships as **0.1.0** | AC-1 → AC-6a, AC-9 → AC-12 | WI-006 |
+| 2. Groups | QR join, encrypted group reports, confirm/dismiss, position sharing, mute a member. Ships as **0.2.0** | AC-7, AC-8, AC-13 → AC-16, AC-24, AC-25 | WI-016 |
+| 3. Safety and street use | Panic wipe, discreet mode, final onboarding copy, a crowd field test. Ships as **0.3.0** | AC-17 → AC-19 | WI-023 |
+| 4. Release 1.0 | Independent security review and fixes, accessibility, docs, reproducible signed release. Ships as **1.0.0** | All ACs | WI-029 |
 
 ## Phase 0 — Foundations
 
