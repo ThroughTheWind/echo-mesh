@@ -33,19 +33,25 @@ Every entry is a folder with a `README.md` (the spec) and a `preview.html` (a fr
 - **Feedback:** [Callout](components/Callout/README.md) · [Snackbar](components/Snackbar/README.md) · [Progress indicator](components/ProgressIndicator/README.md)
 - **Identity:** [Avatar and badge](components/AvatarAndBadge/README.md)
 - **Navigation:** [Top app bar](components/TopAppBar/README.md)
+- **System:** [System notification](components/SystemNotification/README.md)
 - **Echo:** [Report pin](components/ReportPin/README.md) · [Expiry indicator](components/ExpiryIndicator/README.md) · [Mesh status](components/MeshStatus/README.md)
 
 ## Patterns
 
+- **First run and setup:** [Onboarding](patterns/OnboardingFlow/README.md) · [Permissions in context](patterns/PermissionsInContext/README.md) · [Get a map](patterns/GetAMap/README.md)
+- **Mesh:** [Mesh on and off](patterns/MeshOnOff/README.md)
 - **Reports:** [Drop a report](patterns/ReportPicker/README.md) · [Report detail](patterns/ReportDetail/README.md)
-- **Groups:** [Join a group by QR](patterns/QrJoinFlow/README.md)
-- **Safety:** [Panic wipe](patterns/PanicWipeConfirm/README.md)
-- **First run:** [Onboarding](patterns/OnboardingFlow/README.md)
+- **Groups:** [Create a group](patterns/CreateGroup/README.md) · [Join a group by QR](patterns/QrJoinFlow/README.md) · [Position sharing](patterns/PositionSharing/README.md) · [Mute, leave and group end](patterns/MuteLeaveAndGroupEnd/README.md)
+- **Safety:** [Panic wipe](patterns/PanicWipeConfirm/README.md) · [Discreet mode](patterns/DiscreetMode/README.md)
 - **States:** [Empty and error states](patterns/EmptyAndErrorStates/README.md)
 
 ## Screens
 
-[Map](screens/MapView/README.md) (home) · [Group roster](screens/GroupRoster/README.md) · [Settings](screens/SettingsScreen/README.md)
+[Map](screens/MapView/README.md) (home) · [Reports near you](screens/ReportsNearYou/README.md) · [Group roster](screens/GroupRoster/README.md) · [Maps](screens/MapsScreen/README.md) · [Settings](screens/SettingsScreen/README.md) · [What Echo protects](screens/WhatEchoProtects/README.md)
+
+## Spec coverage
+
+[`SPEC-COVERAGE.md`](SPEC-COVERAGE.md) maps every requirement, user story and acceptance criterion in the spec to the entries that answer it, including the ones with no UI. `tools/tokens.py check` fails when the spec gains an id without a row.
 
 ## Adding or changing an entry
 
@@ -54,8 +60,9 @@ Every entry is a folder with a `README.md` (the spec) and a `preview.html` (a fr
 3. Add component tokens for any new property in `tools/foundations.source.json` → `component`. Components never use a hex value or a palette tone.
 4. Write `<tier>/<Name>/preview.html`, a fragment starting with `<!-- @dsCard group="…" order="…" status="Spec" subtitle="…" -->`, styled with `assets/bundle.css` and nothing else. No external requests.
 5. If it adds a colour pair that carries text or meaning, add the pair to `tools/tokens.source.json` → `contrast`.
-6. `python3 tools/tokens.py build`, then `python3 tools/tokens.py check`. The check is a rungs fast-tier gate (`design-tokens`).
-7. When the Compose version lands, set the status to **Built** and name the composable in the README.
+6. If it answers a spec requirement, name it in that requirement's row of [`SPEC-COVERAGE.md`](SPEC-COVERAGE.md).
+7. `python3 tools/tokens.py build`, then `python3 tools/tokens.py check`. The check (contrast, token references, freshness, spec coverage, relative links) is a rungs fast-tier gate (`design-tokens`).
+8. When the Compose version lands, set the status to **Built** and name the composable in the README.
 
 ## Files
 
@@ -68,6 +75,7 @@ Every entry is a folder with a `README.md` (the spec) and a `preview.html` (a fr
 | `assets/bundle.css` | Preview styles, built on the tokens | Hand |
 | `assets/icons.svg` | Icon sprite for previews | `tools/icons.py` |
 | `preview/index.html` | The gallery | `tools/tokens.py build` |
+| `SPEC-COVERAGE.md` | Spec id to design entry map | Hand, checked by `tools/tokens.py check` |
 | `core/designsystem/…/theme/Color.kt` | Compose colours | `tools/tokens.py build` |
 | `core/designsystem/…/theme/{Theme,Type,Dimens}.kt`, `ContrastTest.kt` | Compose theme | Hand |
 
@@ -75,6 +83,8 @@ Every entry is a folder with a `README.md` (the spec) and a `preview.html` (a fr
 
 ## Open questions for other threads
 
-- **Threat model:** final wording of "what it protects / doesn't" (OnboardingFlow, MeshStatus sheet, ReportDetail provenance); the launcher disguise question (the threat model proposes none); whether `FLAG_SECURE` covers every screen or only the QR (the design works either way; recommended: every screen, since the recents thumbnail of a map shows where you are).
-- **Transport:** whether the peer count can be honest at crowd density (the chip caps at "20+"); which capability names the mesh sheet lists.
-- **Spec:** the 5-second send delay in ReportPicker (a sent report can't be unsent) needs an FR; "Reports near you" list for TalkBack needs an FR.
+- **Threat model:** whether `FLAG_SECURE` covers every screen or only the QR (FR-12.5 says the QR; recommended: every screen, since the recents thumbnail of a map shows where you are). The design works either way.
+- **Transport:** whether the peer count can be honest at crowd density (the chip caps at "20+"); which OEMs get their own battery instructions page (FR-3.3a).
+- **Spec:** the 5-second send delay in ReportPicker (a sent report can't be unsent) needs an FR; the "Reports near you" list for TalkBack needs an FR; the Quick Settings tile for discreet mode needs an FR.
+
+Settled since the first draft: the protects/doesn't wording follows threat model §7; no launcher disguise (FR-13.2); BLE only, so no Wi-Fi or location toggles in the mesh status; no word comparison in the QR join (FR-8.2).

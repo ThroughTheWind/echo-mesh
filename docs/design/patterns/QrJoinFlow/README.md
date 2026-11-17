@@ -1,18 +1,18 @@
-# QrJoinFlow
+# Join a group by QR
 
-Join a group in person: a member shows a code, you scan it, you both compare four words, you pick a nickname (SPEC F8, FR-8.2, FR-8.3, FR-12.5). Keys never travel through the mesh.
-
-**Compose:** `ShowCodeScreen`, `ScanCodeScreen`, `CompareWordsScreen`, `JoinedScreen`.
+**Purpose:** add someone to a group in person, so that a photo of the code is worth at most one join and every join is visible (SPEC FR-8.2, FR-8.3, FR-12.5, US-4, AC-13, AC-25; threat model §5.5).
 
 ## Steps
 
-1. **Show** (existing member): warning callout first, on `blocked-container`: "Show this only face to face, to people you trust. Anyone who scans it can read Crew's reports and see shared positions." Then the code: black on pure white in **every** theme (including discreet: scanners need it), 248dp, `radius-lg` white margin. Window brightness goes to full while it shows, `FLAG_SECURE` blocks screenshots, and the code changes on a timer if the protocol supports it ("new code in 1:48"). Under it, the four check words.
-2. **Scan** (joiner): in-app viewfinder (open-source scanner, no Play Services), camera permission asked here and only here. "The camera is used only for this and nothing is saved."
-3. **Compare words** (both): four numbered words in `glance-label` tiles, derived from the handshake by the protocol (the threat model names it). "If they don't, someone may be in the middle. Don't join." **They match** (primary) / **They don't match** (outlined; aborts and deletes everything from the attempt).
-4. **Joined:** pick a nickname (random default, regenerate button), see when the group ends, **Go to map**. `Joined` haptic.
+1. **Show** (any member): a warning callout first, on `blocked-container`: "Show this only face to face. Whoever scans it can read Crew's reports and see shared positions." Then the code, black on white in **every** theme including Discreet (scanners need it), at full window brightness, with `FLAG_SECURE`. The code is one-time and valid for 2 minutes: "One person, one scan · new code in 1:48". It refreshes on its own when it expires or is used.
+2. **Scan** (joiner): in-app scanner, no Play Services; camera permission [in context](../PermissionsInContext/README.md).
+3. **Joining:** an indeterminate bar and "Keep the two phones close. They talk directly to each other, not through the mesh." This is the Noise handshake over one direct radio hop. Cancel is available.
+4. **Joined:** pick a nickname (random default, FR-8.4). Callout: "Everyone in Crew sees that you joined", plus when the group ends.
+5. **Member sees who joined:** the showing phone reports "Yellow Otter joined Crew" and the guidance from the threat model: "Not the person in front of you? Someone else used the code. Make a new group in person and stop using this one." Every other member gets a "Yellow Otter joined" snackbar and a roster entry.
+6. **Used code:** a second scan of the same code (a photo, a screenshot that slipped through) fails with "This code was already used" (AC-25).
 
 ## Rules
 
-- No "share code" or "copy" action anywhere: the code is for eyes and cameras in the same place only.
-- The check words are mandatory, not a skippable extra; they're cheap and they are the defence against a swapped code.
-- Exact handshake, word list and code rotation are threat-model decisions; the screens don't depend on them.
+- No "share code" or "copy" anywhere: the code is for eyes and cameras in the same place.
+- There's no word-comparison step: the one-time code plus the visible join is the defence (threat model §5.5).
+- Failures say what happened and never imply an attack as fact ("may have used it").
