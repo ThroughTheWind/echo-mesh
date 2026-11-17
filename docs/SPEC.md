@@ -364,8 +364,8 @@ A second transport (Wi-Fi Aware) comes after 1.0, unless the field test shows BL
 | A2 | A signed report fits the chosen transport's message budget (FR-4.4, NFR-2). | Transport + Threat | ✅ Over GATT/L2CAP, yes; not in a legacy advertisement, so reports move over connections (NFR-2). |
 | A3 | A published protocol and a reviewed, GPL-compatible library cover signing, group encryption and QR key exchange. | Threat | ⚠️ Proposed in [ADR-0004](decisions/ADR-0004-crypto-design.md): Tink (Apache-2.0) for primitives, Noise for the join; awaiting acceptance. |
 | A4 | Public reports can be authenticated without creating a linkable identity (rotating keys). | Threat | ⚠️ Proposed in [threat model §5.2](threat-model.md). |
-| A5 | An open-source offline map renderer exists that is GPL-compatible and makes no network calls. | Stack | ⏳ Open |
-| A6 | Map data can be obtained without the app holding `INTERNET` (browser download + import). | Stack | ⏳ Open |
+| A5 | An open-source offline map renderer exists that is GPL-compatible and makes no network calls. | Stack | ⚠️ Proposed in [ADR-0006](decisions/ADR-0006-offline-map.md): VTM (LGPL-3.0), no network module, no permission; to measure on the reference phones. |
+| A6 | Map data can be obtained without the app holding `INTERNET` (browser download + import). | Stack | ⚠️ Proposed in [ADR-0006](decisions/ADR-0006-offline-map.md): Mapsforge `.map` files downloaded in the browser and imported with the system file picker. |
 | A7 | Stack is Kotlin + Compose, multi-module, as in Zapper's ADR-0001. | Stack | ⏳ Open (expected yes) |
 | A8 | The design system delivers street-ready components for every screen above. | Design | ⏳ Open |
 | A9 | `rungs` drives the repo workflow as in Zapper. | Stack | ⏳ Open (expected yes) |
@@ -379,7 +379,7 @@ A second transport (Wi-Fi Aware) comes after 1.0, unless the field test shows BL
 5. ~~**Reference phones**~~ — **Answered by Antoine (2026-11-16):** Pixel 11 Pro, Pixel 9a, OPPO Find X3 Pro. Android versions to record during the BLE spike.
 6. ~~**Public reports to strangers**~~ — **Decided by Antoine (2026-11-16):** yes, shown as unverified and visually distinct from group reports (FR-4.3, FR-9.2).
 7. **Default group lifetime** — *Proposed:* 24 h, up to 7 days (FR-8.1). Short-lived groups limit what an infiltrator or a seized phone exposes.
-8. **No `INTERNET` permission** — *Proposed:* map download goes through the browser and is imported (FR-2.3). To settle in an ADR.
+8. **No `INTERNET` permission** — *Proposed:* map download goes through the browser and is imported (FR-2.3). Proposed in [ADR-0006](decisions/ADR-0006-offline-map.md), awaiting acceptance.
 9. **Background relaying** — *Proposed:* yes, through a visible foreground service while the mesh is on (FR-3.3).
 10. ~~**Non-members relay group traffic**~~ — **Decided (threat model):** yes, as fixed-size frames with no group id on air (FR-5.4).
 11. ~~**minSdk**~~ — **Decided by Antoine (2026-11-16):** 31 (Android 12+), so Bluetooth never requires a location permission. Phones stuck on Android 8–11 are not supported.

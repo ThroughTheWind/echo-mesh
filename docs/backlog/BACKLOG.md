@@ -14,6 +14,7 @@ The board. One row per live work item, grouped by status. Items live in
 | Id | Title | Type | Branch |
 | --- | --- | --- | --- |
 | [WI-002](items/WI-002-accept-crypto-adr.md) | Review and accept the crypto design (ADR-0004) | docs | `claude/project-thread-67cn4e` |
+| [WI-004](items/WI-004-map-renderer-and-download-adr.md) | Choose the offline map renderer and how map data arrives | spike | `claude/project-thread-67cn4e` |
 
 ## Review
 
@@ -27,7 +28,6 @@ The board. One row per live work item, grouped by status. Items live in
 | Id | Title | Type |
 | --- | --- | --- |
 | [WI-001](items/WI-001-phase-0-foundations.md) | Phase 0 — Foundations: finish what every later phase builds on | epic |
-| [WI-004](items/WI-004-map-renderer-and-download-adr.md) | Choose the offline map renderer and how map data arrives | spike |
 | [WI-006](items/WI-006-phase-1-two-phones-one-report.md) | Phase 1 — Two phones, one report: ship 0.1.0 | epic |
 | [WI-007](items/WI-007-ble-spike-reference-phones.md) | Prove BLE discovery and exchange on the three reference phones | spike |
 | [WI-008](items/WI-008-public-report-signing.md) | Sign, encode and validate public reports | feature |

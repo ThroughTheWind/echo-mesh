@@ -57,6 +57,10 @@ class ForbiddenDependenciesTest {
         assertNull(repoRules.match("com.google.crypto.tink", "tink-android"))
         assertNotNull(repoRules.match("com.google.crypto.tink", "tink"))
         assertNotNull(repoRules.match("com.google.http-client", "google-http-client"))
+        // ADR-0006: the map renderer comes without its network module.
+        assertNull(repoRules.match("org.mapsforge", "vtm-android"))
+        assertNotNull(repoRules.match("org.mapsforge", "vtm-http"))
+        assertNotNull(repoRules.match("com.squareup.okhttp3", "okhttp"))
         assertEquals(repoRules.size, file.readLines().count { it.substringBefore('#').isNotBlank() })
     }
 

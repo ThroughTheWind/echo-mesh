@@ -27,6 +27,9 @@ io.fabric.sdk.android
 com.google.crypto.tink:tink
 com.google.http-client
 org.conscrypt:conscrypt-openjdk-uber
+# The map renderer's optional network module and the HTTP client map SDKs bring (ADR-0006).
+org.mapsforge:vtm-http
+com.squareup.okhttp3
 # Other platform services.
 com.huawei.hms
 com.huawei.agconnect

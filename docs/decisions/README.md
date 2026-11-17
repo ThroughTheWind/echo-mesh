@@ -17,6 +17,7 @@ it is superseded by a new record that names it.
 | [ADR-0003](ADR-0003-gpl-no-servers-no-proprietary-dependencies.md) | License the app GPL-3.0, run no server, ask for no internet, and ship no proprietary or tracking dependency | accepted | 2026-11-16 |
 | [ADR-0004](ADR-0004-crypto-design.md) | Secure the mesh with signed frames, a ratcheted group key and a Noise join, built on Tink | proposed | 2026-11-16 |
 | [ADR-0005](ADR-0005-wire-format.md) | Put fixed-layout, versioned, uncompressed binary frames on the air, decoded by hand and fuzzed in CI | proposed | 2026-11-17 |
+| [ADR-0006](ADR-0006-offline-map.md) | Draw the map with VTM from Mapsforge files that the user downloads in a browser and imports | proposed | 2026-11-17 |
 <!-- rungs:end adr-index -->
 
 ## Admission rule

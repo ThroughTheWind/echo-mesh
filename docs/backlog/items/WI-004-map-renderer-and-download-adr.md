@@ -2,11 +2,11 @@
 id: WI-004
 title: Choose the offline map renderer and how map data arrives
 type: spike
-status: planned
-branch:
+status: in_progress
+branch: claude/project-thread-67cn4e
 created: 2026-11-17
 updated: 2026-11-17
-related: [FR-2.1, FR-2.3, SPEC-A5, SPEC-A6, ADR-0003]
+related: [FR-2.1, FR-2.3, SPEC-A5, SPEC-A6, ADR-0003, ADR-0006]
 epic: WI-001
 children: []
 ---
@@ -48,5 +48,11 @@ Phase 0 of the [roadmap](../../ROADMAP.md).
 - The `:core:map` wrapper and the import and share flows: WI-012.
 
 ## Execution
+
+- Desk comparison from the published artifacts on Maven Central (licence, dependencies, library manifest, native size, last release) of VTM, Mapsforge map and MapLibre Native Android: the table is in [ADR-0006](../../decisions/ADR-0006-offline-map.md) (proposed). MapLibre's library manifest asks for `INTERNET` and location and it ships OkHttp; VTM and Mapsforge ask for nothing and carry no network module.
+- ADR-0006 proposes VTM, Mapsforge `.map` files, a browser download and a system file picker import, and no in-app download. Mapsforge map (Canvas) is the fallback renderer.
+- `gradle/forbidden-dependencies.txt` refuses `org.mapsforge:vtm-http` and `com.squareup.okhttp3`, with a self-test.
+- Spec A5 and A6 move from Open to Proposed.
+- **Still to do, on the phones:** build a throwaway debug app with VTM and no `INTERNET` permission, draw a sample region on each reference phone, and note frame rate and memory on the OPPO Find X3 Pro. Not possible here: the sandbox has no Android SDK and no phone. Then Antoine accepts ADR-0006 and this item goes to review.
 
 ## Review
