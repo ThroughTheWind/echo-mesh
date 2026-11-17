@@ -46,7 +46,7 @@ Phase 1 of the [roadmap](../../ROADMAP.md).
 
 ### Out of scope
 
-- Group reports and votes: WI-019 and WI-020.
+- Group reports and votes: WI-018 and WI-019.
 
 ## Execution
 

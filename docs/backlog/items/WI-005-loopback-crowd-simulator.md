@@ -46,7 +46,7 @@ Phase 0 of the [roadmap](../../ROADMAP.md).
 
 ### Out of scope
 
-- The relay logic the simulator exercises: WI-010.
+- The relay logic the simulator exercises: WI-009.
 
 ## Execution
 

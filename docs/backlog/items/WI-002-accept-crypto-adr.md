@@ -46,8 +46,8 @@ Phase 0 of the [roadmap](../../ROADMAP.md).
 
 ### Out of scope
 
-- Writing crypto code: WI-009 (public reports) and WI-019 (groups).
-- The outside security review: WI-031.
+- Writing crypto code: WI-008 (public reports) and WI-018 (groups).
+- The outside security review: WI-030.
 
 ## Execution
 

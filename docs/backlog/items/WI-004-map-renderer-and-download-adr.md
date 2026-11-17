@@ -45,7 +45,7 @@ Phase 0 of the [roadmap](../../ROADMAP.md).
 
 ### Out of scope
 
-- The `:core:map` wrapper and the import and share flows: WI-013.
+- The `:core:map` wrapper and the import and share flows: WI-012.
 
 ## Execution
 

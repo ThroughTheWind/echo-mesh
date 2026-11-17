@@ -66,6 +66,10 @@ Ids are permanent and never reused, including after archiving. `BACKLOG.md` carr
 An id spent in a branch name or a commit subject without bumping the marker is invisible to the
 check, which reads the working tree. Bump first.
 
+`backlog-ids` proves a cited id exists, not that it is the item you meant. When you cite an item in
+prose, write the id next to its title's words, and after renumbering or generating items re-read
+every citation against the cited item's title.
+
 ## 4. Branches
 
 `feature/WI-###-slug`, cut from `main` and merged back on

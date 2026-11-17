@@ -33,7 +33,7 @@ Phase 0 of the [roadmap](../../ROADMAP.md).
 ### Impacts
 
 - New ADR, `core/mesh`, `.github/workflows/ci.yml`, `build-logic` (compression gate), `.ai/rules/crypto.md` (the fuzzing line becomes `gated`).
-- F-001 closes when this item and WI-009 land.
+- F-001 closes when this item and WI-008 land.
 
 ### Approach
 
@@ -48,7 +48,7 @@ Phase 0 of the [roadmap](../../ROADMAP.md).
 
 ### Out of scope
 
-- What a report means and how it is signed: WI-009. Group frame encryption: WI-019.
+- What a report means and how it is signed: WI-008. Group frame encryption: WI-018.
 
 ## Execution
 

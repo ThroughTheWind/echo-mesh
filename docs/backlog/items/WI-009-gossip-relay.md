@@ -46,7 +46,7 @@ Phase 1 of the [roadmap](../../ROADMAP.md).
 
 ### Out of scope
 
-- The radio: WI-011. Votes refreshing expiry: WI-020.
+- The radio: WI-011. Votes refreshing expiry: WI-019.
 
 ## Execution
 
