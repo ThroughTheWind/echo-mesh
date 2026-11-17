@@ -1,0 +1,20 @@
+<!-- @dsCard group="Usage" order="16" status="Ready" subtitle="Target sizes, and every contrast pair computed live for the theme you're viewing" -->
+<div class="demo-row">
+<div class="stack">
+<div class="row"><span style="width:64px;height:64px;border-radius:12px;box-shadow:inset 0 0 0 2px var(--outline)"></span><span class="label-medium">touch-min 64: anything tappable</span></div>
+<div class="row"><span style="width:72px;height:72px;border-radius:16px;box-shadow:inset 0 0 0 2px var(--outline)"></span><span class="label-medium">touch-comfort 72: buttons, rows, tiles</span></div>
+<div class="row"><span style="width:88px;height:88px;border-radius:44px;box-shadow:inset 0 0 0 2px var(--outline)"></span><span class="label-medium">touch-hero 88: Report, hold to wipe</span></div>
+</div>
+<div class="stack" style="flex:1;min-width:520px"><span class="title-medium">Contrast in the <span class="th"></span> theme</span>
+<table class="tbl"><thead><tr><th></th><th>Pair</th><th>Kind</th><th>Ratio</th><th>Min</th><th></th></tr></thead><tbody></tbody></table></div>
+<script>{const host=document.currentScript.parentElement;const tb=host.querySelector('tbody');
+const P=[["on-surface", "surface"], ["on-surface", "surface-container-high"], ["on-surface-variant", "surface"], ["on-surface-variant", "surface-container-high"], ["on-primary", "primary"], ["on-primary-container", "primary-container"], ["on-secondary-container", "secondary-container"], ["on-error", "error"], ["on-error-container", "error-container"], ["primary", "surface"], ["on-hazard", "hazard"], ["on-blocked", "blocked"], ["on-safe", "safe"], ["on-hazard-container", "hazard-container"], ["on-blocked-container", "blocked-container"], ["on-safe-container", "safe-container"], ["map-label", "map-land"]];const N=[["outline", "surface"], ["hazard", "map-land"], ["blocked", "map-land"], ["safe", "map-land"], ["hazard", "map-road-major"], ["blocked", "map-road-major"], ["safe", "map-road-major"], ["primary", "map-land"], ["primary", "map-road-major"], ["group-1", "map-land"], ["group-2", "map-land"], ["group-3", "map-land"], ["group-4", "map-land"], ["group-5", "map-land"], ["pin-halo", "hazard"], ["pin-halo", "safe"]];const MIN={"dark": 7.0, "sun": 7.0, "discreet": 4.5};
+const lum=h=>{const v=parseInt(h.slice(1),16);return [16,8,0].map(s=>((v>>s)&255)/255).map(c=>c<=0.04045?c/12.92:((c+0.055)/1.055)**2.4).reduce((a,c,i)=>a+c*[0.2126,0.7152,0.0722][i],0)};
+const cr=(a,b)=>{const x=[lum(a),lum(b)].sort((p,q)=>q-p);return (x[0]+0.05)/(x[1]+0.05)};
+const draw=()=>{const cs=getComputedStyle(document.documentElement);const th=document.documentElement.dataset.theme||'dark';
+const g=n=>cs.getPropertyValue('--'+n).trim();const rows=[];
+P.forEach(([f,b])=>rows.push([f,b,'text',MIN[th]]));N.forEach(([f,b])=>rows.push([f,b,'non-text',3]));
+tb.innerHTML=rows.map(([f,b,k,m])=>{const r=cr(g(f),g(b));return '<tr><td><span style="display:inline-grid;place-items:center;width:44px;height:28px;border-radius:6px;background:'+g(b)+';color:'+g(f)+';font-weight:700">Aa</span></td><td><code>'+f+'</code> on <code>'+b+'</code></td><td>'+k+'</td><td class="num">'+r.toFixed(2)+'</td><td class="num">'+m+'</td><td class="'+(r>=m?'pass':'fail')+'">'+(r>=m?'Pass':'Fail')+'</td></tr>'}).join('');
+host.querySelector('.th').textContent=th;};
+draw();new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});}</script>
+</div>

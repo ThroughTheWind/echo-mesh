@@ -1,0 +1,24 @@
+<!-- @dsCard group="States" order="50" status="Spec" subtitle="What Echo shows when there's nothing yet, or something is broken" -->
+<div class="demo-row">
+<div class="demo"><div class="phone short"><div class="map" style="background:var(--map-land)">
+<svg class="streets" viewBox="0 0 360 600" aria-hidden="true"><defs><pattern id="g" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="var(--map-road-minor)" stroke-width="1"/></pattern></defs><rect width="360" height="600" fill="url(#g)"/></svg>
+<div class="topbar"><div class="mesh on" role="button" aria-label="12 phones nearby, last report 8s ago"><svg class="ic sm" aria-hidden="true"><use href="#i-radar"/></svg><span class="num">12</span><span>nearby</span><span class="sep">·</span><span class="age">8s</span></div><span class="grow"></span><button class="iconbtn filled" aria-label="Discreet mode"><svg class="ic " aria-hidden="true"><use href="#i-visibility_off"/></svg></button><button class="iconbtn filled wipe" aria-label="Panic wipe"><svg class="ic " aria-hidden="true"><use href="#i-delete_forever"/></svg></button></div>
+<div style="position:absolute;left:8px;right:8px;top:72px"><div class="callout warn"><svg class="ic sm" aria-hidden="true"><use href="#i-map"/></svg><div>No map here. Reports still show on this grid. <b>Get a map</b></div></div></div>
+<div class="me" style="left:180px;top:300px"><span class="dot"></span></div>
+<button class="fab-report fab" aria-label="Report"><svg class="ic " aria-hidden="true"><use href="#i-add_location_alt"/></svg>Report</button>
+</div></div><span class="cap">No map loaded</span></div>
+<div class="demo"><div class="phone short"><div class="screen">
+<div class="tab" style="margin:-16px -16px 0"><button class="iconbtn" aria-label="Back"><svg class="ic " aria-hidden="true"><use href="#i-arrow_back"/></svg></button><span class="title">Reports near you</span></div>
+<div class="spacer"></div><div class="stack" style="align-items:center;text-align:center"><svg class="ic lg" aria-hidden="true"><use href="#i-radar"/></svg><span class="title-medium">No reports right now</span><span class="body-medium muted">Reports from phones in range appear here and on the map. They vanish when they expire.</span></div><div class="spacer"></div>
+</div></div><span class="cap">Nothing to show</span></div>
+<div class="demo"><div class="phone short"><div class="screen">
+<div class="tab" style="margin:-16px -16px 0"><button class="iconbtn" aria-label="Back"><svg class="ic " aria-hidden="true"><use href="#i-arrow_back"/></svg></button><span class="title">Your groups</span></div>
+<div class="spacer"></div><div class="stack" style="align-items:center;text-align:center"><svg class="ic lg" aria-hidden="true"><use href="#i-group"/></svg><span class="title-medium">No groups yet</span><span class="body-medium muted">A group is people you met in person. Its reports are encrypted, and only it can read them.</span></div><div class="spacer"></div>
+<button class="btn block"><svg class="ic " aria-hidden="true"><use href="#i-group_add"/></svg>Create a group</button><button class="btn outlined block"><svg class="ic " aria-hidden="true"><use href="#i-qr_code_scanner"/></svg>Join by scanning</button>
+</div></div><span class="cap">First time in Groups</span></div>
+<div class="demo"><div class="phone short"><div class="screen">
+<div class="tab" style="margin:-16px -16px 0"><button class="iconbtn" aria-label="Back"><svg class="ic " aria-hidden="true"><use href="#i-arrow_back"/></svg></button><span class="title">Load a map file</span></div>
+<div class="callout danger"><svg class="ic sm" aria-hidden="true"><use href="#i-warning"/></svg><div><b>This file isn't a map Echo can read.</b> It may be damaged or for another app. Nothing was changed.</div></div>
+<div class="spacer"></div><button class="btn block"><svg class="ic " aria-hidden="true"><use href="#i-folder_open"/></svg>Choose another file</button>
+</div></div><span class="cap">Import failed</span></div>
+</div>

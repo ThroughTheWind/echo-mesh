@@ -1,0 +1,426 @@
+{
+  "name": "Echo",
+  "version": 1,
+  "note": "Hand-edited source. Run `python3 tools/tokens.py generate` after changing anything under color, then `python3 tools/tokens.py build`. Never edit tokens.json, tokens.css or Color.kt by hand.",
+  "color": {
+    "seed": {
+      "name": "seed-signal",
+      "value": "#00B8D9",
+      "note": "Signal cyan. Zapper's default is indigo; this sibling's accent sits 50 degrees of hue away and is the classic 'you are here' colour on maps."
+    },
+    "themes": [
+      {
+        "id": "dark",
+        "name": "Dark",
+        "scheme": "vibrant",
+        "isDark": true,
+        "contrastLevel": 0.0,
+        "note": "Default. Near-black surfaces save OLED battery and keep the screen from lighting up a face at night.",
+        "overrides": {
+          "surface": [
+            "neutral",
+            4
+          ],
+          "surface-container-lowest": [
+            "neutral",
+            2
+          ]
+        },
+        "overridesNote": "Darker canvas than M3's tone 6: saves OLED battery and lights up a face less at night."
+      },
+      {
+        "id": "sun",
+        "name": "Sunlight",
+        "scheme": "vibrant",
+        "isDark": false,
+        "contrastLevel": 0.0,
+        "note": "High-contrast light theme for direct sun: white canvas, near-black text, thicker strokes.",
+        "overrides": {
+          "primary": [
+            "primary",
+            33
+          ],
+          "error": [
+            "error",
+            33
+          ],
+          "surface": [
+            "neutral",
+            100
+          ],
+          "surface-container-lowest": [
+            "neutral",
+            100
+          ],
+          "surface-container-low": [
+            "neutral",
+            97
+          ],
+          "surface-container": [
+            "neutral",
+            95
+          ],
+          "surface-container-high": [
+            "neutral",
+            92
+          ],
+          "surface-container-highest": [
+            "neutral",
+            89
+          ],
+          "on-surface": [
+            "neutral",
+            4
+          ],
+          "on-surface-variant": [
+            "neutral-variant",
+            22
+          ],
+          "outline": [
+            "neutral-variant",
+            40
+          ]
+        },
+        "overridesNote": "Pure white canvas, near-black text, darker accent and outline: glare washes out mid tones first."
+      },
+      {
+        "id": "discreet",
+        "name": "Discreet",
+        "scheme": "monochrome",
+        "isDark": true,
+        "contrastLevel": 0.0,
+        "note": "Black canvas, grey content, no accent hue. Low light emission and nothing colourful to catch an eye over your shoulder.",
+        "overrides": {
+          "surface": [
+            "neutral",
+            0
+          ],
+          "surface-container-lowest": [
+            "neutral",
+            0
+          ],
+          "surface-container-low": [
+            "neutral",
+            3
+          ],
+          "surface-container": [
+            "neutral",
+            5
+          ],
+          "surface-container-high": [
+            "neutral",
+            8
+          ],
+          "surface-container-highest": [
+            "neutral",
+            11
+          ],
+          "on-surface": [
+            "neutral",
+            75
+          ],
+          "on-surface-variant": [
+            "neutral-variant",
+            62
+          ],
+          "outline": [
+            "neutral-variant",
+            42
+          ],
+          "outline-variant": [
+            "neutral-variant",
+            18
+          ],
+          "primary": [
+            "primary",
+            70
+          ],
+          "on-primary": [
+            "primary",
+            5
+          ],
+          "primary-container": [
+            "primary",
+            18
+          ],
+          "on-primary-container": [
+            "primary",
+            72
+          ],
+          "secondary-container": [
+            "secondary",
+            16
+          ],
+          "on-secondary-container": [
+            "secondary",
+            70
+          ],
+          "error": [
+            "error",
+            60
+          ],
+          "on-error": [
+            "error",
+            5
+          ],
+          "error-container": [
+            "error",
+            15
+          ],
+          "on-error-container": [
+            "error",
+            72
+          ]
+        },
+        "overridesNote": "True black canvas and every content colour held near tone 60-75: legible to you, dim to anyone else. Monochrome scheme, so no accent hue."
+      }
+    ],
+    "families": {
+      "note": "Fixed report families, not seed-derived (like Zapper's power red). Colour is never the only cue: each family also has its own pin shape.",
+      "hazard": {
+        "hue": 25,
+        "chroma": 84,
+        "shape": "diamond",
+        "usage": "Things that can hurt you: police line, kettle, tear gas, arrests."
+      },
+      "blocked": {
+        "hue": 75,
+        "chroma": 64,
+        "shape": "square",
+        "usage": "Obstacles: street closed."
+      },
+      "safe": {
+        "hue": 145,
+        "chroma": 52,
+        "shape": "circle",
+        "usage": "Help and ways out: medic, water and supplies, exit open, all clear."
+      }
+    },
+    "familyTones": {
+      "dark": {
+        "base": 80,
+        "on": 10,
+        "container": 30,
+        "onContainer": 92,
+        "chromaCap": null
+      },
+      "sun": {
+        "base": 35,
+        "on": 100,
+        "container": 90,
+        "onContainer": 10,
+        "chromaCap": null
+      },
+      "discreet": {
+        "base": 58,
+        "on": 0,
+        "container": 14,
+        "onContainer": 70,
+        "chromaCap": 18
+      }
+    },
+    "groups": {
+      "note": "Up to five affinity groups (SPEC FR-8.7). A group's colour is only ever a pin halo and a monogram badge, never a fill, so it can't be mistaken for a report family.",
+      "hues": [
+        210,
+        265,
+        300,
+        340,
+        105
+      ],
+      "names": [
+        "group-1",
+        "group-2",
+        "group-3",
+        "group-4",
+        "group-5"
+      ],
+      "tones": {
+        "dark": 80,
+        "sun": 35,
+        "discreet": 62
+      },
+      "chroma": {
+        "dark": 60,
+        "sun": 60,
+        "discreet": 14
+      }
+    },
+    "map": {
+      "note": "Offline OpenStreetMap style. Neutral tones from the scheme's neutral palette, water and parks tinted. Pins must reach 3:1 against map-land and map-road-major.",
+      "dark": {
+        "land": 6,
+        "building": 13,
+        "road-minor": 20,
+        "road-major": 28,
+        "water": 14,
+        "park": 11,
+        "label": 72
+      },
+      "sun": {
+        "land": 96,
+        "building": 88,
+        "road-minor": 100,
+        "road-major": 100,
+        "water": 86,
+        "park": 90,
+        "label": 15,
+        "road-casing": 70
+      },
+      "discreet": {
+        "land": 0,
+        "building": 5,
+        "road-minor": 10,
+        "road-major": 15,
+        "water": 6,
+        "park": 4,
+        "label": 50
+      }
+    },
+    "contrast": {
+      "note": "Checked by `tools/tokens.py check` and by ContrastTest.kt in the app. Street text targets WCAG AAA (7:1) in dark and sun; discreet is deliberately dim and targets AA (4.5:1). Non-text marks need 3:1 everywhere.",
+      "textMin": {
+        "dark": 7.0,
+        "sun": 7.0,
+        "discreet": 4.5
+      },
+      "nonTextMin": 3.0,
+      "text": [
+        [
+          "on-surface",
+          "surface"
+        ],
+        [
+          "on-surface",
+          "surface-container-high"
+        ],
+        [
+          "on-surface-variant",
+          "surface"
+        ],
+        [
+          "on-surface-variant",
+          "surface-container-high"
+        ],
+        [
+          "on-primary",
+          "primary"
+        ],
+        [
+          "on-primary-container",
+          "primary-container"
+        ],
+        [
+          "on-secondary-container",
+          "secondary-container"
+        ],
+        [
+          "on-error",
+          "error"
+        ],
+        [
+          "on-error-container",
+          "error-container"
+        ],
+        [
+          "primary",
+          "surface"
+        ],
+        [
+          "on-hazard",
+          "hazard"
+        ],
+        [
+          "on-blocked",
+          "blocked"
+        ],
+        [
+          "on-safe",
+          "safe"
+        ],
+        [
+          "on-hazard-container",
+          "hazard-container"
+        ],
+        [
+          "on-blocked-container",
+          "blocked-container"
+        ],
+        [
+          "on-safe-container",
+          "safe-container"
+        ],
+        [
+          "map-label",
+          "map-land"
+        ]
+      ],
+      "nonText": [
+        [
+          "outline",
+          "surface"
+        ],
+        [
+          "hazard",
+          "map-land"
+        ],
+        [
+          "blocked",
+          "map-land"
+        ],
+        [
+          "safe",
+          "map-land"
+        ],
+        [
+          "hazard",
+          "map-road-major"
+        ],
+        [
+          "blocked",
+          "map-road-major"
+        ],
+        [
+          "safe",
+          "map-road-major"
+        ],
+        [
+          "primary",
+          "map-land"
+        ],
+        [
+          "primary",
+          "map-road-major"
+        ],
+        [
+          "group-1",
+          "map-land"
+        ],
+        [
+          "group-2",
+          "map-land"
+        ],
+        [
+          "group-3",
+          "map-land"
+        ],
+        [
+          "group-4",
+          "map-land"
+        ],
+        [
+          "group-5",
+          "map-land"
+        ],
+        [
+          "pin-halo",
+          "hazard"
+        ],
+        [
+          "pin-halo",
+          "safe"
+        ]
+      ]
+    }
+  }
+}

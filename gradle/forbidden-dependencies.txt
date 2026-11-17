@@ -1,0 +1,66 @@
+# Artifacts the app may never resolve, directly or transitively (ADR-0003).
+#
+# One rule per line: a Maven group, which also covers its subgroups, or group:artifact.
+# Read by the Gradle task checkForbiddenDependencies (every module's runtime classpath) and by the
+# fast rungs gate scripts/gates/privacy.mjs (the version catalog). Removing a line needs an ADR.
+# To extend it, Exodus Privacy's tracker list (https://reports.exodus-privacy.eu.org/en/trackers/)
+# is the reference; add the tracker's Maven group, not its marketing name.
+
+# Google Play Services and Play libraries: Nearby Connections, Fused Location, Maps, Play Core.
+com.google.android.gms
+com.google.android.play
+com.google.android.libraries.maps
+com.google.android.libraries.places
+com.google.android.libraries.navigation
+com.google.android.recaptcha
+com.google.android.ump
+com.google.ads
+com.google.mlkit
+# Firebase, Crashlytics and the telemetry transport they share.
+com.google.firebase
+com.google.android.datatransport
+com.crashlytics
+io.fabric.sdk.android
+# Other platform services.
+com.huawei.hms
+com.huawei.agconnect
+# Proprietary map SDKs (MapLibre is the open fork; the renderer is chosen by ADR).
+com.mapbox.maps
+com.mapbox.mapboxsdk
+com.mapbox.common
+com.here
+# Crash reporting, including open-source ones: the app reports nothing (ADR-0003).
+io.sentry
+com.bugsnag
+ch.acra
+com.instabug.library
+com.microsoft.appcenter
+com.bugfender.sdk
+io.embrace
+# Analytics, attribution, push and ads.
+com.facebook.android
+com.appsflyer
+com.adjust.sdk
+com.mixpanel.android
+com.amplitude
+com.segment.analytics.android
+com.onesignal
+io.branch.sdk.android
+com.flurry.android
+com.newrelic.agent.android
+com.datadoghq
+com.heapanalytics.android
+com.posthog
+com.clevertap.android
+com.braze
+com.leanplum
+com.urbanairship.android
+com.smartlook.android
+com.uxcam
+com.fullstory
+io.appmetrica.analytics
+com.yandex.android
+com.kochava.tracker
+com.applovin
+com.unity3d.ads
+com.ironsource.sdk
