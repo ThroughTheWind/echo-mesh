@@ -15,6 +15,8 @@ captures/
 *.aab
 *.keystore
 *.jks
+# Jazzer's working corpus. Seeds and findings live under src/test/resources and are committed.
+.cifuzz-corpus/
 
 # IDEs
 .idea/

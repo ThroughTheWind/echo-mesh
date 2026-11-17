@@ -212,11 +212,12 @@ This section states what each part must achieve.
   semantic validation → store and relay. Relays forward only after verifying (Bridgefy forwarded
   before processing, P1 §4.4).
 - The decoder is fuzzed in CI (spec NFR, brief). Every wire change bumps the version and adds fuzz
-  seeds. The wire-format ADR is not written yet and has no owner (the stack thread left a CI slot
-  and a finding for it); these are the security constraints it must meet. Mechanical enforcement
-  already in the stack: only `:core:crypto` may import a crypto API (`checkCryptoBoundaries`),
-  the dependency gate admits Tink but rejects Play Services and Firebase, and release builds strip
-  `android.util.Log`.
+  seeds. [ADR-0005](decisions/ADR-0005-wire-format.md) fixes the format against these
+  constraints. Mechanical enforcement: CI fuzzes the decoder with a planted-bug check, nothing in
+  `core/` may import or depend on a compression library (`checkCompressionImports`,
+  `gradle/forbidden-in-core.txt`), only `:core:crypto` may import a crypto API
+  (`checkCryptoBoundaries`), the dependency gate admits Tink but rejects Play Services and
+  Firebase, and release builds strip `android.util.Log`.
 - Error handling is uniform: every rejected frame is dropped silently, after the same work as far
   as practical, and never answered. No delivery receipts exist, so there is no oracle (Bridgefy's
   Bleichenbacher attack used receipts, P1 §4.3).

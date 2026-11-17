@@ -30,8 +30,9 @@ everything is slow enough to get skipped; running the wrong subset proves nothin
 | Change surface | Run |
 | --- | --- |
 | `core/model/`, `core/mesh/`, `core/crypto/`, `adapters/loopback/` | `./gradlew :core:model:test :core:mesh:test :core:crypto:test :adapters:loopback:test` |
+| a wire decoder in `core/mesh/` | the above, then `JAZZER_FUZZ=1 ./gradlew :core:mesh:test --rerun --tests '*.WireFuzzTest'` |
 | `adapters/<radio>/` | `./gradlew :adapters:<radio>:test :adapters:<radio>:lint` |
-| imports in `app/`, `core/` or `adapters/` | `./gradlew checkTransportBoundaries checkCryptoBoundaries` |
+| imports in `app/`, `core/` or `adapters/` | `./gradlew checkTransportBoundaries checkCryptoBoundaries checkCompressionImports` |
 | a dependency, a manifest, or a permission | `./gradlew checkForbiddenDependencies checkManifestPermissions` |
 | `build-logic/` (convention plugins and gate logic) | `./gradlew -p build-logic test` |
 | `core/data/`, `core/map/`, `core/designsystem/`, `app/` | `./gradlew :app:assembleDebug lint` |

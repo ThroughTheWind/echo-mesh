@@ -13,7 +13,7 @@ decision.** Recording one must cost almost nothing, or it will not happen — so
 
 | Id | Sev | Pri | What | Evidence | When to act | How to fix |
 | --- | --- | --- | --- | --- | --- | --- |
-| F-001 | high | next | CI has no slot yet for the crypto and wire-format checks the threat model asks for: decoder fuzzing (Jazzer or similar), Noise test vectors for `:core:crypto`, and a ban on compression libraries on `:core:*` classpaths. | `.github/workflows/ci.yml` has no such step; the crypto ADR draft (ADR-0004) lists them. | When `:core:crypto` or the first decoder lands. | Add a CI job per check in the same change as the code; the compression ban can be a second rules file read by `checkForbiddenDependencies` for `:core:*` only. |
+| F-001 | high | next | CI has no slot yet for the Noise test vectors `:core:crypto` must pass (ADR-0004). Decoder fuzzing and the compression ban landed with WI-003. | `.github/workflows/ci.yml` runs the fuzzer and the compression gates, but nothing checks a Noise handshake yet. | When the Noise join is written (WI-017). | Run the cacophony `NKpsk0` vectors as a unit test of `:core:crypto` in the same change as the handshake. |
 | F-002 | medium | next | Wi-Fi Direct and Wi-Fi Aware move data over IP sockets, and Android needs `INTERNET` for any socket, which ADR-0003 and `checkManifestPermissions` forbid. | `adapters/wifidirect/README.md`; Android requires `INTERNET` for `socket()`, to be confirmed by transport research. | Before `:adapters:wifidirect` or `:adapters:wifiaware` gets code. | An ADR that either allows `INTERNET` with sockets bound to the peer-to-peer interface only, or keeps Wi-Fi radios out of the MVP. |
 
 ## Closed

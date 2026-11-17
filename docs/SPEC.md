@@ -281,7 +281,7 @@ Mesh (on/off, background relaying), Groups (list, create, join, leave), Maps (do
 | ID | Category | Requirement |
 |---|---|---|
 | NFR-1 | Propagation | In a loopback simulation of 200 phones at crowd density, a report reaches 90% of phones within 5 hops in under 60 s. Field target on the reference phones: direct peer within 10 s. **[DEP: transport]** |
-| NFR-2 | Message size | A signed report is compact (research estimate 110–150 bytes in a binary format, to confirm) and moves over a GATT/L2CAP connection; it never depends on fitting in a 31-byte legacy advertisement. Wire format decided in an ADR. **[DEP: threat]** |
+| NFR-2 | Message size | A signed report is compact (research estimate 110–150 bytes in a binary format, to confirm) and moves over a GATT/L2CAP connection; it never depends on fitting in a 31-byte legacy advertisement. Wire format in [ADR-0005](decisions/ADR-0005-wire-format.md) (proposed): a public report is 114 bytes. **[DEP: threat]** |
 | NFR-3 | Robustness | A peer sending malformed, oversized or flooding traffic cannot crash the app or stop it relaying for other peers. The decoder is fuzzed in CI. |
 | NFR-4 | Privacy on the air | No stable identifier on the air; app-level tokens rotate at most every 10 minutes, together with the radio address, and are unlinkable; no cleartext group names or nicknames. **[DEP: threat]** |
 | NFR-5 | Privacy on the phone | No location history, no plaintext logs, encrypted storage, wipe under 2 s. |

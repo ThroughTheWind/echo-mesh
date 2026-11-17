@@ -55,4 +55,20 @@ class ForbiddenDependenciesTest {
         assertNull(repoRules.match("androidx.core", "core-ktx"))
         assertEquals(repoRules.size, file.readLines().count { it.substringBefore('#').isNotBlank() })
     }
+
+    @Test
+    fun `the repository's core rule file forbids compression libraries and nothing core needs`() {
+        val file =
+            generateSequence(File("").absoluteFile) { it.parentFile }
+                .map { File(it, "gradle/forbidden-in-core.txt") }
+                .first { it.isFile }
+        val core = ForbiddenDependencies.parse(file.readText())
+        assertNotNull(core.match("org.tukaani", "xz"))
+        assertNotNull(core.match("org.apache.commons", "commons-compress"))
+        assertNotNull(core.match("com.github.luben", "zstd-jni"))
+        assertNull(core.match("org.apache.commons", "commons-lang3"))
+        assertNull(core.match("org.jetbrains.kotlinx", "kotlinx-coroutines-core"))
+        assertNull(core.match("com.google.crypto.tink", "tink"))
+        assertNull(core.match("org.jetbrains.kotlin", "kotlin-stdlib"))
+    }
 }

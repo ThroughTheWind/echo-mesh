@@ -57,6 +57,22 @@ object ImportBoundaries {
             .map { (line, imported) -> Violation(path, line, imported) }
     }
 
+    /**
+     * ADR-0005: nothing in `core/` compresses or decompresses, so no wire frame can carry a
+     * compression bomb or leak plaintext through its length. The dependency gate covers libraries;
+     * this covers the JDK's own `java.util.zip`, which is not a dependency.
+     */
+    fun compressionViolations(
+        path: String,
+        lines: List<String>,
+        compressionPackages: List<String>,
+    ): List<Violation> {
+        if (!path.startsWith("core/")) return emptyList()
+        return imports(lines)
+            .filter { (_, imported) -> compressionPackages.any { imported == it || imported.startsWith("$it.") } }
+            .map { (line, imported) -> Violation(path, line, imported) }
+    }
+
     private val IMPORT = Regex("""^\s*import\s+([\w.`*]+)""")
 
     private fun imports(lines: List<String>): List<Pair<Int, String>> =

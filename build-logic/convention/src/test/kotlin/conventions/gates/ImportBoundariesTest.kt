@@ -54,4 +54,22 @@ class ImportBoundariesTest {
             ImportBoundaries.cryptoViolations("core/mesh/src/main/kotlin/A.kt", listOf("import java.securityx.Foo"), packages).isEmpty(),
         )
     }
+
+    @Test
+    fun `compression APIs are refused anywhere in core and allowed elsewhere`() {
+        val packages = conventions.GatesConventionPlugin.COMPRESSION_PACKAGES
+
+        fun compression(
+            path: String,
+            vararg lines: String,
+        ) = ImportBoundaries.compressionViolations(path, lines.toList(), packages)
+
+        assertEquals(1, compression("core/mesh/src/main/kotlin/A.kt", "import java.util.zip.Inflater").size)
+        assertEquals(1, compression("core/crypto/src/main/kotlin/A.kt", "import java.util.zip.*").size)
+        assertEquals(1, compression("core/data/src/test/kotlin/A.kt", "import org.tukaani.xz.XZInputStream").size)
+        assertTrue(compression("core/mesh/src/main/kotlin/A.kt", "import java.util.zipper.Foo").isEmpty())
+        assertTrue(compression("core/mesh/src/main/kotlin/A.kt", "import java.util.List").isEmpty())
+        // Outside core (for example reading a map file in the app) the rule does not apply.
+        assertTrue(compression("app/src/main/kotlin/A.kt", "import java.util.zip.ZipFile").isEmpty())
+    }
 }

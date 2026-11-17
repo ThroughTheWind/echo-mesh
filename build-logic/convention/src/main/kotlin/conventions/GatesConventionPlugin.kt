@@ -32,6 +32,7 @@ class GatesConventionPlugin : Plugin<Project> {
                 // The app's only files allowed to name a transport adapter: where it registers them.
                 registrationFiles.set(setOf("TransportRegistration.kt"))
                 cryptoPackages.set(CRYPTO_PACKAGES)
+                compressionPackages.set(COMPRESSION_PACKAGES)
             }
 
             tasks.register<ImportBoundariesTask>("checkTransportBoundaries") {
@@ -41,6 +42,10 @@ class GatesConventionPlugin : Plugin<Project> {
             tasks.register<ImportBoundariesTask>("checkCryptoBoundaries") {
                 description = "Fails if code outside core/crypto imports a cryptographic API (.ai/rules/crypto.md)."
                 common(ImportBoundariesTask.Rule.CRYPTO, listOf("app/src/**/*.kt", "core/**/src/**/*.kt", "adapters/**/src/**/*.kt"))
+            }
+            tasks.register<ImportBoundariesTask>("checkCompressionImports") {
+                description = "Fails if code in core/ imports a compression API (ADR-0005)."
+                common(ImportBoundariesTask.Rule.COMPRESSION, listOf("core/**/src/**/*.kt"))
             }
         }
 
@@ -57,6 +62,27 @@ class GatesConventionPlugin : Plugin<Project> {
                 "org.signal.libsignal",
                 "org.whispersystems",
                 "com.google.crypto.tink",
+            )
+
+        /**
+         * Compression APIs nothing in core/ may import (ADR-0005). Libraries are also refused by
+         * gradle/forbidden-in-core.txt; java.util.zip is in the JDK, so only this catches it.
+         */
+        val COMPRESSION_PACKAGES =
+            listOf(
+                "java.util.zip",
+                "org.tukaani.xz",
+                "org.apache.commons.compress",
+                "com.github.luben.zstd",
+                "net.jpountz.lz4",
+                "org.xerial.snappy",
+                "com.aayushatharva.brotli4j",
+                "org.brotli",
+                "io.airlift.compress",
+                "okio.GzipSource",
+                "okio.GzipSink",
+                "okio.InflaterSource",
+                "okio.DeflaterSink",
             )
     }
 }
