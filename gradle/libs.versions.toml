@@ -22,6 +22,9 @@ datastore = "1.3.0"
 junit = "6.1.3"
 # Decoder fuzzing (ADR-0005). Test classpath only; Apache-2.0.
 jazzer = "0.30.0"
+# Every cryptographic primitive (ADR-0004). tink-android on the JVM too: the plain "tink" artifact
+# pulls in an HTTP client and native Conscrypt, and gradle/forbidden-dependencies.txt refuses it.
+tink = "1.24.0"
 spotless = "8.11.0"
 ktlint = "1.8.0"
 
@@ -47,6 +50,7 @@ junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
+tink-android = { module = "com.google.crypto.tink:tink-android", version.ref = "tink" }
 jazzer-junit = { module = "com.code-intelligence:jazzer-junit", version.ref = "jazzer" }
 
 # Compile-only dependencies of the convention plugins in build-logic/.

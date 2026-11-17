@@ -2,5 +2,8 @@ plugins {
     alias(libs.plugins.conventions.jvm.library)
 }
 
-// Empty until the threat-model ADR picks the library and protocol. The only module allowed to import
-// a cryptographic API (checkCryptoBoundaries, .ai/rules/crypto.md).
+// The only module allowed to import a cryptographic API (checkCryptoBoundaries, .ai/rules/crypto.md).
+// Tink is its one crypto library, the same artifact on the JVM and on Android (ADR-0004).
+dependencies {
+    implementation(libs.tink.android)
+}

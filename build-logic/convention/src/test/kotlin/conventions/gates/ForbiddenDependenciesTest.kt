@@ -53,6 +53,10 @@ class ForbiddenDependenciesTest {
         assertNotNull(repoRules.match("com.google.android.gms", "play-services-nearby"))
         assertNotNull(repoRules.match("com.google.firebase", "firebase-analytics"))
         assertNull(repoRules.match("androidx.core", "core-ktx"))
+        // ADR-0004: tink-android is the crypto library; the JVM artifact brings an HTTP client.
+        assertNull(repoRules.match("com.google.crypto.tink", "tink-android"))
+        assertNotNull(repoRules.match("com.google.crypto.tink", "tink"))
+        assertNotNull(repoRules.match("com.google.http-client", "google-http-client"))
         assertEquals(repoRules.size, file.readLines().count { it.substringBefore('#').isNotBlank() })
     }
 

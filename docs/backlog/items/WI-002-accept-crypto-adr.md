@@ -2,8 +2,8 @@
 id: WI-002
 title: Review and accept the crypto design (ADR-0004)
 type: docs
-status: planned
-branch:
+status: in_progress
+branch: claude/project-thread-67cn4e
 created: 2026-11-17
 updated: 2026-11-17
 related: [ADR-0004, SPEC-A3, SPEC-A4, NFR-8]
@@ -50,5 +50,12 @@ Phase 0 of the [roadmap](../../ROADMAP.md).
 - The outside security review: WI-030.
 
 ## Execution
+
+- Read ADR-0004 against threat model §5 and the Bridgefy checklist (§6): every construction it names is the one §5.2, §5.3 and §5.5 rely on, and §6 has no row it leaves open. Its wire rules now point to ADR-0005.
+- Threat model §9: no open question blocks Phase 1 or 2. Launcher disguise and muting are settled in the spec (FR-13.2, FR-9.4); the app lock is v1.1; join reliability and rotation periods are field-test tuning (WI-028).
+- Tink 1.24.0 is in the catalog and on `:core:crypto`. Deviation from the plan, recorded in ADR-0004 while it is still proposed: `tink-android` is used on the JVM too, because the JVM `tink` artifact pulls in `google-http-client` and native Conscrypt. `gradle/forbidden-dependencies.txt` now refuses `com.google.crypto.tink:tink`, `com.google.http-client` and the Conscrypt uber jar; planting `tink` on `:core:crypto` failed the gate.
+- `TinkPrimitivesTest` proves on the JVM the four primitives the design uses: Ed25519, XChaCha20-Poly1305, X25519, and HKDF-SHA256 against RFC 5869 test case 1.
+- `com.google.crypto.tink` was already in `CRYPTO_PACKAGES`.
+- **Waiting on Antoine:** accept ADR-0004 (or ask for changes). Status stays `in_progress` until then.
 
 ## Review

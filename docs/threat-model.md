@@ -372,14 +372,19 @@ anyone.
 
 ## 9. Open questions
 
+None of these blocks Phase 1 or Phase 2: 1 is for v1.1, 2 and 3 are settled in the spec, and 4 and
+5 are tuned by the field test (WI-028).
+
 1. **App lock and duress PIN** (spec v1.1). An app lock that defers to the Android device
    credential adds little over the lock screen. A duress PIN that wipes is useful but can be read as
    destroying evidence in some jurisdictions, and its existence is discoverable in the open-source
    code. Proposal: v1.1, opt-in, with that warning. Needs Antoine's call.
 2. **Launcher disguise** (spec FR-13.2). Proposal: no disguise. The app is still visible in system
    settings and the open-source code documents the disguise, so a disguised protest app that is
-   found looks worse than an honest one. Discreet mode covers what is on screen.
-3. **Mute a member** locally (A2). Proposal: add to the spec as a small MVP item.
+   found looks worse than an honest one. Discreet mode covers what is on screen. *Settled: spec
+   FR-13.2.*
+3. **Mute a member** locally (A2). Proposal: add to the spec as a small MVP item. *Settled: spec
+   FR-9.4, built in WI-021.*
 4. **Join over one hop needs a working radio link** at join time. If field tests show joins failing
    often, the fallback is a two-way QR exchange (both phones scan each other), which needs no radio.
 5. **Rotation period** of 10 minutes and **epoch length** of 1 hour are first guesses; tune with the
