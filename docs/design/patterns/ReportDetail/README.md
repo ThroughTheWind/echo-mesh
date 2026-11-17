@@ -1,26 +1,25 @@
-# ReportDetail
+# Report detail
 
-The sheet that opens from a pin: what it is, where, how long it lasts, who vouches for it, and Still there / Gone (SPEC F6, FR-5.5, FR-6.x).
-
-**Compose:** `ReportDetailSheet(report, onConfirm, onDismiss, onWithdraw)`.
+**Purpose:** the sheet that opens from a pin, or from a row in [Reports near you](../../screens/ReportsNearYou/README.md): what it is, where, how long it lasts, who vouches for it, and Still there / Gone (SPEC F6, FR-5.5, FR-6.x, US-10, US-11, AC-7, AC-8).
 
 ## Anatomy
 
-- **Header:** the pin (static, with ring and badges), type in `glance-title`, then `label-medium` "About 120 m north-east · reported 6 min ago". Distance is rounded (10 m steps under 100 m, 50 m above), ages to the minute.
-- **ExpiryIndicator bar:** "11 min left of 15".
-- **Provenance box:** the honest answer to "should I trust this?"
-  - Group: `surface-container-high` with a 4dp `group-N` bar, lock icon. "**From Crew.** Signed by a member's phone and encrypted to your group. Relayed 2 hops."
-  - Public: 2dp **dashed** `outline` box, info icon. "**From a phone nearby.** Anyone running the app can send these, and it could be wrong or fake. Relayed 4 hops."
-- **Votes line:** split into group and nearby (FR-6.2). "N nearby phones confirmed", never "verified" (FR-6.5).
-- **Actions** (bottom, side by side, `touch-comfort`): **Still there** (tonal) and **Gone** (outlined). After voting, your choice shows as "You said gone" and the other button stays available to change your mind until expiry.
+- **Header:** the pin (with ring and badges), type in `glance-title`, then "About 120 m north-east · reported 6 min ago". Distance rounds to 10 m under 100 m and 50 m above; ages to the minute.
+- **[Expiry](../../components/ExpiryIndicator/README.md) bar:** "11 min left of 15". A confirmation refreshes it, up to twice the default lifetime (FR-6.3).
+- **Provenance box**, the honest answer to "should I trust this?":
+  - Group: `surface-container-high` with a 4dp `group-N` bar and a lock. "**From Sage, in Crew.** Signed by Sage's phone and encrypted to your group. Relayed 2 hops." A group report names the member (threat model §7: "A group report shows which member sent it"), which is what makes [mute](../MuteLeaveAndGroupEnd/README.md) possible.
+  - Public: a 2dp **dashed** `outline` box and an info icon. "**From a phone nearby.** Anyone running Echo can send these, and it could be fake. Arrived directly." (or "Relayed 4 hops", FR-5.5). No sender, ever.
+- **Votes line**, split into group and nearby (FR-6.2): "Crew: 2 confirmed · Nearby: 3 confirmed, 1 said gone". Never "verified" (FR-6.5).
+- **Actions:** **Still there** (tonal) and **Gone** (outlined), side by side, one vote per report; after voting the chosen button reads "You said gone" and the other stays available.
 
 ## Variants
 
-- **Your own report:** no voting; one `danger-tonal` "Withdraw report" (FR-4.5).
-- **Probably gone:** header line says so with counts, plus a callout "Shown faded, not removed: votes from strangers can be faked in bulk, so you decide."
+- **Your own report:** no voting; **Withdraw report** (`danger-tonal`, FR-4.5). Withdrawal spreads like a report and removes the pin everywhere.
+- **Probably gone** (FR-6.4): the pin and header fade, and a callout says which rule faded it:
+  - public votes: "Faded because far more nearby phones said it's gone. Those votes can be faked, so it stays on the map until it expires."
+  - a group member: "Faded because someone in Crew said it's gone and nobody in Crew has confirmed it since."
+  Nothing removes a pin before expiry except its author's withdrawal.
 
-## Rules
+## Accessibility
 
-- Never shows a sender, a device, or anything that could identify one.
-- The sheet opens at half height over the map so the pin stays visible above it.
-- Final provenance wording comes from the threat model (SPEC NFR-14).
+The sheet's heading is the type; the provenance box is read before the actions.

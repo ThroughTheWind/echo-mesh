@@ -386,6 +386,35 @@ def build():
 # ---------------------------------------------------------------- check (stdlib)
 
 
+SPEC = DESIGN.parent / "SPEC.md"
+COVERAGE = DESIGN / "SPEC-COVERAGE.md"
+SPEC_ID = re.compile(r"\b((?:FR|NFR|US|AC)-[0-9]+(?:\.[0-9]+)?[a-z]?)\b")
+
+
+def spec_coverage(failures):
+    """Every FR/NFR/US/AC id in SPEC.md has a row in SPEC-COVERAGE.md, and no row is orphaned."""
+    if not SPEC.exists():
+        return "spec coverage skipped (no SPEC.md)"
+    want = set(SPEC_ID.findall(SPEC.read_text()))
+    rows = set(re.findall(r"^\| ((?:FR|NFR|US|AC)-[0-9.]+[a-z]?) \|", COVERAGE.read_text() if COVERAGE.exists() else "", re.M))
+    failures += [f"SPEC-COVERAGE.md has no row for {i}" for i in sorted(want - rows)]
+    failures += [f"SPEC-COVERAGE.md has a row for {i}, which SPEC.md no longer has" for i in sorted(rows - want)]
+    return f"{len(rows & want)} spec ids covered"
+
+
+def design_links(failures):
+    """Relative Markdown links in docs/design resolve to a file."""
+    n = 0
+    for md in DESIGN.rglob("*.md"):
+        for target in re.findall(r"\]\(([^)#\s]+)(?:#[^)]*)?\)", md.read_text()):
+            if re.match(r"[a-z]+:", target):
+                continue
+            n += 1
+            if not (md.parent / target).exists():
+                failures.append(f"broken link in {md.relative_to(DESIGN)}: {target}")
+    return f"{n} links resolve"
+
+
 def check():
     tokens = load(TOKENS)
     tv = theme_values(tokens)
@@ -411,12 +440,13 @@ def check():
     for path, text in outputs().items():
         if not path.exists() or path.read_text() != text:
             failures.append(f"stale or hand-edited: {path} (run tools/tokens.py build)")
+    extra = [spec_coverage(failures), design_links(failures)]
     if "-v" in sys.argv:
         print("\n".join(report))
     if failures:
         print("FAILED\n" + "\n".join(failures))
         sys.exit(1)
-    print(f"ok: {len(report)} contrast pairs across {len(tv)} themes, {len(component_tokens(tokens))} component tokens resolve, generated files fresh")
+    print(f"ok: {len(report)} contrast pairs across {len(tv)} themes, {len(component_tokens(tokens))} component tokens resolve, generated files fresh, " + ", ".join(extra))
 
 
 if __name__ == "__main__":
