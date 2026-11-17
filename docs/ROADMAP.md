@@ -13,7 +13,7 @@ before groups, a second transport or any extras. Each phase is an epic work item
 | **1. Two phones, one report** | A signed, expiring public report crosses from one reference phone to the other over one transport and shows on an offline map. Ships as **0.1.0** | AC-1 → AC-6a, AC-9 → AC-12 | WI-006 |
 | 2. Groups | QR join, encrypted group reports, confirm/dismiss, position sharing, mute a member. Ships as **0.2.0** | AC-7, AC-8, AC-13 → AC-16, AC-24, AC-25 | WI-016 |
 | 3. Safety and street use | Panic wipe, discreet mode, final onboarding copy, a crowd field test. Ships as **0.3.0** | AC-17 → AC-19 | WI-023 |
-| 4. Release 1.0 | Independent security review and fixes, accessibility, docs, reproducible signed release. Ships as **1.0.0** | All ACs | WI-029 |
+| 4. Release 1.0 | Independent security review and fixes, accessibility, docs, reproducible signed release, and the extended spec's 1.0 additions (F15–F19). Ships as **1.0.0** | All ACs, AC-26 → AC-31 | WI-029 |
 
 ## Phase 0 — Foundations
 
@@ -54,8 +54,19 @@ real crowd (or the closest safe equivalent) to tune lifetimes, rates and battery
 
 Independent security review of the protocol, crypto use and wire decoder, and fixing what it
 finds; accessibility pass; reproducible build checked; `SECURITY.md` and transport guide final.
+Plus the 1.0 additions from the [extended spec](SPEC-EXTENDED.md): steering-report warnings (F15),
+low-density honesty (F16), field diagnostics (F17, used in Phase 3's field test), English, French
+and Spanish (F18), release key custody (F19), and re-tuning thresholds from field data.
 
 ## After 1.0
 
-A second transport (Wi-Fi Aware, per the research; Wi-Fi Direct is dropped), app lock / duress PIN, removing
-a group member by re-keying, F-Droid. Chat, photos and internet relays are not planned (spec §3.2).
+Detailed in the [extended spec](SPEC-EXTENDED.md) §9.
+
+| Release | Content | Gate |
+| --- | --- | --- |
+| 1.1 | Group phrases, rally point, danger alerts, check-ins and jail-support card, app lock and duress PIN, report cache, adaptive scanning, Briar handoff (F20–F27) | AC-32 → AC-39 |
+| 2.0 | Organisation keys, roles, announcements, event packs, catalogs including crisis, Wi-Fi Aware, offline app sharing (F28–F34) | AC-40 → AC-46, outside review |
+| Later | Circles, group management at scale, areas to avoid, LoRa bridge, legacy build (F35–F39), each when its evidence condition is met | Written when it starts |
+
+F-Droid submission follows the first reproducible release. Chat, photos and internet relays are not
+planned (spec §3.2, extended spec §3.1).

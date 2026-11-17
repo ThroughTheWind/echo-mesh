@@ -33,7 +33,7 @@ The Phase 0 pull request from `claude/project-thread-67cn4e`. Once ADR-0004 and 
 - GPL-3.0, no servers, no `INTERNET` permission by default, no proprietary or tracking dependency, no crash reporting of any kind, fixed by [ADR-0003](../docs/decisions/ADR-0003-gpl-no-servers-no-proprietary-dependencies.md). The gates enforce it; never weaken one to pass.
 - No home-made cryptography; only `core/crypto/` imports a crypto API ([crypto rule](rules/crypto.md)).
 - The app is named Echo, package `io.github.throughthewind.echo`, repo `ThroughTheWind/echo-mesh` (Antoine, 2026-11-16).
-- English only, distributed through GitHub Releases, F-Droid later, no Play Store at first.
+- English only for the MVP phases; English, French and Spanish at 1.0 (Antoine, 2026-11-17, extended spec F18). Distributed through GitHub Releases, F-Droid later, no Play Store at first.
 - rungs is development tooling installed into this repo. It is not a runtime dependency and is not shipped in the app.
 
 ## Working assumptions

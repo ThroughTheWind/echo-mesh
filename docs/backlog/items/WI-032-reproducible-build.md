@@ -6,7 +6,7 @@ status: planned
 branch:
 created: 2026-11-17
 updated: 2026-11-17
-related: [NFR-16, ADR-0003]
+related: [AC-31, NFR-24, FR-19.4, NFR-16, ADR-0003]
 epic: WI-029
 children: []
 ---
@@ -39,6 +39,7 @@ Phase 4 of the [roadmap](../../ROADMAP.md).
 ### Acceptance criteria / tests
 
 - A CI job builds twice and compares, and fails on a difference.
+- AC-31 and NFR-24: an independent rebuild of a release produces the same APK, verified before publishing, with the steps documented (FR-19.4).
 
 ### Out of scope
 

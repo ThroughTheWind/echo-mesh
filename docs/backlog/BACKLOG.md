@@ -6,7 +6,7 @@
 The board. One row per live work item, grouped by status. Items live in
 [`items/`](items/); finished work moves to [`archive/`](archive/).
 
-<!-- NEXT-ID: WI-034 -->
+<!-- NEXT-ID: WI-039 -->
 <!-- Claim from this marker and bump it on your own branch. `node .ai/rungs.mjs check` refuses a duplicate. -->
 
 ## In progress
@@ -56,6 +56,11 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-031](items/WI-031-accessibility-pass.md) | Accessibility pass | chore |
 | [WI-032](items/WI-032-reproducible-build.md) | Verify the build is reproducible and F-Droid ready | chore |
 | [WI-033](items/WI-033-release-1-0.md) | Final docs and cut 1.0.0 | chore |
+| [WI-034](items/WI-034-steering-report-warnings.md) | Warn on public steering reports and hide their public counts | feature |
+| [WI-035](items/WI-035-low-density-honesty.md) | Tell people when the mesh around them is too thin | feature |
+| [WI-036](items/WI-036-field-diagnostics.md) | Export a field diagnostics file with no positions or reports | feature |
+| [WI-037](items/WI-037-languages-en-fr-es.md) | Ship Echo in English, French and Spanish | feature |
+| [WI-038](items/WI-038-release-key-custody.md) | Publish who signs Echo and how to check it | docs |
 
 ## Accepted
 

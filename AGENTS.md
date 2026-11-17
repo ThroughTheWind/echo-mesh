@@ -99,7 +99,7 @@ it is a wrong value that passes review.
 - Package root is `app.packageRoot` in `gradle.properties`; module namespaces append the module path
   (`…echo.core.mesh`).
 - Never log a key, a report, a position or a peer handle, in any build ([crypto rule](.ai/rules/crypto.md)).
-- English only, no translations until the spec says otherwise.
+- English only until the languages item (F18 in `docs/SPEC-EXTENDED.md`); then English, French and Spanish.
 - No dependency injection framework until the container passes about thirty bindings (ADR-0001).
 
 ## Routing

@@ -97,7 +97,8 @@ Every requirement, user story and acceptance criterion in [`docs/SPEC.md`](../SP
 | NFR-14 | Every safety claim traces to threat model §7 | [What Echo protects](screens/WhatEchoProtects/README.md), [Onboarding](patterns/OnboardingFlow/README.md), [Content and voice](foundations/ContentAndVoice/README.md) |
 | NFR-15 | Plain Kotlin logic, tested | No UI: code quality. |
 | NFR-16 | Signed APK, reproducible builds | No UI: release. |
-| NFR-17 | English only, strings externalized | [Content and voice](foundations/ContentAndVoice/README.md) |
+| NFR-17 | Strings externalized (languages now NFR-21) | [Content and voice](foundations/ContentAndVoice/README.md) |
+| NFR-21 | English, French and Spanish at 1.0; layouts use start and end (extended spec F18) | [Content and voice](foundations/ContentAndVoice/README.md) |
 
 ## User stories
 

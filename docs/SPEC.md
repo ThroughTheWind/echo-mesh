@@ -16,7 +16,8 @@
 
 Threats and the crypto design: see [threat-model.md](threat-model.md). Radio transports and relay
 strategy: see [research/](research/). Visual design: see the [design system](design/README.md).
-Delivery order: see the [roadmap](ROADMAP.md).
+Delivery order: see the [roadmap](ROADMAP.md). What comes after the MVP, and the 1.0 additions
+(F15–F19) that join this spec's definition of done: see the [extended spec](SPEC-EXTENDED.md).
 
 Related work running in parallel (this spec stays at product level and links to them for the details):
 - **Transport research** — BLE, Wi-Fi Direct, Wi-Fi Aware, relay strategies, prior art. Tag **[DEP: transport]**.
@@ -296,7 +297,7 @@ Mesh (on/off, background relaying), Groups (list, create, join, leave), Maps (do
 | NFR-14 | Honesty | Every safety claim in the UI traces to a row of [threat-model.md §7](threat-model.md); reviewed as part of the security review. |
 | NFR-15 | Code quality | Mesh, relay and crypto logic are plain Kotlin/JVM, tested against simulated and hostile peers; CI on every PR. |
 | NFR-16 | Distribution | Signed APK on GitHub Releases; reproducible builds suitable for F-Droid later. `SECURITY.md` with a private reporting route. |
-| NFR-17 | Localization | English only; all strings externalized. |
+| NFR-17 | Localization | All strings externalized. Superseded by NFR-21 in the [extended spec](SPEC-EXTENDED.md): English, French and Spanish at 1.0. |
 
 ---
 
@@ -374,7 +375,7 @@ A second transport (Wi-Fi Aware) comes after 1.0, unless the field test shows BL
 
 1. ~~**License**~~ — **Decided:** GPL-3.0-only.
 2. ~~**Platform and distribution**~~ — **Decided:** Android phones, GitHub Releases first, F-Droid later.
-3. ~~**Language**~~ — **Decided:** English only.
+3. ~~**Language**~~ — **Decided:** English only for the MVP milestones; English, French and Spanish at 1.0 (Antoine, 2026-11-17, extended spec F18).
 4. **App name** — **Decided by Antoine (2026-11-16):** Echo, package `io.github.throughthewind.echo`. Repo: `ThroughTheWind/echo-mesh`.
 5. ~~**Reference phones**~~ — **Answered by Antoine (2026-11-16):** Pixel 11 Pro, Pixel 9a, OPPO Find X3 Pro. Android versions to record during the BLE spike.
 6. ~~**Public reports to strangers**~~ — **Decided by Antoine (2026-11-16):** yes, shown as unverified and visually distinct from group reports (FR-4.3, FR-9.2).
