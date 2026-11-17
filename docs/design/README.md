@@ -2,7 +2,7 @@
 
 The design system for Echo, a free, open-source, peer-to-peer protest map for Android. It is a sibling of [Zapper's design system](https://github.com/ThroughTheWind/zapper/tree/main/docs/design): same Material 3 base, same Roboto Flex, same 4dp spacing, same token files and the same Compose setup. What changes is the setting. Zapper is used on a sofa with eyes on a TV; Echo is used standing in a crowd, in sun or at night, with gloves, one hand, and sometimes people nearby who shouldn't see your screen.
 
-> Package `io.github.throughthewind.echo`. English only. Product scope: the [MVP spec](../SPEC.md). The Compose theme lives in `core/designsystem/` (package `…echo.core.designsystem.theme`). Open [`preview/index.html`](preview/index.html) for every entry in all three themes: one self-contained file that makes no network request.
+> Package `io.github.throughthewind.echo`. English for the MVP; French and Spanish at 1.0 (NFR-21). Product scope: the [MVP spec](../SPEC.md). The Compose theme lives in `core/designsystem/` (package `…echo.core.designsystem.theme`). Open [`preview/index.html`](preview/index.html) for every entry in all three themes: one self-contained file that makes no network request.
 
 ## Structure
 
