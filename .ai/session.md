@@ -8,21 +8,23 @@ Keep it short. This document is read at the start of every session, and a long o
 
 ## Current objective
 
-Phase 1 of the [roadmap](../docs/ROADMAP.md) (epic WI-006): two reference phones exchanging a signed, expiring public report over BLE and showing it on an offline map, shipped as 0.1.0. Phase 0 (epic WI-001) closes first.
+Close Phase 0 of the [roadmap](../docs/ROADMAP.md) (epic WI-001), then Phase 1 (epic WI-006): two reference phones exchanging a signed, expiring public report over BLE and showing it on an offline map, shipped as 0.1.0.
 
 ## In progress
 
-Nothing. Every roadmap phase is an epic in the [backlog](../docs/backlog/BACKLOG.md) with its deliverables as children; none is started.
+- WI-003 (wire format, ADR-0005, fuzzing) and WI-005 (crowd simulator) are in review on the Phase 0 pull request.
+- WI-002 waits on Antoine accepting ADR-0004 (Tink is on `:core:crypto`, `TinkPrimitivesTest` passes).
+- WI-004 waits on a VTM drawing test on the reference phones, then Antoine accepting ADR-0006.
 
 ## Resume from
 
-Pick the next planned item with `/work-item`. WI-002 (accept the crypto ADR) needs Antoine; WI-003 (wire format) and WI-005 (loopback crowd simulator) can start without him.
+The Phase 0 pull request from `claude/project-thread-67cn4e`. Once ADR-0004 and ADR-0005 are accepted, WI-008 (public report signing) can start on `WireCodec` and Tink.
 
 ## Up next
 
-1. WI-002 accept ADR-0004, then WI-003 wire format ADR and fuzzing.
-2. WI-007 BLE spike on the reference phones (needs the phones), in parallel with WI-004 map renderer spike.
-3. WI-008 public report signing, once WI-002 and WI-003 are done.
+1. WI-008 public report signing, on ADR-0004 and ADR-0005.
+2. WI-007 BLE spike and the WI-004 map test, both on the reference phones.
+3. WI-009 gossip relay, tested on the crowd simulator (`Crowd`, `HostilePhone`, `Trace`).
 
 ## Active constraints — do not reopen
 
@@ -37,6 +39,7 @@ Pick the next planned item with `/work-item`. WI-002 (accept the crypto ADR) nee
 ## Working assumptions
 
 - The Android parts of the build (AGP 9.5.0, Compose BOM 2026.09.00, compileSdk 37, copied from Zapper) were not built when the repo was scaffolded, because the sandbox could not download the Android SDK; the JVM modules, gate logic and rungs gates were run. CI is the first real Android build.
+- With the configuration cache on, `checkForbiddenDependencies` once read a stale graph locally (F-003). Clear `.gradle/configuration-cache` before trusting a local run of it; CI starts clean.
 - Opening a socket on Android needs `INTERNET`, so Wi-Fi Direct and Wi-Fi Aware data transfer need an ADR before they can ship; transport research should confirm per Android version.
 
 ## Open questions
