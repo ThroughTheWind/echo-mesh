@@ -6,7 +6,7 @@ status: planned
 branch:
 created: 2026-11-17
 updated: 2026-11-17
-related: [F1, F3, F4, F5, FR-7.2, NFR-11, AC-1, AC-4]
+related: [F1, F3, F4, F5, FR-4.7, FR-5.6, FR-7.2, NFR-11, AC-1, AC-4]
 epic: WI-006
 children: []
 ---
@@ -28,6 +28,8 @@ Phase 1 of the [roadmap](../../ROADMAP.md).
 - Onboarding first draft (FR-1.1, FR-1.2): what the app protects and what it does not, before any permission; permissions one at a time, each with its reason. Copy traced to threat model §7.
 - Map screen with report pins (type, age, time left, direct or relayed; FR-5.5) and expiry indicator (FR-7.2).
 - Drop a report in two taps when the pin is placed (FR-4.2); public audience only in this phase.
+- A 5-second send delay with a visible Cancel after confirming (FR-4.7).
+- The "Reports near you" list, with the same styles and detail as the map (FR-5.6); the group filter comes with WI-022.
 - Mesh on/off control and status (FR-3.1, FR-3.2, FR-3.5).
 - Every screen built from `docs/design/` components with `StreetTheme`.
 
@@ -37,7 +39,7 @@ Phase 1 of the [roadmap](../../ROADMAP.md).
 
 ### Approach
 
-- One screen per PR is fine; this item closes when all four exist.
+- One screen per PR is fine; this item closes when all five exist.
 
 ### Acceptance criteria / tests
 

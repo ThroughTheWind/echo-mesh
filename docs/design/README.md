@@ -85,6 +85,5 @@ Every entry is a folder with a `README.md` (the spec) and a `preview.html` (a fr
 
 - **Threat model:** whether `FLAG_SECURE` covers every screen or only the QR (FR-12.5 says the QR; recommended: every screen, since the recents thumbnail of a map shows where you are). The design works either way.
 - **Transport:** whether the peer count can be honest at crowd density (the chip caps at "20+"); which OEMs get their own battery instructions page (FR-3.3a).
-- **Spec:** the 5-second send delay in ReportPicker (a sent report can't be unsent) needs an FR; the "Reports near you" list for TalkBack needs an FR; the Quick Settings tile for discreet mode needs an FR.
 
-Settled since the first draft: the protects/doesn't wording follows threat model §7; no launcher disguise (FR-13.2); BLE only, so no Wi-Fi or location toggles in the mesh status; no word comparison in the QR join (FR-8.2).
+Settled since the first draft: the protects/doesn't wording follows threat model §7; no launcher disguise (FR-13.2); BLE only, so no Wi-Fi or location toggles in the mesh status; no word comparison in the QR join (FR-8.2); the send delay, report list and discreet tile are in the spec (FR-4.7, FR-5.6, FR-13.3).

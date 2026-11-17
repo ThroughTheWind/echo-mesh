@@ -5,6 +5,7 @@
 ## Turning it on and off
 
 - The eye button on the map's top bar, the Quick Settings tile "Echo discreet", or Settings > Display. The same control turns it off. No confirm, no animation.
+- **Quick Settings tile** (SPEC FR-13.3): the user adds it from the Quick Settings editor; Echo never adds it or prompts for it. It shows only "Echo discreet" and On or Off, never a report, a count or a group, so a locked phone shows nothing beyond the app being installed.
 
 ## What changes
 

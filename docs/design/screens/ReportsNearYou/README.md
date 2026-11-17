@@ -1,6 +1,6 @@
 # Reports near you
 
-**Purpose:** every report the phone holds, as a list sorted by distance. It's the path for TalkBack users and for anyone who'd rather read than scan a map (SPEC NFR-12, FR-9.3, US-9, US-14).
+**Purpose:** every report the phone holds, as a list sorted by distance. It's the path for TalkBack users and for anyone who'd rather read than scan a map (SPEC FR-5.6, NFR-12, FR-9.3, US-9, US-14).
 
 ## Structure
 

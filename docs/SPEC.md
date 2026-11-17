@@ -204,6 +204,7 @@ Format: *As a [persona], I want [action], so that [outcome].* IDs map to feature
 - FR-4.4 A report carries only: type, position (coarsened to a precision set by the protocol), creation time (coarsened), lifetime, hop count, and the authentication data the protocol requires. No device, user or app-instance identifier, no free text. **[DEP: threat]**
 - FR-4.5 A user can withdraw their own report; withdrawal spreads like a report.
 - FR-4.6 Rate limit on the sender's side (e.g. at most one report per type per minute) so a mistake can't spam the mesh.
+- FR-4.7 A report waits 5 seconds on the phone after the user confirms, with a visible **Cancel**, before it is sent. Once it has left the phone it can only be withdrawn (FR-4.5), which spreads more slowly than the report did. Discreet mode keeps the delay but drops the countdown animation. **[DEP: design]**
 
 ### F5 — Report spread
 - FR-5.1 Relaying is epidemic gossip with anti-entropy, not blind flooding: phones advertise a small digest of what they hold, and on connection exchange a set summary and pull only the reports they lack, newest and most severe first, within a per-connection byte budget.
@@ -211,6 +212,7 @@ Format: *As a [persona], I want [action], so that [outcome].* IDs map to feature
 - FR-5.3 **Verify, then store, then relay.** A phone parses with a strict size cap (no compression on the wire), checks version, type, expiry and signature, and only then stores or forwards. Anything malformed, expired, out of hop budget, over-sized or over a rate limit is dropped silently without affecting other peers. Rate limits are per connection and global (ephemeral tokens rotate), and storage is bounded with eviction by expiry, then fewest confirmations. **[DEP: threat]**
 - FR-5.4 Group reports are relayed by everyone, including phones outside the group, without being readable by them, so groups benefit from the whole crowd. Group frames carry no group id on the air and have a fixed size, and non-members can check them before relaying without reading them ([threat model §5.3](threat-model.md)).
 - FR-5.5 A report shows on the map with its type, age, time left, and how it arrived (direct / relayed), never who sent it.
+- FR-5.6 Every report the phone holds is also available as a list ("Reports near you"), sorted by distance from the map centre or your position, with the same filter as the map (FR-9.3), the same verified and unverified styles (FR-9.2) and the same detail. It is the main path for TalkBack users (NFR-12) and can drop a report at the map centre without touching the map. **[DEP: design]**
 
 ### F6 — Confirm or dismiss
 - FR-6.1 On a report's detail, the user can **Confirm** (still true) or **Dismiss** (no longer true). One vote per report per phone.
@@ -261,6 +263,7 @@ Format: *As a [persona], I want [action], so that [outcome].* IDs map to feature
 ### F13 — Discreet mode
 - FR-13.1 One switch: darkest theme, reduced brightness, no sounds or vibration, neutral notification text and icon.
 - FR-13.2 Discreet mode does **not** disguise the launcher name or icon: a disguise found on a seized phone looks worse than the app itself (threat model recommendation).
+- FR-13.3 A Quick Settings tile toggles discreet mode without opening the app. The user adds it; Echo never adds it on its own. The tile only toggles and shows on/off, never a report, a count or a group, so it reveals nothing on a locked phone beyond the app being installed.
 
 ### F14 — Transport architecture (product-level contract)
 - FR-14.1 Core and UI depend only on a radio-agnostic `MeshTransport` contract in `:core:mesh`. They know capabilities (range class, bandwidth class, works in background, needs location permission, supports broadcast, max message size), never "BLE" or "Wi-Fi Direct". Same pattern as Zapper's ADR-0002. **[DEP: stack]**
@@ -381,6 +384,7 @@ A second transport (Wi-Fi Aware) comes after 1.0, unless the field test shows BL
 10. ~~**Non-members relay group traffic**~~ — **Decided (threat model):** yes, as fixed-size frames with no group id on air (FR-5.4).
 11. ~~**minSdk**~~ — **Decided by Antoine (2026-11-16):** 31 (Android 12+), so Bluetooth never requires a location permission. Phones stuck on Android 8–11 are not supported.
 12. ~~**MVP transport**~~ — **Decided (research):** BLE only; Wi-Fi Aware later; Wi-Fi Direct dropped.
+13. ~~**Send delay, report list, discreet tile**~~ — **Decided by Antoine (2026-11-17):** in the MVP, from the design system (FR-4.7, FR-5.6, FR-13.3).
 
 ---
 

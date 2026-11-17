@@ -6,7 +6,7 @@ status: planned
 branch:
 created: 2026-11-17
 updated: 2026-11-17
-related: [F13, FR-13.1, FR-13.2, FR-3.3]
+related: [F13, FR-13.1, FR-13.2, FR-13.3, FR-3.3]
 epic: WI-023
 children: []
 ---
@@ -27,6 +27,7 @@ Phase 3 of the [roadmap](../../ROADMAP.md).
 
 - One switch: darkest theme, reduced brightness, no sound or vibration, neutral notification text and icon (FR-13.1).
 - Launcher name and icon are not disguised (FR-13.2).
+- A Quick Settings tile the user can add, which only toggles discreet mode and shows on or off (FR-13.3).
 
 ### Impacts
 
