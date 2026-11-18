@@ -176,8 +176,10 @@ This section states what each part must achieve.
 - The signed body contains the creation time (to the minute) and the lifetime. Receivers reject a
   report created more than 5 minutes in their future and drop it at creation + lifetime (+ 2 minutes
   of tolerated skew). This answers spec FR-7.3 differently from its suggestion: relative ages are
-  rejected because a relay could reset them and keep a report alive forever. Phones whose clock
-  differs from the median of recent peers by more than 5 minutes show a warning.
+  rejected because a relay could reset them and keep a report alive forever. A phone warns that its
+  clock is wrong when the signed creation times it receives disagree with it by more than 5
+  minutes: "behind" when most recent reports are from its future, "ahead" when even the freshest
+  quarter is older than that, since a phone receives old reports with new ones (`ClockCheck`).
 
 ### 5.3 Group traffic
 

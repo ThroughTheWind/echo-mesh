@@ -1,5 +1,6 @@
 package io.github.throughthewind.echo.core.mesh.wire
 
+import io.github.throughthewind.echo.core.model.ReportType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource

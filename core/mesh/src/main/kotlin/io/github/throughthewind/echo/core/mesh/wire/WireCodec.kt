@@ -1,5 +1,7 @@
 package io.github.throughthewind.echo.core.mesh.wire
 
+import io.github.throughthewind.echo.core.model.ReportType
+
 /** Why a frame was dropped. Never sent back to the peer: a rejected frame is silently dropped. */
 enum class Rejection {
     EMPTY,

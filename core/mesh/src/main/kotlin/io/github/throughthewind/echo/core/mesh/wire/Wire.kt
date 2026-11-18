@@ -1,5 +1,7 @@
 package io.github.throughthewind.echo.core.mesh.wire
 
+import io.github.throughthewind.echo.core.model.ReportType
+
 /**
  * Wire format version 1 (ADR-0005, `docs/decisions/ADR-0005-wire-format.md`).
  *
@@ -59,26 +61,6 @@ enum class FrameKind(
     }
 }
 
-/** The report catalog of spec FR-4.1. Codes are fixed by the wire version; a new type is a new version. */
-enum class ReportType(
-    val code: Int,
-) {
-    POLICE_LINE(0),
-    KETTLE(1),
-    TEAR_GAS(2),
-    ARRESTS(3),
-    MEDIC(4),
-    WATER_SUPPLIES(5),
-    EXIT_OPEN(6),
-    STREET_CLOSED(7),
-    ALL_CLEAR(8),
-    ;
-
-    companion object {
-        fun of(code: Int): ReportType? = entries.firstOrNull { it.code == code }
-    }
-}
-
 enum class Vote(
     val code: Int,
 ) {
@@ -131,6 +113,12 @@ sealed interface Frame {
 sealed interface SignedFrame : Frame {
     val publicKey: Bytes
     val signature: Bytes
+
+    /** Signed creation time, minutes since the Unix epoch, UTC (spec FR-7.3). */
+    val createdMinute: Long
+
+    /** Signed lifetime in minutes: the frame is void at [createdMinute] plus this (FR-5.2). */
+    val lifetimeMinutes: Int
 }
 
 /**
@@ -143,8 +131,8 @@ data class PublicReportFrame(
     val type: ReportType,
     val latitude: Int,
     val longitude: Int,
-    val createdMinute: Long,
-    val lifetimeMinutes: Int,
+    override val createdMinute: Long,
+    override val lifetimeMinutes: Int,
     override val signature: Bytes,
 ) : SignedFrame {
     override val kind get() = FrameKind.PUBLIC_REPORT
@@ -158,8 +146,8 @@ data class PublicVoteFrame(
     /** The message id of the report voted on. */
     val target: Bytes,
     val vote: Vote,
-    val createdMinute: Long,
-    val lifetimeMinutes: Int,
+    override val createdMinute: Long,
+    override val lifetimeMinutes: Int,
     override val signature: Bytes,
 ) : SignedFrame {
     override val kind get() = FrameKind.PUBLIC_VOTE
@@ -172,8 +160,8 @@ data class WithdrawalFrame(
     override val hopBudget: Int,
     override val publicKey: Bytes,
     val target: Bytes,
-    val createdMinute: Long,
-    val lifetimeMinutes: Int,
+    override val createdMinute: Long,
+    override val lifetimeMinutes: Int,
     override val signature: Bytes,
 ) : SignedFrame {
     override val kind get() = FrameKind.WITHDRAWAL
