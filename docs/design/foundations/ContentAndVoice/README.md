@@ -1,6 +1,6 @@
 # Content and voice
 
-English only, all strings externalised (SPEC NFR-17).
+All strings externalised (SPEC NFR-17). English for the MVP; English, French and Spanish at 1.0 (NFR-21). Write copy that survives translation: French and Spanish run about 20-30% longer, so no label may depend on fitting one line, and layouts use start and end, never left and right.
 
 ## Voice
 

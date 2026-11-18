@@ -2,7 +2,7 @@
 
 The design system for Echo, a free, open-source, peer-to-peer protest map for Android. It is a sibling of [Zapper's design system](https://github.com/ThroughTheWind/zapper/tree/main/docs/design): same Material 3 base, same Roboto Flex, same 4dp spacing, same token files and the same Compose setup. What changes is the setting. Zapper is used on a sofa with eyes on a TV; Echo is used standing in a crowd, in sun or at night, with gloves, one hand, and sometimes people nearby who shouldn't see your screen.
 
-> Package `io.github.throughthewind.echo`. English only. Product scope: the [MVP spec](../SPEC.md). The Compose theme lives in `core/designsystem/` (package `…echo.core.designsystem.theme`). Open [`preview/index.html`](preview/index.html) for every entry in all three themes: one self-contained file that makes no network request.
+> Package `io.github.throughthewind.echo`. English for the MVP; French and Spanish at 1.0 (NFR-21). Product scope: the [MVP spec](../SPEC.md). The Compose theme lives in `core/designsystem/` (package `…echo.core.designsystem.theme`). Open [`preview/index.html`](preview/index.html) for every entry in all three themes: one self-contained file that makes no network request.
 
 ## Structure
 
@@ -85,6 +85,5 @@ Every entry is a folder with a `README.md` (the spec) and a `preview.html` (a fr
 
 - **Threat model:** whether `FLAG_SECURE` covers every screen or only the QR (FR-12.5 says the QR; recommended: every screen, since the recents thumbnail of a map shows where you are). The design works either way.
 - **Transport:** whether the peer count can be honest at crowd density (the chip caps at "20+"); which OEMs get their own battery instructions page (FR-3.3a).
-- **Spec:** the 5-second send delay in ReportPicker (a sent report can't be unsent) needs an FR; the "Reports near you" list for TalkBack needs an FR; the Quick Settings tile for discreet mode needs an FR.
 
-Settled since the first draft: the protects/doesn't wording follows threat model §7; no launcher disguise (FR-13.2); BLE only, so no Wi-Fi or location toggles in the mesh status; no word comparison in the QR join (FR-8.2).
+Settled since the first draft: the protects/doesn't wording follows threat model §7; no launcher disguise (FR-13.2); BLE only, so no Wi-Fi or location toggles in the mesh status; no word comparison in the QR join (FR-8.2); the send delay, report list and discreet tile are in the spec (FR-4.7, FR-5.6, FR-13.3).

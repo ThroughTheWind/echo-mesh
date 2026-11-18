@@ -1,7 +1,7 @@
 ---
 id: ADR-0004
 title: Secure the mesh with signed frames, a ratcheted group key and a Noise join, built on Tink
-status: proposed
+status: accepted
 date: 2026-11-16
 supersedes:
 superseded_by:
@@ -9,8 +9,7 @@ superseded_by:
 
 # ADR-0004 — Secure the mesh with signed frames, a ratcheted group key and a Noise join, built on Tink
 
-> Draft number. ADR-0001 to ADR-0003 are taken by the stack thread (stack, transport adapters,
-> GPL and no servers). Renumber if the app repo assigns differently.
+> Accepted by Antoine on 2026-11-18.
 
 ## Context
 
@@ -38,9 +37,11 @@ Forces:
 ## Decision
 
 **Library.** `:core:crypto` uses **Google Tink** (Apache-2.0) for every primitive:
-Ed25519, X25519, ChaCha20-Poly1305 and XChaCha20-Poly1305, HKDF-SHA256, SHA-256. `tink-android` in the
-app, `tink` on the JVM, same API. No other crypto library is on the classpath. No module outside
-`:core:crypto` calls a primitive.
+Ed25519, X25519, ChaCha20-Poly1305 and XChaCha20-Poly1305, HKDF-SHA256, SHA-256. One artifact,
+`tink-android`, on Android and in the JVM tests alike: it is a plain jar that runs on the JVM
+(`TinkPrimitivesTest`), while the JVM-only `tink` artifact pulls in an HTTP client and native
+Conscrypt, which `gradle/forbidden-dependencies.txt` refuses. No other crypto library is on the
+classpath. No module outside `:core:crypto` calls a primitive.
 
 **Protocols.** Three constructions, each from a published design, with nothing invented in between:
 
@@ -59,7 +60,7 @@ app, `tink` on the JVM, same API. No other crypto library is on the classpath. N
 **Rules that apply to all three.**
 - No compression anywhere in the wire format.
 - Verify (signature or AEAD) before any other processing, and before relaying.
-- Every wire change bumps a version byte and adds fuzz seeds.
+- Every wire change bumps a version byte and adds fuzz seeds ([ADR-0005](ADR-0005-wire-format.md)).
 - The Noise handshake is implemented in `:core:crypto` on Tink primitives and must pass published
   Noise test vectors (cacophony) for `NKpsk0` in CI before it is used.
 - An independent review of all three (threat model §8) happens before 1.0.
@@ -90,8 +91,10 @@ app, `tink` on the JVM, same API. No other crypto library is on the classpath. N
 - **The ratchet depends on clocks.** Phones with very wrong clocks fail to read group traffic. The
   app keeps neighbouring epochs and warns when its clock disagrees with peers.
 - **Tink is maintained by Google.** It is Apache-2.0 open source and does not depend on Play
-  Services, but the dependency gate must allow `com.google.crypto.tink` explicitly while blocking
-  `com.google.android.gms` and `com.google.firebase`, so it cannot be a blanket `com.google` rule.
+  Services, but the dependency gate must allow `com.google.crypto.tink:tink-android` explicitly while
+  blocking `com.google.android.gms`, `com.google.firebase` and the JVM `tink` artifact, so it cannot
+  be a blanket `com.google` rule.
+- **tink-android brings Gson** (Apache-2.0) for its JSON keyset format, which the app does not use.
 - **tink-android needs API 23 and Java 11**, both inside the stack's minSdk 31 (ADR-0001).
 - Joining needs a working one-hop radio link between two phones; if that proves unreliable, the
   revisit trigger below applies.

@@ -45,12 +45,37 @@ jobs:
       # The gate logic is tested in both directions before any gate is trusted.
       - name: Gate self-tests
         run: ./gradlew -p build-logic test
-      - name: Transport and crypto boundaries (ADR-0002, crypto rule)
-        run: ./gradlew checkTransportBoundaries checkCryptoBoundaries
+      - name: Transport, crypto and compression boundaries (ADR-0002, ADR-0005, crypto rule)
+        run: ./gradlew checkTransportBoundaries checkCryptoBoundaries checkCompressionImports
       - name: No forbidden dependency, no INTERNET permission (ADR-0003)
         run: ./gradlew checkForbiddenDependencies checkManifestPermissions
       - name: Unit tests
         run: ./gradlew test
+      # The wire decoder reads hostile bytes, so it is fuzzed on every change (ADR-0005, spec AC-12).
+      # A finding fails the build and is saved under core/mesh/src/test/resources: commit it with the
+      # fix, and every later test run replays it. --rerun because Gradle does not see the variable.
+      - name: Fuzz the wire decoder
+        run: JAZZER_FUZZ=1 ./gradlew :core:mesh:test --rerun --tests '*.WireFuzzTest'
+      - name: Upload fuzzing findings
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fuzz-findings
+          path: core/mesh/src/test/resources/**/crash-*
+          if-no-files-found: ignore
+      # Prove the fuzzing step can fail: the same harness around a decoder with a planted bug.
+      - name: Fuzzing finds a planted bug
+        run: |
+          if ECHO_FUZZ_SELF_TEST=1 JAZZER_FUZZ=1 ./gradlew :core:mesh:test --rerun --tests '*.WireFuzzSelfTest' > fuzz-self-test.log 2>&1; then
+            echo "::error::The fuzzing step is blind: Jazzer did not find the planted decoder bug"
+            cat fuzz-self-test.log
+            exit 1
+          fi
+          if ! grep -q "FuzzTestFindingException" fuzz-self-test.log; then
+            echo "::error::The planted-bug run failed, but not with a fuzzing finding"
+            cat fuzz-self-test.log
+            exit 1
+          fi
       - name: Android lint
         run: ./gradlew lint
       - name: Debug APK

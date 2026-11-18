@@ -30,11 +30,13 @@ Every requirement, user story and acceptance criterion in [`docs/SPEC.md`](../SP
 | FR-4.4 | Minimal report contents, no free text | [Report picker](patterns/ReportPicker/README.md) |
 | FR-4.5 | Withdraw your own report | [Report detail](patterns/ReportDetail/README.md) |
 | FR-4.6 | Sender-side rate limit | [Report picker](patterns/ReportPicker/README.md) |
+| FR-4.7 | 5-second send delay with Cancel | [Report picker](patterns/ReportPicker/README.md), [Snackbar](components/Snackbar/README.md) |
 | FR-5.1 | Gossip with anti-entropy | No UI: transport. |
 | FR-5.2 | Content-addressed ids, signed expiry, hop budget | No UI: protocol. |
 | FR-5.3 | Verify, then store, then relay | No UI: protocol. Dropped frames are silent by design. |
 | FR-5.4 | Everyone relays group reports unread | No UI: protocol. |
 | FR-5.5 | Type, age, time left, direct or relayed; never the sender | [Report detail](patterns/ReportDetail/README.md), [Report pin](components/ReportPin/README.md), [Reports near you](screens/ReportsNearYou/README.md) |
+| FR-5.6 | Reports as a list sorted by distance | [Reports near you](screens/ReportsNearYou/README.md), [Accessibility](foundations/Accessibility/README.md) |
 | FR-6.1 | Confirm or dismiss, one vote | [Report detail](patterns/ReportDetail/README.md) |
 | FR-6.2 | Counts split group and nearby | [Report detail](patterns/ReportDetail/README.md) |
 | FR-6.3 | Confirmations extend time left, capped at 2x | [Expiry indicator](components/ExpiryIndicator/README.md), [Report detail](patterns/ReportDetail/README.md) |
@@ -69,6 +71,7 @@ Every requirement, user story and acceptance criterion in [`docs/SPEC.md`](../SP
 | FR-12.5 | QR screen blocks screenshots | [QR join flow](patterns/QrJoinFlow/README.md) |
 | FR-13.1 | One switch: darkest theme, dim, silent, neutral notification | [Discreet mode](patterns/DiscreetMode/README.md), [Themes](foundations/Themes/README.md), [System notification](components/SystemNotification/README.md) |
 | FR-13.2 | No launcher disguise | [Discreet mode](patterns/DiscreetMode/README.md) |
+| FR-13.3 | Quick Settings tile for discreet mode | [Discreet mode](patterns/DiscreetMode/README.md) |
 | FR-14.1 | Radio-agnostic transport contract | No UI: architecture. The UI shows capabilities only, see [Mesh status](components/MeshStatus/README.md) |
 | FR-14.2 | One module per transport, BLE only in the MVP | No UI: architecture. |
 | FR-14.3 | Loopback transport | No UI: test tooling. |
@@ -94,7 +97,8 @@ Every requirement, user story and acceptance criterion in [`docs/SPEC.md`](../SP
 | NFR-14 | Every safety claim traces to threat model §7 | [What Echo protects](screens/WhatEchoProtects/README.md), [Onboarding](patterns/OnboardingFlow/README.md), [Content and voice](foundations/ContentAndVoice/README.md) |
 | NFR-15 | Plain Kotlin logic, tested | No UI: code quality. |
 | NFR-16 | Signed APK, reproducible builds | No UI: release. |
-| NFR-17 | English only, strings externalized | [Content and voice](foundations/ContentAndVoice/README.md) |
+| NFR-17 | Strings externalized (languages now NFR-21) | [Content and voice](foundations/ContentAndVoice/README.md) |
+| NFR-21 | English, French and Spanish at 1.0; layouts use start and end (extended spec F18) | [Content and voice](foundations/ContentAndVoice/README.md) |
 
 ## User stories
 

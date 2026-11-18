@@ -35,10 +35,11 @@ Phase 4 of the [roadmap](../../ROADMAP.md).
 
 ### Approach
 
-- Only after WI-030 to WI-032 are done.
+- Only after WI-030 to WI-032 and the 1.0 additions WI-034 to WI-038 are done.
 
 ### Acceptance criteria / tests
 
+- AC-26 to AC-31 are checked on the release candidate (extended spec §8).
 - The `v1.0.0` release is published with APK and checksum, and installs over 0.3.0 on every reference phone.
 
 ### Out of scope

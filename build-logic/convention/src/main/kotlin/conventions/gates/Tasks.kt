@@ -32,6 +32,10 @@ abstract class ForbiddenDependenciesTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val rulesFile: RegularFileProperty
 
+    /** Which decision the rules carry out, for the failure message. */
+    @get:Input
+    abstract val reason: Property<String>
+
     @TaskAction
     fun check() {
         val rules = ForbiddenDependencies.parse(rulesFile.get().asFile.readText())
@@ -67,7 +71,7 @@ abstract class ForbiddenDependenciesTask : DefaultTask() {
         }
         if (offenders.isNotEmpty()) {
             throw GradleException(
-                "$name contains forbidden dependencies (ADR-0003, gradle/forbidden-dependencies.txt):\n" +
+                "$name contains forbidden dependencies (${reason.get()}):\n" +
                     offenders.joinToString("\n") { "  $it" },
             )
         }
@@ -106,7 +110,7 @@ abstract class ManifestPermissionsTask : DefaultTask() {
 /** Fails if a Kotlin file imports across a boundary that an ADR closes. */
 @CacheableTask
 abstract class ImportBoundariesTask : DefaultTask() {
-    enum class Rule { TRANSPORT, CRYPTO }
+    enum class Rule { TRANSPORT, CRYPTO, COMPRESSION }
 
     @get:Input
     abstract val rule: Property<Rule>
@@ -127,6 +131,9 @@ abstract class ImportBoundariesTask : DefaultTask() {
     @get:Input
     abstract val cryptoPackages: ListProperty<String>
 
+    @get:Input
+    abstract val compressionPackages: ListProperty<String>
+
     @TaskAction
     fun check() {
         val root = rootDirectory.get().asFile
@@ -144,6 +151,10 @@ abstract class ImportBoundariesTask : DefaultTask() {
                     Rule.CRYPTO -> {
                         ImportBoundaries.cryptoViolations(relative, lines, cryptoPackages.get())
                     }
+
+                    Rule.COMPRESSION -> {
+                        ImportBoundaries.compressionViolations(relative, lines, compressionPackages.get())
+                    }
                 }
             }
         if (violations.isNotEmpty()) {
@@ -158,6 +169,11 @@ abstract class ImportBoundariesTask : DefaultTask() {
                     Rule.CRYPTO -> {
                         "Only core/crypto/ may import a cryptographic API, so every primitive is reviewed in one " +
                             "place (.ai/rules/crypto.md)"
+                    }
+
+                    Rule.COMPRESSION -> {
+                        "Nothing in core/ may compress or decompress: compression on the wire broke Bridgefy " +
+                            "twice (ADR-0005, threat model §5.4)"
                     }
                 }
             throw GradleException("$why.\n" + violations.joinToString("\n") { "  $it" })

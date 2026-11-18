@@ -16,7 +16,8 @@
 
 Threats and the crypto design: see [threat-model.md](threat-model.md). Radio transports and relay
 strategy: see [research/](research/). Visual design: see the [design system](design/README.md).
-Delivery order: see the [roadmap](ROADMAP.md).
+Delivery order: see the [roadmap](ROADMAP.md). What comes after the MVP, and the 1.0 additions
+(F15–F19) that join this spec's definition of done: see the [extended spec](SPEC-EXTENDED.md).
 
 Related work running in parallel (this spec stays at product level and links to them for the details):
 - **Transport research** — BLE, Wi-Fi Direct, Wi-Fi Aware, relay strategies, prior art. Tag **[DEP: transport]**.
@@ -204,6 +205,7 @@ Format: *As a [persona], I want [action], so that [outcome].* IDs map to feature
 - FR-4.4 A report carries only: type, position (coarsened to a precision set by the protocol), creation time (coarsened), lifetime, hop count, and the authentication data the protocol requires. No device, user or app-instance identifier, no free text. **[DEP: threat]**
 - FR-4.5 A user can withdraw their own report; withdrawal spreads like a report.
 - FR-4.6 Rate limit on the sender's side (e.g. at most one report per type per minute) so a mistake can't spam the mesh.
+- FR-4.7 A report waits 5 seconds on the phone after the user confirms, with a visible **Cancel**, before it is sent. Once it has left the phone it can only be withdrawn (FR-4.5), which spreads more slowly than the report did. Discreet mode keeps the delay but drops the countdown animation. **[DEP: design]**
 
 ### F5 — Report spread
 - FR-5.1 Relaying is epidemic gossip with anti-entropy, not blind flooding: phones advertise a small digest of what they hold, and on connection exchange a set summary and pull only the reports they lack, newest and most severe first, within a per-connection byte budget.
@@ -211,6 +213,7 @@ Format: *As a [persona], I want [action], so that [outcome].* IDs map to feature
 - FR-5.3 **Verify, then store, then relay.** A phone parses with a strict size cap (no compression on the wire), checks version, type, expiry and signature, and only then stores or forwards. Anything malformed, expired, out of hop budget, over-sized or over a rate limit is dropped silently without affecting other peers. Rate limits are per connection and global (ephemeral tokens rotate), and storage is bounded with eviction by expiry, then fewest confirmations. **[DEP: threat]**
 - FR-5.4 Group reports are relayed by everyone, including phones outside the group, without being readable by them, so groups benefit from the whole crowd. Group frames carry no group id on the air and have a fixed size, and non-members can check them before relaying without reading them ([threat model §5.3](threat-model.md)).
 - FR-5.5 A report shows on the map with its type, age, time left, and how it arrived (direct / relayed), never who sent it.
+- FR-5.6 Every report the phone holds is also available as a list ("Reports near you"), sorted by distance from the map centre or your position, with the same filter as the map (FR-9.3), the same verified and unverified styles (FR-9.2) and the same detail. It is the main path for TalkBack users (NFR-12) and can drop a report at the map centre without touching the map. **[DEP: design]**
 
 ### F6 — Confirm or dismiss
 - FR-6.1 On a report's detail, the user can **Confirm** (still true) or **Dismiss** (no longer true). One vote per report per phone.
@@ -261,6 +264,7 @@ Format: *As a [persona], I want [action], so that [outcome].* IDs map to feature
 ### F13 — Discreet mode
 - FR-13.1 One switch: darkest theme, reduced brightness, no sounds or vibration, neutral notification text and icon.
 - FR-13.2 Discreet mode does **not** disguise the launcher name or icon: a disguise found on a seized phone looks worse than the app itself (threat model recommendation).
+- FR-13.3 A Quick Settings tile toggles discreet mode without opening the app. The user adds it; Echo never adds it on its own. The tile only toggles and shows on/off, never a report, a count or a group, so it reveals nothing on a locked phone beyond the app being installed.
 
 ### F14 — Transport architecture (product-level contract)
 - FR-14.1 Core and UI depend only on a radio-agnostic `MeshTransport` contract in `:core:mesh`. They know capabilities (range class, bandwidth class, works in background, needs location permission, supports broadcast, max message size), never "BLE" or "Wi-Fi Direct". Same pattern as Zapper's ADR-0002. **[DEP: stack]**
@@ -278,7 +282,7 @@ Mesh (on/off, background relaying), Groups (list, create, join, leave), Maps (do
 | ID | Category | Requirement |
 |---|---|---|
 | NFR-1 | Propagation | In a loopback simulation of 200 phones at crowd density, a report reaches 90% of phones within 5 hops in under 60 s. Field target on the reference phones: direct peer within 10 s. **[DEP: transport]** |
-| NFR-2 | Message size | A signed report is compact (research estimate 110–150 bytes in a binary format, to confirm) and moves over a GATT/L2CAP connection; it never depends on fitting in a 31-byte legacy advertisement. Wire format decided in an ADR. **[DEP: threat]** |
+| NFR-2 | Message size | A signed report is compact (research estimate 110–150 bytes in a binary format, to confirm) and moves over a GATT/L2CAP connection; it never depends on fitting in a 31-byte legacy advertisement. Wire format in [ADR-0005](decisions/ADR-0005-wire-format.md): a public report is 114 bytes. **[DEP: threat]** |
 | NFR-3 | Robustness | A peer sending malformed, oversized or flooding traffic cannot crash the app or stop it relaying for other peers. The decoder is fuzzed in CI. |
 | NFR-4 | Privacy on the air | No stable identifier on the air; app-level tokens rotate at most every 10 minutes, together with the radio address, and are unlinkable; no cleartext group names or nicknames. **[DEP: threat]** |
 | NFR-5 | Privacy on the phone | No location history, no plaintext logs, encrypted storage, wipe under 2 s. |
@@ -293,7 +297,7 @@ Mesh (on/off, background relaying), Groups (list, create, join, leave), Maps (do
 | NFR-14 | Honesty | Every safety claim in the UI traces to a row of [threat-model.md §7](threat-model.md); reviewed as part of the security review. |
 | NFR-15 | Code quality | Mesh, relay and crypto logic are plain Kotlin/JVM, tested against simulated and hostile peers; CI on every PR. |
 | NFR-16 | Distribution | Signed APK on GitHub Releases; reproducible builds suitable for F-Droid later. `SECURITY.md` with a private reporting route. |
-| NFR-17 | Localization | English only; all strings externalized. |
+| NFR-17 | Localization | All strings externalized. Superseded by NFR-21 in the [extended spec](SPEC-EXTENDED.md): English, French and Spanish at 1.0. |
 
 ---
 
@@ -359,10 +363,10 @@ A second transport (Wi-Fi Aware) comes after 1.0, unless the field test shows BL
 |---|---|---|---|
 | A1 | At least one peer-to-peer radio works on Android without Play Services, in the background, at crowd density, within the battery target. | Transport | ⚠️ Partly: BLE works on every target phone, needs no dialog and runs in a foreground service. Range in a crowd, battery, Doze and OEM battery managers must be measured on the reference phones (research §7). |
 | A2 | A signed report fits the chosen transport's message budget (FR-4.4, NFR-2). | Transport + Threat | ✅ Over GATT/L2CAP, yes; not in a legacy advertisement, so reports move over connections (NFR-2). |
-| A3 | A published protocol and a reviewed, GPL-compatible library cover signing, group encryption and QR key exchange. | Threat | ⚠️ Proposed in [ADR-0004](decisions/ADR-0004-crypto-design.md): Tink (Apache-2.0) for primitives, Noise for the join; awaiting acceptance. |
+| A3 | A published protocol and a reviewed, GPL-compatible library cover signing, group encryption and QR key exchange. | Threat | ✅ Decided in [ADR-0004](decisions/ADR-0004-crypto-design.md): Tink (Apache-2.0) for primitives, Noise for the join. |
 | A4 | Public reports can be authenticated without creating a linkable identity (rotating keys). | Threat | ⚠️ Proposed in [threat model §5.2](threat-model.md). |
-| A5 | An open-source offline map renderer exists that is GPL-compatible and makes no network calls. | Stack | ⏳ Open |
-| A6 | Map data can be obtained without the app holding `INTERNET` (browser download + import). | Stack | ⏳ Open |
+| A5 | An open-source offline map renderer exists that is GPL-compatible and makes no network calls. | Stack | ✅ Decided in [ADR-0006](decisions/ADR-0006-offline-map.md): VTM (LGPL-3.0), no network module, no permission; drawing measured on the reference phones in WI-004. |
+| A6 | Map data can be obtained without the app holding `INTERNET` (browser download + import). | Stack | ✅ Decided in [ADR-0006](decisions/ADR-0006-offline-map.md): Mapsforge `.map` files downloaded in the browser and imported with the system file picker. |
 | A7 | Stack is Kotlin + Compose, multi-module, as in Zapper's ADR-0001. | Stack | ⏳ Open (expected yes) |
 | A8 | The design system delivers street-ready components for every screen above. | Design | ⏳ Open |
 | A9 | `rungs` drives the repo workflow as in Zapper. | Stack | ⏳ Open (expected yes) |
@@ -371,16 +375,17 @@ A second transport (Wi-Fi Aware) comes after 1.0, unless the field test shows BL
 
 1. ~~**License**~~ — **Decided:** GPL-3.0-only.
 2. ~~**Platform and distribution**~~ — **Decided:** Android phones, GitHub Releases first, F-Droid later.
-3. ~~**Language**~~ — **Decided:** English only.
+3. ~~**Language**~~ — **Decided:** English only for the MVP milestones; English, French and Spanish at 1.0 (Antoine, 2026-11-17, extended spec F18).
 4. **App name** — **Decided by Antoine (2026-11-16):** Echo, package `io.github.throughthewind.echo`. Repo: `ThroughTheWind/echo-mesh`.
 5. ~~**Reference phones**~~ — **Answered by Antoine (2026-11-16):** Pixel 11 Pro, Pixel 9a, OPPO Find X3 Pro. Android versions to record during the BLE spike.
 6. ~~**Public reports to strangers**~~ — **Decided by Antoine (2026-11-16):** yes, shown as unverified and visually distinct from group reports (FR-4.3, FR-9.2).
 7. **Default group lifetime** — *Proposed:* 24 h, up to 7 days (FR-8.1). Short-lived groups limit what an infiltrator or a seized phone exposes.
-8. **No `INTERNET` permission** — *Proposed:* map download goes through the browser and is imported (FR-2.3). To settle in an ADR.
+8. ~~**No `INTERNET` permission**~~ — **Decided by Antoine (2026-11-18):** map download goes through the browser and is imported (FR-2.3, [ADR-0006](decisions/ADR-0006-offline-map.md)).
 9. **Background relaying** — *Proposed:* yes, through a visible foreground service while the mesh is on (FR-3.3).
 10. ~~**Non-members relay group traffic**~~ — **Decided (threat model):** yes, as fixed-size frames with no group id on air (FR-5.4).
 11. ~~**minSdk**~~ — **Decided by Antoine (2026-11-16):** 31 (Android 12+), so Bluetooth never requires a location permission. Phones stuck on Android 8–11 are not supported.
 12. ~~**MVP transport**~~ — **Decided (research):** BLE only; Wi-Fi Aware later; Wi-Fi Direct dropped.
+13. ~~**Send delay, report list, discreet tile**~~ — **Decided by Antoine (2026-11-17):** in the MVP, from the design system (FR-4.7, FR-5.6, FR-13.3).
 
 ---
 

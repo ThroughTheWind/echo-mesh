@@ -31,17 +31,39 @@ internal fun Project.forbiddenDependenciesLifecycle() =
             description = "Fails if a resolved runtime classpath contains a forbidden artifact (ADR-0003)."
         }.also { lifecycle -> tasks.named("check") { dependsOn(lifecycle) } }
 
-/** One dependency-gate task for one resolvable configuration, wired into the lifecycle task. */
+/** The rules every module's runtime classpath is checked against (ADR-0003). */
+internal const val FORBIDDEN_EVERYWHERE = "gradle/forbidden-dependencies.txt"
+
+/** The extra rules for `:core:*` modules: no compression library (ADR-0005). */
+internal const val FORBIDDEN_IN_CORE = "gradle/forbidden-in-core.txt"
+
+/**
+ * Dependency-gate tasks for one resolvable configuration, wired into the lifecycle task: the
+ * app-wide rules, and for a `:core:*` module the core rules too.
+ */
 internal fun Project.checkForbiddenDependencies(configuration: Configuration) {
+    register(configuration, "", FORBIDDEN_EVERYWHERE, "ADR-0003, $FORBIDDEN_EVERYWHERE")
+    if (path.startsWith(":core:")) {
+        register(configuration, "InCore", FORBIDDEN_IN_CORE, "no compression in core, ADR-0005, $FORBIDDEN_IN_CORE")
+    }
+}
+
+private fun Project.register(
+    configuration: Configuration,
+    suffix: String,
+    rules: String,
+    why: String,
+) {
     val task =
         tasks.register<ForbiddenDependenciesTask>(
-            "checkForbiddenDependencies" + configuration.name.replaceFirstChar(Char::uppercase),
+            "checkForbiddenDependencies" + suffix + configuration.name.replaceFirstChar(Char::uppercase),
         ) {
             group = "verification"
-            description = "Fails if ${configuration.name} contains a forbidden artifact (ADR-0003)."
+            description = "Fails if ${configuration.name} contains an artifact forbidden by $rules."
             configurationName.set(configuration.name)
             rootComponent.set(configuration.incoming.resolutionResult.rootComponent)
-            rulesFile.set(rootProject.layout.projectDirectory.file("gradle/forbidden-dependencies.txt"))
+            rulesFile.set(rootProject.layout.projectDirectory.file(rules))
+            reason.set(why)
         }
     tasks.named(FORBIDDEN_DEPENDENCIES_TASK) { dependsOn(task) }
 }

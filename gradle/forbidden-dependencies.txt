@@ -21,6 +21,15 @@ com.google.firebase
 com.google.android.datatransport
 com.crashlytics
 io.fabric.sdk.android
+# Network clients. The app opens no connection to anything but other phones (ADR-0003); these
+# arrive with libraries meant for servers, such as the plain JVM "tink" artifact (ADR-0004 uses
+# tink-android everywhere).
+com.google.crypto.tink:tink
+com.google.http-client
+org.conscrypt:conscrypt-openjdk-uber
+# The map renderer's optional network module and the HTTP client map SDKs bring (ADR-0006).
+org.mapsforge:vtm-http
+com.squareup.okhttp3
 # Other platform services.
 com.huawei.hms
 com.huawei.agconnect

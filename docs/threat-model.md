@@ -11,7 +11,7 @@ details (see [research/](research/)).
 |---|---|
 | **Status** | v0.1 draft, 2026-11-16. Not reviewed by an outside expert. |
 | **Applies to** | MVP (spec v0.1): public reports, votes, affinity groups, group reports, position sharing, panic wipe |
-| **Design it pairs with** | [ADR-0004](decisions/ADR-0004-crypto-design.md) (proposed) |
+| **Design it pairs with** | [ADR-0004](decisions/ADR-0004-crypto-design.md) (accepted) |
 
 > Everything in this document is a design target until a test or the outside review shows it holds.
 > The UI may only claim what §7 lists as protected (spec NFR-14).
@@ -212,11 +212,12 @@ This section states what each part must achieve.
   semantic validation → store and relay. Relays forward only after verifying (Bridgefy forwarded
   before processing, P1 §4.4).
 - The decoder is fuzzed in CI (spec NFR, brief). Every wire change bumps the version and adds fuzz
-  seeds. The wire-format ADR is not written yet and has no owner (the stack thread left a CI slot
-  and a finding for it); these are the security constraints it must meet. Mechanical enforcement
-  already in the stack: only `:core:crypto` may import a crypto API (`checkCryptoBoundaries`),
-  the dependency gate admits Tink but rejects Play Services and Firebase, and release builds strip
-  `android.util.Log`.
+  seeds. [ADR-0005](decisions/ADR-0005-wire-format.md) fixes the format against these
+  constraints. Mechanical enforcement: CI fuzzes the decoder with a planted-bug check, nothing in
+  `core/` may import or depend on a compression library (`checkCompressionImports`,
+  `gradle/forbidden-in-core.txt`), only `:core:crypto` may import a crypto API
+  (`checkCryptoBoundaries`), the dependency gate admits Tink but rejects Play Services and
+  Firebase, and release builds strip `android.util.Log`.
 - Error handling is uniform: every rejected frame is dropped silently, after the same work as far
   as practical, and never answered. No delivery receipts exist, so there is no oracle (Bridgefy's
   Bleichenbacher attack used receipts, P1 §4.3).
@@ -371,14 +372,19 @@ anyone.
 
 ## 9. Open questions
 
+None of these blocks Phase 1 or Phase 2: 1 is for v1.1, 2 and 3 are settled in the spec, and 4 and
+5 are tuned by the field test (WI-028).
+
 1. **App lock and duress PIN** (spec v1.1). An app lock that defers to the Android device
    credential adds little over the lock screen. A duress PIN that wipes is useful but can be read as
    destroying evidence in some jurisdictions, and its existence is discoverable in the open-source
    code. Proposal: v1.1, opt-in, with that warning. Needs Antoine's call.
 2. **Launcher disguise** (spec FR-13.2). Proposal: no disguise. The app is still visible in system
    settings and the open-source code documents the disguise, so a disguised protest app that is
-   found looks worse than an honest one. Discreet mode covers what is on screen.
-3. **Mute a member** locally (A2). Proposal: add to the spec as a small MVP item.
+   found looks worse than an honest one. Discreet mode covers what is on screen. *Settled: spec
+   FR-13.2.*
+3. **Mute a member** locally (A2). Proposal: add to the spec as a small MVP item. *Settled: spec
+   FR-9.4, built in WI-021.*
 4. **Join over one hop needs a working radio link** at join time. If field tests show joins failing
    often, the fallback is a two-way QR exchange (both phones scan each other), which needs no radio.
 5. **Rotation period** of 10 minutes and **epoch length** of 1 hour are first guesses; tune with the

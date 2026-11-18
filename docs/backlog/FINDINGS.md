@@ -7,14 +7,15 @@ Things noticed while doing something else. **A finding is the observation; a wor
 decision.** Recording one must cost almost nothing, or it will not happen — so a finding is a
 **row**, not a file. Items are files; findings are rows. The asymmetry is deliberate.
 
-<!-- NEXT-ID: F-003 -->
+<!-- NEXT-ID: F-004 -->
 
 ## Open
 
 | Id | Sev | Pri | What | Evidence | When to act | How to fix |
 | --- | --- | --- | --- | --- | --- | --- |
-| F-001 | high | next | CI has no slot yet for the crypto and wire-format checks the threat model asks for: decoder fuzzing (Jazzer or similar), Noise test vectors for `:core:crypto`, and a ban on compression libraries on `:core:*` classpaths. | `.github/workflows/ci.yml` has no such step; the crypto ADR draft (ADR-0004) lists them. | When `:core:crypto` or the first decoder lands. | Add a CI job per check in the same change as the code; the compression ban can be a second rules file read by `checkForbiddenDependencies` for `:core:*` only. |
+| F-001 | high | next | CI has no slot yet for the Noise test vectors `:core:crypto` must pass (ADR-0004). Decoder fuzzing and the compression ban landed with WI-003. | `.github/workflows/ci.yml` runs the fuzzer and the compression gates, but nothing checks a Noise handshake yet. | When the Noise join is written (WI-017). | Run the cacophony `NKpsk0` vectors as a unit test of `:core:crypto` in the same change as the handshake. |
 | F-002 | medium | next | Wi-Fi Direct and Wi-Fi Aware move data over IP sockets, and Android needs `INTERNET` for any socket, which ADR-0003 and `checkManifestPermissions` forbid. | `adapters/wifidirect/README.md`; Android requires `INTERNET` for `socket()`, to be confirmed by transport research. | Before `:adapters:wifidirect` or `:adapters:wifiaware` gets code. | An ADR that either allows `INTERNET` with sockets bound to the peer-to-peer interface only, or keeps Wi-Fi radios out of the MVP. |
+| F-003 | high | next | `checkForbiddenDependencies` once passed with a forbidden artifact on the classpath while the configuration cache was on: it saw 2 external modules instead of 7. Not reproduced after clearing `.gradle/configuration-cache`. | Local run of 2026-11-17 (WI-002): `:core:crypto` with `com.google.crypto.tink:tink` planted printed "2 external modules, none forbidden" with the cache reused; `--no-configuration-cache` and a fresh cache both failed correctly on the same build file. | Before trusting a cached local run of the gate; CI starts without a configuration cache, so it is not affected today. | Find the cause, or make the gate read the resolved graph in a way the configuration cache cannot serve stale, and add a self-test that plants a dependency under the cache. |
 
 ## Closed
 

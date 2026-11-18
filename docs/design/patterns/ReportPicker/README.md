@@ -7,7 +7,7 @@
 1. **Report** ([FAB](../../components/FloatingActionButton/README.md)) opens the sheet and shows a crosshair at the map's centre, shifted up so it stays above the sheet. The report goes **at the crosshair, never at your GPS position** (FR-4.2, US-8). Pan the map to move it.
 2. **Pick a type:** a 3 × 3 grid of tiles grouped by family. Below it, the audience [segmented button](../../components/SegmentedButton/README.md): **Everyone nearby** / **{Group} only**, defaulting to the last choice (FR-4.3). With several groups, the group segment opens a list of radio buttons; "Everyone nearby" carries "unverified".
 3. **Confirm:** the chosen type in `glance-title` with its lifetime, and one hero button naming the audience: "Send to Crew" (lock) or "Send to everyone nearby". A secondary outlined button switches audience.
-4. **Grace period:** the snackbar "Tear gas sending to Crew in 5 s · Cancel" (`send-grace`). A report that has left the phone can only be withdrawn, so the cancel window comes first and the copy says "sending". Then the `ReportSent` haptic.
+4. **Grace period:** the snackbar "Tear gas sending to Crew in 5 s · Cancel" (`send-grace`). A report that has left the phone can only be withdrawn, so the cancel window comes first and the copy says "sending". Then the `ReportSent` haptic (SPEC FR-4.7). In discreet mode the delay stays and the countdown doesn't animate: the snackbar shows "Sending in 5 s · Cancel" without motion.
 
 ## What a report holds (FR-4.4)
 

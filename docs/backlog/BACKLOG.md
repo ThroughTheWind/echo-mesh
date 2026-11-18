@@ -6,7 +6,7 @@
 The board. One row per live work item, grouped by status. Items live in
 [`items/`](items/); finished work moves to [`archive/`](archive/).
 
-<!-- NEXT-ID: WI-034 -->
+<!-- NEXT-ID: WI-039 -->
 <!-- Claim from this marker and bump it on your own branch. `node .ai/rungs.mjs check` refuses a duplicate. -->
 
 ## In progress
@@ -19,17 +19,16 @@ The board. One row per live work item, grouped by status. Items live in
 
 | Id | Title | Type | Branch |
 | --- | --- | --- | --- |
-| — | | | |
+| [WI-002](items/WI-002-accept-crypto-adr.md) | Review and accept the crypto design (ADR-0004) | docs | `claude/project-thread-67cn4e` |
+| [WI-003](items/WI-003-wire-format-and-fuzzing.md) | Decide the wire format and fuzz its decoder in CI | feature | `claude/project-thread-67cn4e` |
+| [WI-004](items/WI-004-map-renderer-and-download-adr.md) | Choose the offline map renderer and how map data arrives | spike | `claude/project-thread-67cn4e` |
+| [WI-005](items/WI-005-loopback-crowd-simulator.md) | Grow the loopback adapter into a crowd simulator | feature | `claude/project-thread-67cn4e` |
 
 ## Planned
 
 | Id | Title | Type |
 | --- | --- | --- |
 | [WI-001](items/WI-001-phase-0-foundations.md) | Phase 0 — Foundations: finish what every later phase builds on | epic |
-| [WI-002](items/WI-002-accept-crypto-adr.md) | Review and accept the crypto design (ADR-0004) | docs |
-| [WI-003](items/WI-003-wire-format-and-fuzzing.md) | Decide the wire format and fuzz its decoder in CI | feature |
-| [WI-004](items/WI-004-map-renderer-and-download-adr.md) | Choose the offline map renderer and how map data arrives | spike |
-| [WI-005](items/WI-005-loopback-crowd-simulator.md) | Grow the loopback adapter into a crowd simulator | feature |
 | [WI-006](items/WI-006-phase-1-two-phones-one-report.md) | Phase 1 — Two phones, one report: ship 0.1.0 | epic |
 | [WI-007](items/WI-007-ble-spike-reference-phones.md) | Prove BLE discovery and exchange on the three reference phones | spike |
 | [WI-008](items/WI-008-public-report-signing.md) | Sign, encode and validate public reports | feature |
@@ -58,6 +57,11 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-031](items/WI-031-accessibility-pass.md) | Accessibility pass | chore |
 | [WI-032](items/WI-032-reproducible-build.md) | Verify the build is reproducible and F-Droid ready | chore |
 | [WI-033](items/WI-033-release-1-0.md) | Final docs and cut 1.0.0 | chore |
+| [WI-034](items/WI-034-steering-report-warnings.md) | Warn on public steering reports and hide their public counts | feature |
+| [WI-035](items/WI-035-low-density-honesty.md) | Tell people when the mesh around them is too thin | feature |
+| [WI-036](items/WI-036-field-diagnostics.md) | Export a field diagnostics file with no positions or reports | feature |
+| [WI-037](items/WI-037-languages-en-fr-es.md) | Ship Echo in English, French and Spanish | feature |
+| [WI-038](items/WI-038-release-key-custody.md) | Publish who signs Echo and how to check it | docs |
 
 ## Accepted
 

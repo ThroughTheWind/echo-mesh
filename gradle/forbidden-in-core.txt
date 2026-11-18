@@ -1,0 +1,23 @@
+# Compression libraries, forbidden on the runtime classpath of every :core:* module (ADR-0005).
+#
+# Same syntax as forbidden-dependencies.txt: a Maven group, which also covers its subgroups, or
+# group:artifact. Read by checkForbiddenDependencies for :core:* modules only. The JDK's own
+# java.util.zip is refused by checkCompressionImports, because it is not a dependency.
+# Both Bridgefy papers trace attacks to compression: a decompression bomb, a padding oracle hidden in
+# gzip fields, and plaintext recovered from compressed lengths (threat model §5.4).
+# Removing a line needs an ADR.
+
+org.tukaani
+org.apache.commons:commons-compress
+com.github.luben
+org.lz4
+net.jpountz.lz4
+org.xerial.snappy
+com.aayushatharva.brotli4j
+org.brotli
+com.nixxcode.jvmbrotli
+io.airlift:aircompressor
+io.airlift:aircompressor-v3
+com.ning:compress-lzf
+org.anarres.lzo
+com.github.jponge:lzma-java
