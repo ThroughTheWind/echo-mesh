@@ -7,7 +7,7 @@ import io.github.throughthewind.echo.core.mesh.wire.Wire
 import kotlin.random.Random
 
 /**
- * A salted Bloom filter over the message ids a phone holds (spec FR-5.1, ADR-0007). A neighbour
+ * A salted Bloom filter over the message ids a phone holds (spec FR-5.1, ADR-0008). A neighbour
  * that receives it pushes back only the frames whose ids are not in it.
  *
  * Each summary has a fresh random salt and sets [HASHES] bits per id, taken from SHA-256 of the salt

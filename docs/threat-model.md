@@ -277,7 +277,7 @@ what fakes cost everyone else:
   it evicts from the link that brought the most frames, oldest first, so a flooder pushes out its
   own fakes rather than everyone else's reports; a phone's own reports are never evicted. Group
   reports and reports confirmed by a group member are never evicted by public ones (Phase 2).
-- **Summaries** (spec FR-5.1, [ADR-0007](decisions/ADR-0007-gossip-summary-frame.md)): a phone
+- **Summaries** (spec FR-5.1, [ADR-0008](decisions/ADR-0008-gossip-summary-frame.md)): a phone
   answers a neighbour's summary at most once per half period per link, within a byte budget, so an
   empty summary from a hostile peer costs it a bounded amount.
 - **Relay priority:** group frames first, then public reports confirmed by a group member, then

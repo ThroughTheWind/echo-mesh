@@ -4,7 +4,7 @@ import io.github.throughthewind.echo.core.model.ReportType
 
 /**
  * Wire format version 1 (ADR-0005, `docs/decisions/ADR-0005-wire-format.md`), with the summary
- * kind of ADR-0007.
+ * kind of ADR-0008.
  *
  * Every frame is `version ‖ kind ‖ hop budget ‖ body`, with a fixed length per kind, no optional
  * field, no nesting, no length prefix read off the air and no compression. The hop budget is the
@@ -41,7 +41,7 @@ object Wire {
     /** Plaintext room inside a group frame, once the AEAD tag is counted. */
     const val GROUP_PLAINTEXT_BYTES: Int = GROUP_CIPHERTEXT_BYTES - TAG_BYTES
 
-    /** A summary's per-frame random salt, so two summaries of one set share no bits (ADR-0007). */
+    /** A summary's per-frame random salt, so two summaries of one set share no bits (ADR-0008). */
     const val SUMMARY_SALT_BYTES: Int = 16
 
     /** A summary's Bloom filter: the rest of a [GROUP_FRAME_BYTES] frame. */
@@ -62,7 +62,7 @@ enum class FrameKind(
     WITHDRAWAL(0x03, Wire.HEADER_BYTES + Wire.PUBLIC_KEY_BYTES + Wire.MESSAGE_ID_BYTES + 4 + 2 + Wire.SIGNATURE_BYTES),
     GROUP(0x04, Wire.GROUP_FRAME_BYTES),
 
-    /** What a phone holds, as a salted Bloom filter; never relayed (ADR-0007). */
+    /** What a phone holds, as a salted Bloom filter; never relayed (ADR-0008). */
     SUMMARY(0x05, Wire.HEADER_BYTES + Wire.SUMMARY_SALT_BYTES + Wire.SUMMARY_FILTER_BYTES),
     ;
 
@@ -193,7 +193,7 @@ data class GroupFrame(
 
 /**
  * The set of message ids a phone holds, sent to a neighbour so it can push only what is missing
- * (spec FR-5.1, ADR-0007). Not signed, not stored, never relayed: its hop budget is always 0.
+ * (spec FR-5.1, ADR-0008). Not signed, not stored, never relayed: its hop budget is always 0.
  */
 data class SummaryFrame(
     val salt: Bytes,

@@ -81,7 +81,7 @@ data class RelayConfig(
 }
 
 /**
- * Epidemic gossip with anti-entropy (spec FR-5.1 to FR-5.3, threat model §5.4 and §5.8, ADR-0007).
+ * Epidemic gossip with anti-entropy (spec FR-5.1 to FR-5.3, threat model §5.4 and §5.8, ADR-0008).
  *
  * - **Verify, then store, then relay.** Every frame goes through [FrameValidator]; only a valid one
  *   is stored, and only a stored one is passed on, to every other neighbour, with one hop less.

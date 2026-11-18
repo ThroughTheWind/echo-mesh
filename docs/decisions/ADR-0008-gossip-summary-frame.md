@@ -1,5 +1,5 @@
 ---
-id: ADR-0007
+id: ADR-0008
 title: Swap what each phone holds as a salted Bloom filter in one fixed-size summary frame, added to wire version 1
 status: proposed
 date: 2026-11-18
@@ -7,7 +7,7 @@ supersedes:
 superseded_by:
 ---
 
-# ADR-0007 — Swap what each phone holds as a salted Bloom filter in one fixed-size summary frame, added to wire version 1
+# ADR-0008 — Swap what each phone holds as a salted Bloom filter in one fixed-size summary frame, added to wire version 1
 
 ## Context
 
