@@ -65,4 +65,11 @@ object Hashes {
 
     /** SHA-256 of [bytes]: the message id of a frame (spec FR-5.2, ADR-0005). */
     fun sha256(bytes: ByteArray): ByteArray = MessageDigest.getInstance("SHA-256").digest(bytes)
+
+    /** SHA-256 of [parts] one after another, without copying them into one array first. */
+    fun sha256(vararg parts: ByteArray): ByteArray {
+        val digest = MessageDigest.getInstance("SHA-256")
+        parts.forEach(digest::update)
+        return digest.digest()
+    }
 }

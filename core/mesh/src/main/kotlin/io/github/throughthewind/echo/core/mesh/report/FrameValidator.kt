@@ -28,8 +28,11 @@ enum class FrameRejection {
     /** The signature does not verify over the bytes received with the key in the frame. */
     BAD_SIGNATURE,
 
-    /** A kind this version of the app does not act on yet (group frames: WI-018). */
+    /** A kind this version of the app does not act on yet (group frames: WI-018), or a summary. */
     UNSUPPORTED_KIND,
+
+    /** The link that sent it has used up its signature checks for now (threat model §5.8). */
+    OVER_BUDGET,
 }
 
 sealed interface Validation {
@@ -71,12 +74,15 @@ object FrameValidator {
     /**
      * Validates [bytes] at [nowMinute] (minutes since the Unix epoch, UTC). [seen] answers whether a
      * message id is already held; it runs after expiry and before the signature, as §5.4 orders.
+     * [mayVerify] is asked just before the signature check, so a link's verification budget is spent
+     * only on frames that got that far (threat model §5.8).
      */
     fun validate(
         bytes: ByteArray,
         nowMinute: Long,
         maxFrameBytes: Int = Wire.MAX_FRAME_BYTES,
         seen: (Bytes) -> Boolean = { false },
+        mayVerify: () -> Boolean = { true },
     ): Validation {
         val decoded =
             when (val result = WireCodec.decode(bytes, maxFrameBytes)) {
@@ -93,6 +99,7 @@ object FrameValidator {
         }
         val id = Bytes(Hashes.sha256(decoded.contentBytes.toByteArray()))
         if (seen(id)) return Validation.Rejected(FrameRejection.DUPLICATE, createdMinute = created)
+        if (!mayVerify()) return Validation.Rejected(FrameRejection.OVER_BUDGET, createdMinute = created)
         val signed = checkNotNull(decoded.signedBytes) { "a signed frame always has signed bytes" }
         if (!Signatures.verify(frame.publicKey.toByteArray(), frame.signature.toByteArray(), signed.toByteArray())) {
             return Validation.Rejected(FrameRejection.BAD_SIGNATURE, createdMinute = created)
