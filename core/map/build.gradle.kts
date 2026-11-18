@@ -12,6 +12,7 @@ android {
 // The offline map (ADR-0006): VTM drawing Mapsforge .map files the user imports. No network code:
 // vtm-http and OkHttp are in gradle/forbidden-dependencies.txt.
 dependencies {
+    api(project(":core:model"))
     api(platform(libs.compose.bom))
     api(libs.compose.ui)
     implementation(libs.androidx.core.ktx)

@@ -49,6 +49,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 }
             }
 
+            optInToKotlinTime()
             forbiddenDependenciesLifecycle()
             val manifestLifecycle =
                 tasks.register("checkManifestPermissions") {

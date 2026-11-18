@@ -2,7 +2,7 @@
 
 A report on the map: family shape and colour, type icon, time-left ring, and whether it came from one of your groups (verified) or from anyone nearby (unverified). SPEC F4–F7, F9, FR-9.2.
 
-**Compose:** `ReportPin(type, source, timeLeft, confirmations, state, onClick)`.
+**Status:** Built · **Compose:** `ReportPin(look: PinLook, contentDescription, onClick)` in `core/designsystem/…/component/ReportPin.kt`. `PinLook` holds the family, icon, source (`PinSource.Nearby` or `PinSource.Group`), time left, confirmations, probably gone and yours; the app maps a report type to its family and glyph.
 
 ## Anatomy (outside in)
 

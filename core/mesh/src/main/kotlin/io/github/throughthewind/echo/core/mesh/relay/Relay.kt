@@ -19,6 +19,8 @@ import io.github.throughthewind.echo.core.mesh.wire.WithdrawalFrame
 import io.github.throughthewind.echo.core.model.ReportType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,6 +29,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -134,6 +137,19 @@ class Relay(
     /** Public reports to show: live and not withdrawn. Updated as frames arrive and expire. */
     val reports: StateFlow<List<HeldFrame>> = shown.asStateFlow()
 
+    private val inRange = MutableStateFlow(0)
+
+    /**
+     * Phones in range, approximately: peer handles seen and not yet lost (spec FR-3.2). A count only;
+     * handles rotate, so it may over-count, and the UI says "nearby", not "connected".
+     */
+    val nearby: StateFlow<Int> = inRange.asStateFlow()
+
+    private val lastArrival = MutableStateFlow<Instant?>(null)
+
+    /** When a new report from another phone was last stored, for the mesh status (FR-3.2). */
+    val lastReportReceived: StateFlow<Instant?> = lastArrival.asStateFlow()
+
     suspend fun stats(): Stats = mutex.withLock { stats }
 
     /** True when this phone holds the frame [id], live or withdrawn. */
@@ -141,21 +157,33 @@ class Relay(
 
     /**
      * Runs the relay in [scope]: handles the transport's events, sends summaries and sweeps expired
-     * frames. The transport is started and stopped by its owner.
+     * frames. The transport is started and stopped by its owner. Cancelling the job forgets every
+     * neighbour; the frames held stay until they expire.
      */
     fun run(scope: CoroutineScope): Job =
         scope.launch {
-            launch { transport.events.collect { handle(it) } }
-            launch {
-                while (isActive) {
-                    delay(jittered(config.summaryEvery))
-                    sendSummaries()
+            try {
+                coroutineScope {
+                    launch { transport.events.collect { handle(it) } }
+                    launch {
+                        while (isActive) {
+                            delay(jittered(config.summaryEvery))
+                            sendSummaries()
+                        }
+                    }
+                    launch {
+                        while (isActive) {
+                            delay(config.sweepEvery)
+                            sweep()
+                        }
+                    }
                 }
-            }
-            launch {
-                while (isActive) {
-                    delay(config.sweepEvery)
-                    sweep()
+            } finally {
+                withContext(NonCancellable) {
+                    mutex.withLock {
+                        links.clear()
+                        inRange.value = 0
+                    }
                 }
             }
         }
@@ -190,13 +218,17 @@ class Relay(
                 val summary =
                     mutex.withLock {
                         links.getOrPut(event.peer) { Link(clock().toEpochMilliseconds(), config) }
+                        inRange.value = links.size
                         summaryFrame(clock().wireMinute())
                     }
                 transmit(listOf(event.peer to summary))
             }
 
             is TransportEvent.PeerLost -> {
-                mutex.withLock { links.remove(event.peer) }
+                mutex.withLock {
+                    links.remove(event.peer)
+                    inRange.value = links.size
+                }
             }
 
             is TransportEvent.FrameReceived -> {
@@ -214,6 +246,7 @@ class Relay(
         val minute = now.wireMinute()
         stats = stats.copy(received = stats.received + 1)
         val link = links.getOrPut(from) { Link(millis, config) }
+        inRange.value = links.size
         // The link's own budget first, so a flooder spends its budget, not everyone's.
         if (!link.frames.tryTake(millis)) {
             stats = stats.copy(overLinkBudget = stats.overLinkBudget + 1)
@@ -247,6 +280,7 @@ class Relay(
 
             is Validation.Valid -> {
                 clockCheck.observe(validation.frame.createdMinute, minute)
+                if (validation.frame is PublicReportFrame) lastArrival.value = now
                 accept(validation, from, minute)
             }
         }

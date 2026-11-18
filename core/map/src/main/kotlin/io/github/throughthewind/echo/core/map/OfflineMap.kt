@@ -15,6 +15,8 @@ import org.oscim.layers.tile.buildings.BuildingLayer
 import org.oscim.layers.tile.vector.labeling.LabelLayer
 import org.oscim.theme.internal.VtmThemes
 import org.oscim.tiling.source.mapfile.MapFileTileSource
+import java.util.concurrent.atomic.AtomicBoolean
+import org.oscim.map.Map as VtmMap
 
 /** Where the user is, in degrees, with its accuracy in metres. Shown, never stored (FR-2.5). */
 data class OwnFix(
@@ -26,13 +28,14 @@ data class OwnFix(
 /**
  * The offline map (spec FR-2.1, ADR-0006): VTM drawing one imported Mapsforge file, entirely from
  * the phone, with the user's own position when [ownFix] is not null. Opens centred on the map's
- * region. Pins come with the report screens (WI-013); the street render theme with the design
- * system's tokens replaces VTM's default theme there too.
+ * region. Pins and the crosshair are drawn over it in Compose through [camera]. The street render
+ * theme built from the design system's tokens replaces VTM's default theme in a later item.
  */
 @Composable
 fun OfflineMap(
     map: MapEntry,
     ownFix: OwnFix?,
+    camera: MapCamera,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -49,7 +52,23 @@ fun OfflineMap(
         view.map().layers().add(LabelLayer(view.map(), vectors))
         view.map().setTheme(VtmThemes.DEFAULT)
         view.map().setMapPosition(map.box.centerLatitude, map.box.centerLongitude, START_SCALE)
+        // Map events come from the render thread, once a frame while it moves: coalesce them into
+        // one recomposition on the main thread.
+        val pending = AtomicBoolean(false)
+        val listener =
+            VtmMap.UpdateListener { _, _ ->
+                if (pending.compareAndSet(false, true)) {
+                    view.post {
+                        pending.set(false)
+                        camera.moved()
+                    }
+                }
+            }
+        view.map().events.bind(listener)
+        camera.map = view.map()
         onDispose {
+            camera.map = null
+            view.map().events.unbind(listener)
             view.onDestroy()
             source.close()
         }

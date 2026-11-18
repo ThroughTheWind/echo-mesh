@@ -1,5 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Echo</string>
-    <string name="placeholder">Nothing to show yet. The map arrives with the first roadmap phase.</string>
+
+    <!-- Common -->
+    <string name="back">Back</string>
+    <string name="close">Close</string>
+    <string name="not_now">Not now</string>
+    <string name="continue_">Continue</string>
+
+    <!-- Onboarding (patterns/OnboardingFlow). The claims trace to threat model §7; copy is a first
+         draft, final copy is WI-026. -->
+    <string name="onboarding_welcome_title">See what\'s happening around you, without the internet</string>
+    <string name="onboarding_welcome_body">Phones near you share short reports with each other over radio: a police line, a medic, an open exit. No server, no account, no internet.</string>
+    <string name="onboarding_get_started">Get started</string>
+    <string name="onboarding_protects_title">What Echo protects, and what it doesn\'t</string>
+    <string name="onboarding_protects_heading">It protects</string>
+    <string name="onboarding_protects_1">Group reports, positions and nicknames can be read only by people who joined the group in person.</string>
+    <string name="onboarding_protects_2">Nothing you send carries your name, number or a fixed ID.</string>
+    <string name="onboarding_protects_3">Echo keeps no history of where you or others were. Reports disappear when they expire.</string>
+    <string name="onboarding_protects_4">There\'s no server, no account, and no internet use except a map download you start yourself.</string>
+    <string name="onboarding_not_heading">It doesn\'t protect</string>
+    <string name="onboarding_not_1">Anyone nearby with a radio receiver can tell your phone is running Echo.</string>
+    <string name="onboarding_not_2">Public reports can be fake, and their confirmations can be faked in bulk.</string>
+    <string name="onboarding_not_3">Anyone in your group can read everything sent to it and pass it on.</string>
+    <string name="onboarding_not_4">If your phone is taken while unlocked, whoever has it can read it until you wipe it.</string>
+    <string name="onboarding_understand">I understand</string>
+    <string name="onboarding_read_everything">Read everything</string>
+    <string name="onboarding_map_title">Get a map before you go</string>
+    <string name="onboarding_map_body">Echo draws an offline map you download at home, on Wi-Fi you trust. Downloading reveals the region to your network and the map host.</string>
+    <string name="onboarding_skip">Skip for now</string>
+    <!-- Discreet mode and panic wipe join this step when they ship (WI-025, WI-024): the app never
+         points at a control it does not have yet. -->
+    <string name="onboarding_know_title">Before you go</string>
+    <string name="onboarding_know_mesh">The mesh starts off. Turn it on from the map when you\'re there.</string>
+    <string name="onboarding_know_expiry">Every report disappears on its own after a few minutes, on every phone.</string>
+    <string name="onboarding_open_map">Open the map</string>
+    <string name="onboarding_step">Step %1$d of %2$d</string>
+
+    <!-- What Echo protects (screens/WhatEchoProtects): word for word from threat model §7. -->
+    <string name="protects_title">What Echo protects</string>
+    <string name="protects_heading">It protects</string>
+    <string name="protects_1">Group reports, positions and nicknames can be read only by people who joined the group in person.</string>
+    <string name="protects_2">A group report shows which member sent it, and nobody can fake another member\'s report.</string>
+    <string name="protects_3">Nothing you send carries your name, number or a fixed ID, and Echo\'s radio signals change regularly.</string>
+    <string name="protects_4">Echo keeps no history of where you or others were. Reports disappear when they expire.</string>
+    <string name="protects_5">A panic wipe makes everything Echo stored unreadable within 2 seconds.</string>
+    <string name="protects_6">There\'s no server, no account, and no internet use except a map download you start yourself.</string>
+    <string name="not_protects_heading">It doesn\'t protect</string>
+    <string name="not_protects_1">Anyone nearby with a radio receiver can tell your phone is running Echo.</string>
+    <string name="not_protects_2">Public reports can be fake, and their confirmations can be faked in bulk.</string>
+    <string name="not_protects_3">Anyone in your group can read everything sent to it, see shared positions, and pass them on. If a member\'s phone is taken, assume the group is exposed and make a new one in person.</string>
+    <string name="not_protects_4">If your phone is taken while unlocked, whoever has it can read your groups and post as you until you wipe it or your group makes a new one.</string>
+    <string name="not_protects_5">Someone with many receivers may guess roughly where a report was first sent.</string>
+    <string name="not_protects_6">Downloading a map reveals the region to your network and the map host.</string>
+
+    <!-- Get a map (patterns/GetAMap) -->
+    <string name="get_map_title">Get a map</string>
+    <string name="get_map_download">Download in your browser</string>
+    <string name="get_map_download_body">Opens a free map site in your browser. Pick your region and save the .map file.</string>
+    <string name="get_map_open">Open a map file</string>
+    <string name="get_map_open_body">From your downloads, or a file another phone shared with you.</string>
+    <string name="get_map_added">Map added: %1$s</string>
+    <string name="get_map_refused">That file can\'t be used: %1$s</string>
+    <string name="get_map_no_browser">No browser on this phone can open the map site.</string>
+
+    <!-- Map (screens/MapView) -->
+    <string name="map_no_map">No map here</string>
+    <string name="map_get_map">Get a map</string>
+    <string name="map_report">Report</string>
+    <string name="map_centre_on_me">Centre on me</string>
+    <string name="map_reports_near_you">Reports near you</string>
+    <string name="map_crosshair">Report will be placed at the map centre</string>
+    <string name="map_described">Map. %1$d reports.</string>
+
+    <!-- Location (patterns/PermissionsInContext) -->
+    <string name="location_title">Show you on your map?</string>
+    <string name="location_body">Only to draw you on your own map. Your position is never stored, and never sent unless you share it with a group.</string>
+    <string name="location_keep_off">Keep me off the map</string>
+    <string name="location_refused">Location is off for Echo. Everything else works.</string>
+
+    <!-- Report types (spec FR-4.1) -->
+    <string name="type_police_line">Police line</string>
+    <string name="type_kettle">Kettle</string>
+    <string name="type_tear_gas">Tear gas</string>
+    <string name="type_arrests">Arrests</string>
+    <string name="type_medic">Medic</string>
+    <string name="type_water_supplies">Water and supplies</string>
+    <string name="type_exit_open">Exit open</string>
+    <string name="type_street_closed">Street closed</string>
+    <string name="type_all_clear">All clear</string>
+
+    <!-- Drop a report (patterns/ReportPicker) -->
+    <string name="picker_title">What\'s here?</string>
+    <string name="picker_audience_everyone">Everyone nearby</string>
+    <string name="picker_unverified">Anyone can send these, and they can be fake.</string>
+    <string name="picker_lasts">Lasts %1$d min</string>
+    <string name="picker_send_everyone">Send to everyone nearby</string>
+    <string name="picker_change_type">Change type</string>
+    <string name="picker_sent_ago">Sent %1$d s ago</string>
+    <string name="picker_no_map">Get a map first: a report goes at the map centre, never at your position.</string>
+    <string name="sending_in">%1$s sending in %2$d s</string>
+    <string name="sending_in_discreet">Sending in %1$d s</string>
+    <string name="cancel">Cancel</string>
+    <string name="sent">Sent to everyone nearby</string>
+
+    <!-- Report pins and rows (components/ReportPin) -->
+    <string name="source_nearby">from a phone nearby, unverified</string>
+    <string name="source_yours">yours</string>
+    <string name="pin_described">%1$s, %2$s, %3$s</string>
+    <string name="direction_north">north</string>
+    <string name="direction_north_east">north-east</string>
+    <string name="direction_east">east</string>
+    <string name="direction_south_east">south-east</string>
+    <string name="direction_south">south</string>
+    <string name="direction_south_west">south-west</string>
+    <string name="direction_west">west</string>
+    <string name="direction_north_west">north-west</string>
+    <string name="distance_direction">About %1$d m %2$s</string>
+    <string name="reported_ago">reported %1$d min ago</string>
+    <string name="reported_now">reported just now</string>
+    <string name="row_source_nearby">nearby</string>
+    <string name="row_source_yours">yours</string>
+
+    <!-- Reports near you (screens/ReportsNearYou) -->
+    <string name="reports_title">Reports near you</string>
+    <string name="reports_empty_title">No reports right now</string>
+    <string name="reports_empty_body">Reports from phones nearby show up here and on the map, and disappear when they expire.</string>
+    <string name="reports_from_centre">Sorted by distance from the map centre: your location is off.</string>
+    <string name="reports_report_here">Report at the map centre</string>
+
+    <!-- Report detail (patterns/ReportDetail) -->
+    <string name="detail_public_title">From a phone nearby.</string>
+    <string name="detail_public_body">Anyone running Echo can send these, and it could be fake.</string>
+    <string name="detail_direct">Arrived directly.</string>
+    <string name="detail_relayed">Relayed %1$d hops.</string>
+    <string name="detail_yours_title">Your report.</string>
+    <string name="detail_yours_body">Sent to everyone nearby. Withdrawing removes it from every phone it reached.</string>
+    <string name="detail_withdraw">Withdraw report</string>
+    <string name="detail_withdrawn">Report withdrawn</string>
+    <string name="detail_votes_later">Still there and Gone votes arrive with a later version.</string>
+
+    <!-- Mesh (patterns/MeshOnOff, components/MeshStatus) -->
+    <string name="mesh_sheet_title">Mesh</string>
+    <string name="mesh_switch_on">Mesh is on</string>
+    <string name="mesh_switch_off">Mesh is off</string>
+    <string name="mesh_switch_support">Stops when you turn it off</string>
+    <string name="mesh_phones_in_range">Phones in range (approximate)</string>
+    <string name="mesh_last_report">Last report received</string>
+    <string name="mesh_last_report_none">None yet</string>
+    <string name="mesh_ago">%1$s ago</string>
+    <string name="mesh_radios">Radios in use</string>
+    <string name="mesh_radio_short">Short range, low power</string>
+    <string name="mesh_radio_street">Street range</string>
+    <string name="mesh_radio_block">Block range</string>
+    <string name="mesh_radio_background">Works with the screen off</string>
+    <string name="mesh_radio_foreground">Works while Echo is open</string>
+    <string name="mesh_radio_simulated">This development build uses a simulated radio and reaches no other phone.</string>
+    <string name="mesh_no_radio">This build has no radio yet, so it can\'t reach other phones.</string>
+    <string name="mesh_failed">The radio didn\'t start</string>
+    <string name="mesh_honesty">Anyone nearby with a radio receiver can tell your phone is running Echo. Nothing it sends carries your name, number or a fixed ID.</string>
+    <string name="mesh_on_snackbar">Mesh on</string>
+    <string name="mesh_off_snackbar">Mesh off. Reports you have stay until they expire.</string>
 </resources>

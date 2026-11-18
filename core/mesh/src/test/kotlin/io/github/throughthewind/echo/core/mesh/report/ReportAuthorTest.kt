@@ -117,4 +117,14 @@ class ReportAuthorTest {
             assertIs<Validation.Valid>(FrameValidator.validate(sent.frame, now.wireMinute()))
         }
     }
+
+    @Test
+    fun `the picker can tell when a rate-limited type opens again`() {
+        assertNull(author.nextAllowed(ReportType.MEDIC))
+        sent(ReportType.MEDIC)
+        assertEquals(now + 1.minutes, author.nextAllowed(ReportType.MEDIC))
+        assertNull(author.nextAllowed(ReportType.KETTLE))
+        now += 1.minutes
+        assertNull(author.nextAllowed(ReportType.MEDIC))
+    }
 }

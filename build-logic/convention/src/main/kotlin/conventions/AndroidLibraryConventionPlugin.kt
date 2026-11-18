@@ -36,6 +36,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 add("testRuntimeOnly", libs.findLibrary("junit-platform-launcher").get())
             }
 
+            optInToKotlinTime()
             forbiddenDependenciesLifecycle()
             extensions.configure<LibraryAndroidComponentsExtension> {
                 onVariants { variant -> checkForbiddenDependencies(variant.runtimeConfiguration) }

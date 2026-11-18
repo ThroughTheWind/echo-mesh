@@ -99,6 +99,28 @@ class RelaySimulationTest {
         }
 
     @Test
+    fun `the mesh status counts phones in range and notes when another phone's report arrived`() =
+        runTest {
+            val mesh =
+                mesh(Random(7)) { net ->
+                    List(3) { net.phone() }.also { (a, b, c) ->
+                        net.link(a, b)
+                        net.link(b, c)
+                    }
+                }
+            delay(1.seconds)
+            assertEquals(listOf(1, 2, 1), mesh.relays.map { it.nearby.value })
+            val author = ReportAuthor(mesh.clock)
+            mesh.relays[0].publish(sent(author.report(ReportType.KETTLE, here, hopBudget = 5)).frame)
+            delay(1.seconds)
+            assertEquals(null, mesh.relays[0].lastReportReceived.value, "a phone's own report is not an arrival")
+            assertNotNull(mesh.relays[2].lastReportReceived.value)
+            mesh.network.unlink(mesh.phones[1], mesh.phones[2])
+            delay(1.seconds)
+            assertEquals(listOf(1, 1, 0), mesh.relays.map { it.nearby.value })
+        }
+
+    @Test
     fun `a phone that arrives late gets what it missed from a summary`() =
         runTest {
             val mesh = mesh(Random(2)) { net -> List(2) { net.phone() } }

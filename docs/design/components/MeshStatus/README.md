@@ -2,7 +2,7 @@
 
 **Purpose:** answer "can my phone hear anyone, and when did the last report arrive?" at a glance. It is also the mesh's single always-visible on/off control (SPEC FR-3.1, FR-3.2, FR-3.3a, FR-3.5).
 
-**Status:** Spec · **Compose:** `MeshStatusChip(state, onClick)`, `MeshSheet(state, onToggle, onFix)`.
+**Status:** Built · **Compose:** `MeshStatusChip(state: MeshChip, onClick)` in `core/designsystem/…/component/MeshStatus.kt`; the sheet is the app's `MeshSheet` (it names transports by capability, which the design system does not know).
 
 ## Chip states
 

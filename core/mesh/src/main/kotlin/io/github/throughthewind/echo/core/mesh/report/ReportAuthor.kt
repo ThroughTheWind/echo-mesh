@@ -115,6 +115,12 @@ class ReportAuthor(
         }
     }
 
+    /** When [type] may be reported again (FR-4.6), or null if it may be now. */
+    fun nextAllowed(type: ReportType): Instant? =
+        synchronized(lock) {
+            lastSent[type]?.plus(RATE_LIMIT)?.takeIf { it > clock() }
+        }
+
     /** Ids of this phone's reports that it can still withdraw. */
     fun withdrawable(): Set<Bytes> =
         synchronized(lock) {

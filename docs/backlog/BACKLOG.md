@@ -14,6 +14,7 @@ The board. One row per live work item, grouped by status. Items live in
 | Id | Title | Type | Branch |
 | --- | --- | --- | --- |
 | [WI-012](items/WI-012-offline-map.md) | Show an offline map: renderer wrapper, import, browser download and sharing | feature | `claude/project-thread-67cn4e` |
+| [WI-013](items/WI-013-phase-1-screens.md) | Build the Phase 1 screens: onboarding draft, map with pins, drop a report, mesh status | feature | `claude/project-thread-67cn4e` |
 
 ## Review
 
@@ -30,7 +31,6 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-006](items/WI-006-phase-1-two-phones-one-report.md) | Phase 1 — Two phones, one report: ship 0.1.0 | epic |
 | [WI-007](items/WI-007-ble-spike-reference-phones.md) | Prove BLE discovery and exchange on the three reference phones | spike |
 | [WI-011](items/WI-011-ble-transport-adapter.md) | Build the BLE transport adapter and the relay foreground service | feature |
-| [WI-013](items/WI-013-phase-1-screens.md) | Build the Phase 1 screens: onboarding draft, map with pins, drop a report, mesh status | feature |
 | [WI-014](items/WI-014-transport-guide.md) | Write docs/transports.md: how to add a transport | docs |
 | [WI-015](items/WI-015-release-0-1-0.md) | Set up release signing and cut 0.1.0 | chore |
 | [WI-016](items/WI-016-phase-2-groups.md) | Phase 2 — Groups: ship 0.2.0 | epic |
