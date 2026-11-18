@@ -2,10 +2,10 @@
 id: WI-005
 title: Grow the loopback adapter into a crowd simulator
 type: feature
-status: review
+status: done
 branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-17
+updated: 2026-11-18
 related: [FR-14.3, NFR-1, NFR-15, AC-9, AC-11]
 epic: WI-001
 children: []
@@ -57,3 +57,5 @@ Phase 0 of the [roadmap](../../ROADMAP.md).
 - The naive flooding relay lives in the test only; the real relay is WI-009.
 
 ## Review
+
+Merged to `main` in PR #3 on 2026-11-18, at Antoine's request ("merge it and continue with phase 1"). Every acceptance criterion is met as the Execution section records.

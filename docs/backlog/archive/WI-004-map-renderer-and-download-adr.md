@@ -2,10 +2,10 @@
 id: WI-004
 title: Choose the offline map renderer and how map data arrives
 type: spike
-status: review
+status: done
 branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-17
+updated: 2026-11-18
 related: [FR-2.1, FR-2.3, SPEC-A5, SPEC-A6, ADR-0003, ADR-0006]
 epic: WI-001
 children: []
@@ -65,3 +65,5 @@ Phase 0 of the [roadmap](../../ROADMAP.md).
 - Deviation: the OPPO Find X3 Pro, the oldest reference phone, was not measured. The same check runs there when WI-012 builds the real `:core:map` wrapper, before 0.1.0.
 
 ## Review
+
+Merged to `main` in PR #3 on 2026-11-18, at Antoine's request ("merge it and continue with phase 1"). ADR-0006 accepted after the Pixel 11 Pro test. Deviation: the OPPO Find X3 Pro measurement was not taken here and is an acceptance criterion of WI-012.

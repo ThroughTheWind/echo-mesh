@@ -2,10 +2,10 @@
 id: WI-003
 title: Decide the wire format and fuzz its decoder in CI
 type: feature
-status: review
+status: done
 branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-17
+updated: 2026-11-18
 related: [NFR-2, NFR-3, AC-12, ADR-0004, ADR-0005, F-001]
 epic: WI-001
 children: []
@@ -60,3 +60,5 @@ Phase 0 of the [roadmap](../../ROADMAP.md).
 - Android modules were not built locally (no Android SDK in the sandbox); CI builds them.
 
 ## Review
+
+Merged to `main` in PR #3 on 2026-11-18, at Antoine's request ("merge it and continue with phase 1"). ADR-0005 accepted; CI fuzzed the decoder (74 million inputs, no finding) and the planted-bug run failed as it must.

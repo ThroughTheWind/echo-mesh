@@ -2,10 +2,10 @@
 id: WI-002
 title: Review and accept the crypto design (ADR-0004)
 type: docs
-status: review
+status: done
 branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-17
+updated: 2026-11-18
 related: [ADR-0004, SPEC-A3, SPEC-A4, NFR-8]
 epic: WI-001
 children: []
@@ -59,3 +59,5 @@ Phase 0 of the [roadmap](../../ROADMAP.md).
 - Antoine accepted ADR-0004 on 2026-11-18; status `accepted`.
 
 ## Review
+
+Merged to `main` in PR #3 on 2026-11-18, at Antoine's request ("merge it and continue with phase 1"). ADR-0004 accepted; every acceptance criterion is met as the Execution section records.

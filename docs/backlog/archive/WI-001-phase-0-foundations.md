@@ -2,10 +2,10 @@
 id: WI-001
 title: Phase 0 — Foundations: finish what every later phase builds on
 type: epic
-status: planned
+status: done
 branch:
 created: 2026-11-17
-updated: 2026-11-17
+updated: 2026-11-18
 related: [AC-20, AC-21, AC-22, AC-23, ADR-0001, ADR-0002, ADR-0003, ADR-0004]
 epic:
 children: [WI-002, WI-003, WI-004, WI-005]
@@ -47,3 +47,5 @@ Phase 0 of the [roadmap](../../ROADMAP.md). The scaffold (build, rungs, CI, the 
 ## Execution
 
 ## Review
+
+Merged to `main` in PR #3 on 2026-11-18, at Antoine's request ("merge it and continue with phase 1"). Every child is `done`. AC-20, AC-21 and AC-22 (build part) pass in CI on `main`; AC-23: threat model §6 answers every attack in both Bridgefy papers, and names the one problem both leave open.
