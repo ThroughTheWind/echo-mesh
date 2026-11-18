@@ -68,6 +68,7 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:mesh"))
     implementation(project(":core:crypto"))
+    implementation(project(":core:crypto:keystore"))
     implementation(project(":core:data"))
     implementation(project(":core:map"))
     implementation(project(":core:designsystem"))

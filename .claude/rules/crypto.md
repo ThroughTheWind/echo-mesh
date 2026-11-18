@@ -11,6 +11,7 @@ paths:
 - **No new primitives and no home-made protocol.** Use the library and the published protocol the
   crypto ADR names, through `:core:crypto` only. `./gradlew checkCryptoBoundaries` fails if any other
   module imports a cryptographic API; add the chosen library's package to its list, never remove one.
+  `:core:crypto:keystore` (under `core/crypto/`) is its Android half, for Android Keystore keys only.
 - Every change to what goes over the air is **versioned**: a frame starts with its format version,
   and a phone refuses a version it does not know rather than guessing.
 - A decoder checks the size before it parses, never allocates from a length it read off the air, and

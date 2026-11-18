@@ -21,6 +21,7 @@ The board. One row per live work item, grouped by status. Items live in
 | --- | --- | --- | --- |
 | [WI-008](items/WI-008-public-report-signing.md) | Sign, encode and validate public reports | feature | `claude/project-thread-67cn4e` |
 | [WI-009](items/WI-009-gossip-relay.md) | Relay reports by gossip with de-duplication, hop budget, rate limits and expiry | feature | `claude/project-thread-67cn4e` |
+| [WI-010](items/WI-010-encrypted-local-store.md) | Encrypt everything the app stores, with a Keystore key | feature | `claude/project-thread-67cn4e` |
 
 ## Planned
 
@@ -28,7 +29,6 @@ The board. One row per live work item, grouped by status. Items live in
 | --- | --- | --- |
 | [WI-006](items/WI-006-phase-1-two-phones-one-report.md) | Phase 1 — Two phones, one report: ship 0.1.0 | epic |
 | [WI-007](items/WI-007-ble-spike-reference-phones.md) | Prove BLE discovery and exchange on the three reference phones | spike |
-| [WI-010](items/WI-010-encrypted-local-store.md) | Encrypt everything the app stores, with a Keystore key | feature |
 | [WI-011](items/WI-011-ble-transport-adapter.md) | Build the BLE transport adapter and the relay foreground service | feature |
 | [WI-012](items/WI-012-offline-map.md) | Show an offline map: renderer wrapper, import, browser download and sharing | feature |
 | [WI-013](items/WI-013-phase-1-screens.md) | Build the Phase 1 screens: onboarding draft, map with pins, drop a report, mesh status | feature |
