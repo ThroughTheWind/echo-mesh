@@ -140,7 +140,7 @@ automatic "I've been arrested" broadcast.
 - FR-16.4 The density threshold and the copy are covered by the field-test protocol (F17).
 
 ### F17 — Field diagnostics file (1.0)
-- FR-17.1 Off by default. When the user turns it on, the app counts, in memory: distinct peer tokens per minute, reports received and relayed per minute, delivery delay from creation time, connection failures by kind, battery level per 10 minutes, and whether the foreground service was killed.
+- FR-17.1 Off by default. When the user turns it on, the app counts, in memory: distinct peer tokens per minute, reports received and relayed per minute, delivery delay from creation time, connection failures by kind, battery level per 10 minutes, and whether the foreground service was killed. Every count is timestamped in minutes since the session started, never with wall-clock times or a date ([threat model §10](threat-model.md)).
 - FR-17.2 It never records positions, report contents or types, map areas, group names, nicknames, keys or tokens.
 - FR-17.3 The user exports it by hand as a file through the share sheet, after a screen that shows the whole file in plain text. Nothing is ever sent automatically.
 - FR-17.4 The counters are wiped by the panic wipe and when diagnostics are turned off. They are never written to disk until the user exports.
@@ -182,7 +182,7 @@ automatic "I've been arrested" broadcast.
 - FR-23.1 A member can start a **check-in** for one group: an interval (default 30 minutes) and an end time. The phone reminds them with a vibration, and one tap sends "I'm OK" (an F20 phrase).
 - FR-23.2 When a member's check-in is overdue, the group sees "<nickname> missed a check-in at 16:30" in the roster and feed. Nothing is broadcast on the missing member's behalf: silence is the signal (FR-11.4).
 - FR-23.3 The copy says that a missed check-in can just mean an empty battery or no peers nearby.
-- FR-23.4 **Jail-support card:** the user writes a lawyer or legal-team number and notes, and can add a rights summary per country from the event pack (F31) or bundled text. It is stored encrypted on the phone, **never sent over the air**, and removed by the panic wipe. It can be opened from the lock-screen-safe notification in two taps.
+- FR-23.4 **Jail-support card:** the user writes a lawyer or legal-team number and notes, and can add a rights summary per country from the event pack (F31) or bundled text. It is stored encrypted on the phone, **never sent over the air**, and removed by the panic wipe. It opens in two taps from the app or its notification, but only after the device is unlocked, never on the lock screen.
 - FR-23.5 Ending a check-in sends "I'm safe" to the group.
 
 ### F24 — App lock, duress PIN and auto-wipe (1.1)
@@ -190,9 +190,12 @@ automatic "I've been arrested" broadcast.
 - FR-24.2 **Duress PIN** (opt-in): a second PIN that opens a fresh-looking app after a silent panic wipe (F11). The setup screen warns that in some jurisdictions this can be treated as destroying evidence, and that its existence is documented in the open-source code. **[DEP: threat]**
 - FR-24.3 **Auto-wipe** (opt-in): if the app hasn't been unlocked for a chosen time (default 24 hours), a background job runs the panic wipe.
 - FR-24.4 All three are off by default and described honestly in "What this app protects".
+- FR-24.5 The app PIN and the duress PIN have a hard limit on wrong attempts, with an optional panic wipe when it is reached.
+- FR-24.6 Copy never claims that the app lock stops forensic tools: it protects against someone handed an unlocked phone, not against extraction ([threat model §11](threat-model.md)).
 
 ### F25 — Short-lived encrypted report cache (1.1)
-- FR-25.1 Live reports, votes, rally points and group phrases may be cached on disk, encrypted with a Keystore key that can only be used while the device is unlocked (`setUnlockedDeviceRequired`).
+- FR-25.1 Live reports, votes, rally points and group phrases may be cached on disk. A key that requires an unlocked device (`setUnlockedDeviceRequired`) can't encrypt while the phone is locked, so each entry is wrapped to an hourly Keystore public key, and only the matching private key, usable only while unlocked, can open it ([threat model §11](threat-model.md)).
+- FR-25.1a After a kill while the phone is locked, the cache and the group keys load only at the next unlock. Until then the app relays but can't show or read group content, and the mesh status says so.
 - FR-25.2 Each entry is crypto-erased at its expiry: each entry or batch has its own key, and that key is deleted. Received positions are **never** cached.
 - FR-25.3 After a restart or a service kill, the map comes back with everything still live.
 - FR-25.4 The panic wipe destroys the cache key first.
@@ -218,6 +221,7 @@ automatic "I've been arrested" broadcast.
 ### F29 — Roles (2.0)
 - FR-29.1 Roles: **marshal, medic, legal observer, press, organiser**. An issuer grants a role in person by scanning the holder's QR. The **credential** contains the organisation fingerprint, role, validity window (24 hours at most), the holder's per-event public key, and the issuer's signature.
 - FR-29.2 The holder's reports, votes and role pins are signed with the per-event key and carry the credential. To someone who trusts the organisation, they show a role badge and the issuer's name ("Marshal · issued by <name>"). To everyone else, they are ordinary public reports.
+- FR-29.2a The holder chooses, per report, whether to sign it as their role or send it as an ordinary public report. The default is the role for the role's own types (station pins, steering reports), and ordinary for everything else.
 - FR-29.3 **Stated cost:** a role holder's reports are linkable to each other for the credential's lifetime. The issuance screen says so, and press roles carry an extra warning about targeting.
 - FR-29.4 Role pins: a medic or legal observer can show a **station** pin (lifetime up to the catalog's maximum, refreshed while they stay), so people can find them.
 - FR-29.5 Trusted role confirmations count alongside group confirmations in FR-6.4 and FR-15.3.
@@ -231,7 +235,7 @@ automatic "I've been arrested" broadcast.
 
 ### F31 — Event packs (2.0)
 - FR-31.1 An **event pack** is a signed file containing: name, validity window, area, route, typed points (meeting, dispersal, medic station, water, toilets, legal point), a catalog reference (F32), a legal and rights text per country, and optionally organisation keys to offer (F28).
-- FR-31.2 It is signed by a trusted organisation's issuer key, or by a group (shown only to that group).
+- FR-31.2 It is signed by a trusted organisation's issuer key, or by a group (shown only to that group). Group-signed packs ship only after the re-wrap design in [threat model §12.3](threat-model.md) is reviewed. **[DEP: threat]**
 - FR-31.3 It is shared by file through the share sheet, over Wi-Fi Aware (F33), or over BLE when it is small enough. Size cap: 256 KB. It is never fetched from the internet by the app.
 - FR-31.4 On import, the user sees the signer and fingerprint and chooses to accept. Organisation keys inside need a separate, explicit acceptance (FR-28.3).
 - FR-31.5 The pack shows as a map layer that works with zero peers. It expires at the end of its validity window, can be removed, and is removed by the panic wipe.
@@ -240,7 +244,7 @@ automatic "I've been arrested" broadcast.
 ### F32 — Signed report catalogs, including crisis (2.0)
 - FR-32.1 A **catalog** defines report types: id, icon from the bundled icon set, colour, default and maximum lifetime, steering flag (F15), alert eligibility (F22), and labels per language. The canned phrases (F20) and announcement phrases (F30) are part of the catalog too.
 - FR-32.2 Echo bundles two catalogs, **Protest** (the default, extending the MVP set with water cannon, drones, plainclothes police, counter-protesters, charging point and toilets) and **Crisis** (shelter, water, food, injured, road blocked, power, charging point). Event packs may reference an organisation-signed catalog.
-- FR-32.3 Hard caps hold whatever a catalog says: Protest lifetimes at most 3 hours (matching the threat model's epoch retention); Crisis lifetimes at most 12 hours, which needs a threat-model update before it ships. **[DEP: threat]**
+- FR-32.3 Hard caps hold whatever a catalog says: Protest lifetimes at most 3 hours (matching the threat model's epoch retention); Crisis lifetimes at most 12 hours. The 12-hour key retention is a per-group setting chosen when the group is created (a **crisis group**). Protest groups keep 3 hours and can't be switched later ([threat model §12](threat-model.md)).
 - FR-32.4 Catalogs never add free text, names, photos or history, crisis included.
 - FR-32.5 A report carries a catalog id and type id. A phone that lacks the catalog shows it as a generic "unknown type" pin and still relays it.
 - FR-32.6 Onboarding offers the crisis catalog as a choice, with copy that doesn't present Echo's protest features as hidden.
@@ -253,7 +257,7 @@ automatic "I've been arrested" broadcast.
 
 ### F34 — Share Echo offline (2.0)
 - FR-34.1 "Share Echo" sends the app's own installed APK through the share sheet or over Wi-Fi Aware.
-- FR-34.2 The sender's screen shows the signing fingerprint (FR-19.2) as a short code and a QR. The receiver is guided to install it, then compares the code on first launch, where Echo shows its own fingerprint before anything else.
+- FR-34.2 The sender's screen shows the signing fingerprint (FR-19.2) as a short code and a QR. The receiver is guided to install it, then compares the code on first launch, where Echo shows its own fingerprint before anything else. The copy asks them to compare it with an **independent source** (a flyer, a trusted organisation, another phone's About screen), not only the sender's screen, since a fake app would show a matching fake code.
 - FR-34.3 Copy states that Android refuses to update an installed Echo with an APK signed by a different key, so a fake can only reach phones without Echo.
 - FR-34.4 Threat-model update for a fake or trojaned app spread this way (A5). **[DEP: threat]**
 
@@ -313,7 +317,7 @@ automatic "I've been arrested" broadcast.
 - [ ] AC-35 A missed check-in appears on the other members' phones; nothing is sent by the missing member's phone.
 - [ ] AC-36 The jail-support card opens offline in two taps and is gone after a panic wipe.
 - [ ] AC-37 With app lock on, the app asks for the PIN after the background timeout; the duress PIN opens a fresh app and leaves no readable data.
-- [ ] AC-38 After the OS kills Echo, reopening shows all reports still live; expired entries are unreadable on disk.
+- [ ] AC-38 After the OS kills Echo, reopening it after unlock shows all reports still live; entries cached while locked are readable only after unlock; expired entries are unreadable on disk.
 - [ ] AC-39 Adaptive scanning meets NFR-22 and FR-26.3 in the loopback simulator and on the reference phones.
 
 **2.0**
@@ -340,16 +344,16 @@ automatic "I've been arrested" broadcast.
 
 ## 10. Dependencies
 
-| # | Needed before | What | Owner |
-|---|---|---|---|
-| D1 | 1.0 | Threat model §7 rows for steering warnings and low density | Threat model |
-| D2 | 1.0 | `docs/translating.md`, glossary, French and Spanish reviewers | Antoine (reviewers), Claude (process) |
-| D3 | 1.0 | Field-test protocol `docs/field-testing.md` | Claude |
-| D4 | 1.1 | Threat model: group phrase payload, duress PIN, auto-wipe, report cache (changes A3) | Threat model |
-| D5 | 2.0 | ADR and threat-model section: organisation keys, issuers, credentials, revocation | Threat model |
-| D6 | 2.0 | ADRs: event pack format, catalog format, Wi-Fi Aware transport | Stack |
-| D7 | 2.0 | Threat model: crisis lifetimes up to 12 h (epoch retention), fake-app spread via sharing | Threat model |
-| D8 | 2.0 | Funding for the second outside review | Antoine |
+| # | Needed before | What | Owner | Status |
+|---|---|---|---|---|
+| D1 | 1.0 | Threat model §7 rows for steering warnings and low density | Threat model | ✅ Drafted in threat model v0.2 (§7, §10) |
+| D2 | 1.0 | `docs/translating.md`, glossary, French and Spanish reviewers | Antoine (reviewers), Claude (process) | ⏳ Open |
+| D3 | 1.0 | Field-test protocol `docs/field-testing.md` | Claude | ⏳ Open |
+| D4 | 1.1 | Threat model: group phrase payload, duress PIN, auto-wipe, report cache (changes A3) | Threat model | ✅ Drafted in threat model v0.2 (§11), ADR-0004 amended |
+| D5 | 2.0 | ADR and threat-model section: organisation keys, issuers, credentials, revocation | Threat model | ⚠️ Drafted: threat model §12 and an organisation credentials ADR (proposed, number assigned when it lands, since ADR-0005 is the wire format); work item WI-053 |
+| D6 | 2.0 | ADRs: event pack format, catalog format, Wi-Fi Aware transport | Stack | ⏳ Open |
+| D7 | 2.0 | Threat model: crisis lifetimes up to 12 h, fake-app spread via sharing | Threat model | ✅ Drafted in threat model v0.2 (§12); group-signed packs await review of §12.3 |
+| D8 | 2.0 | Funding for the second outside review | Antoine | ⏳ Open |
 
 ---
 
