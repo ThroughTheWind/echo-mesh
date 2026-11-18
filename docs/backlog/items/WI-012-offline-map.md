@@ -40,6 +40,7 @@ Phase 1 of the [roadmap](../../ROADMAP.md).
 
 ### Acceptance criteria / tests
 
+- On the OPPO Find X3 Pro, the oldest reference phone, the map draws smoothly with the measurements WI-004 took on the Pixel 11 Pro (first render, frames dropped while panning, memory).
 - AC-2: a region downloaded or imported at home renders with flight mode on.
 - AC-3: a map file shared from one phone and imported on another renders identically.
 - `checkManifestPermissions` passes on debug and release.

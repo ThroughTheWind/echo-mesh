@@ -13,7 +13,7 @@ The board. One row per live work item, grouped by status. Items live in
 
 | Id | Title | Type | Branch |
 | --- | --- | --- | --- |
-| [WI-004](items/WI-004-map-renderer-and-download-adr.md) | Choose the offline map renderer and how map data arrives | spike | `claude/project-thread-67cn4e` |
+| — | *nothing in flight* | | |
 
 ## Review
 
@@ -21,6 +21,7 @@ The board. One row per live work item, grouped by status. Items live in
 | --- | --- | --- | --- |
 | [WI-002](items/WI-002-accept-crypto-adr.md) | Review and accept the crypto design (ADR-0004) | docs | `claude/project-thread-67cn4e` |
 | [WI-003](items/WI-003-wire-format-and-fuzzing.md) | Decide the wire format and fuzz its decoder in CI | feature | `claude/project-thread-67cn4e` |
+| [WI-004](items/WI-004-map-renderer-and-download-adr.md) | Choose the offline map renderer and how map data arrives | spike | `claude/project-thread-67cn4e` |
 | [WI-005](items/WI-005-loopback-crowd-simulator.md) | Grow the loopback adapter into a crowd simulator | feature | `claude/project-thread-67cn4e` |
 
 ## Planned
