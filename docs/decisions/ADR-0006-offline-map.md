@@ -1,13 +1,15 @@
 ---
 id: ADR-0006
 title: Draw the map with VTM from Mapsforge files that the user downloads in a browser and imports
-status: proposed
+status: accepted
 date: 2026-11-17
 supersedes:
 superseded_by:
 ---
 
 # ADR-0006 — Draw the map with VTM from Mapsforge files that the user downloads in a browser and imports
+
+> Accepted by Antoine on 2026-11-18.
 
 ## Context
 

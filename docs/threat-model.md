@@ -11,7 +11,7 @@ details (see [research/](research/)).
 |---|---|
 | **Status** | v0.1 draft, 2026-11-16. Not reviewed by an outside expert. |
 | **Applies to** | MVP (spec v0.1): public reports, votes, affinity groups, group reports, position sharing, panic wipe |
-| **Design it pairs with** | [ADR-0004](decisions/ADR-0004-crypto-design.md) (proposed) |
+| **Design it pairs with** | [ADR-0004](decisions/ADR-0004-crypto-design.md) (accepted) |
 
 > Everything in this document is a design target until a test or the outside review shows it holds.
 > The UI may only claim what §7 lists as protected (spec NFR-14).

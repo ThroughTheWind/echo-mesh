@@ -1,13 +1,15 @@
 ---
 id: ADR-0005
 title: Put fixed-layout, versioned, uncompressed binary frames on the air, decoded by hand and fuzzed in CI
-status: proposed
+status: accepted
 date: 2026-11-17
 supersedes:
 superseded_by:
 ---
 
 # ADR-0005 — Put fixed-layout, versioned, uncompressed binary frames on the air, decoded by hand and fuzzed in CI
+
+> Accepted by Antoine on 2026-11-18.
 
 ## Context
 

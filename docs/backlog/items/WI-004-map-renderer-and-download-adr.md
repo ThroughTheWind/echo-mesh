@@ -53,6 +53,6 @@ Phase 0 of the [roadmap](../../ROADMAP.md).
 - ADR-0006 proposes VTM, Mapsforge `.map` files, a browser download and a system file picker import, and no in-app download. Mapsforge map (Canvas) is the fallback renderer.
 - `gradle/forbidden-dependencies.txt` refuses `org.mapsforge:vtm-http` and `com.squareup.okhttp3`, with a self-test.
 - Spec A5 and A6 move from Open to Proposed.
-- **Still to do, on the phones:** build a throwaway debug app with VTM and no `INTERNET` permission, draw a sample region on each reference phone, and note frame rate and memory on the OPPO Find X3 Pro. Not possible here: the sandbox has no Android SDK and no phone. Then Antoine accepts ADR-0006 and this item goes to review.
+- **Still to do, on the phones:** build a throwaway debug app with VTM and no `INTERNET` permission, draw a sample region on each reference phone, and note frame rate and memory on the OPPO Find X3 Pro. Not possible here: the sandbox has no Android SDK and no phone. Antoine accepted ADR-0006 on 2026-11-18; the phone test confirms or reopens it.
 
 ## Review

@@ -1,13 +1,15 @@
 ---
 id: ADR-0004
 title: Secure the mesh with signed frames, a ratcheted group key and a Noise join, built on Tink
-status: proposed
+status: accepted
 date: 2026-11-16
 supersedes:
 superseded_by:
 ---
 
 # ADR-0004 — Secure the mesh with signed frames, a ratcheted group key and a Noise join, built on Tink
+
+> Accepted by Antoine on 2026-11-18.
 
 ## Context
 
