@@ -6,7 +6,7 @@
 The board. One row per live work item, grouped by status. Items live in
 [`items/`](items/); finished work moves to [`archive/`](archive/).
 
-<!-- NEXT-ID: WI-039 -->
+<!-- NEXT-ID: WI-074 -->
 <!-- Claim from this marker and bump it on your own branch. `node .ai/rungs.mjs check` refuses a duplicate. -->
 
 ## In progress
@@ -61,6 +61,36 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-036](items/WI-036-field-diagnostics.md) | Export a field diagnostics file with no positions or reports | feature |
 | [WI-037](items/WI-037-languages-en-fr-es.md) | Ship Echo in English, French and Spanish | feature |
 | [WI-038](items/WI-038-release-key-custody.md) | Publish who signs Echo and how to check it | docs |
+| [WI-039](items/WI-039-phase-5-release-1-1.md) | Phase 5 — Release 1.1: groups through the whole day | epic |
+| [WI-040](items/WI-040-accept-threat-model-1-1.md) | Review and accept the threat model's 1.1 section | docs |
+| [WI-041](items/WI-041-canned-group-phrases.md) | Send canned phrases inside a group | feature |
+| [WI-042](items/WI-042-group-rally-point.md) | Keep one rally point per group | feature |
+| [WI-043](items/WI-043-nearby-danger-alerts.md) | Vibrate on danger reported nearby | feature |
+| [WI-044](items/WI-044-group-check-ins.md) | Show who missed a check-in | feature |
+| [WI-045](items/WI-045-jail-support-card.md) | Keep a jail-support card on the phone | feature |
+| [WI-046](items/WI-046-app-lock.md) | Lock the app with a PIN and an attempt limit | feature |
+| [WI-047](items/WI-047-duress-pin-and-auto-wipe.md) | Add a duress PIN and auto-wipe | feature |
+| [WI-048](items/WI-048-encrypted-report-cache.md) | Cache live reports encrypted so a restart keeps the map | feature |
+| [WI-049](items/WI-049-adaptive-scanning.md) | Scan less when the crowd is dense | feature |
+| [WI-050](items/WI-050-briar-handoff.md) | Hand off to Briar for chat | feature |
+| [WI-051](items/WI-051-release-1-1.md) | Cut 1.1.0 | chore |
+| [WI-052](items/WI-052-phase-6-release-2-0.md) | Phase 6 — Release 2.0: organisations, packs and a second radio | epic |
+| [WI-053](items/WI-053-accept-organisation-design.md) | Accept the organisation credentials design and the threat model's 2.0 section | docs |
+| [WI-054](items/WI-054-outside-review-2-0.md) | Outside review of the organisation layer and Wi-Fi Aware identifiers | chore |
+| [WI-055](items/WI-055-pack-and-catalog-formats.md) | Decide the event pack and catalog formats | docs |
+| [WI-056](items/WI-056-trust-store.md) | Let users choose which organisations they trust | feature |
+| [WI-057](items/WI-057-role-issuance.md) | Issue role credentials in person | feature |
+| [WI-058](items/WI-058-role-reports-and-stations.md) | Show role badges, stations and role confirmations | feature |
+| [WI-059](items/WI-059-organiser-announcements.md) | Let organisers make rare, signed announcements | feature |
+| [WI-060](items/WI-060-signed-catalogs-and-crisis.md) | Ship signed catalogs, including Crisis, and crisis groups | feature |
+| [WI-061](items/WI-061-group-phrases-in-catalog.md) | Move phrases and announcements into the catalog | chore |
+| [WI-062](items/WI-062-event-packs.md) | Import and show event packs | feature |
+| [WI-063](items/WI-063-wifi-aware-spike.md) | Prove Wi-Fi Aware on the reference phones and settle the INTERNET question | spike |
+| [WI-064](items/WI-064-wifi-aware-adapter.md) | Build the Wi-Fi Aware transport adapter | feature |
+| [WI-065](items/WI-065-share-echo-offline.md) | Share Echo itself offline with an authenticity check | feature |
+| [WI-066](items/WI-066-bulk-share-maps-and-packs.md) | Share maps and event packs over Wi-Fi Aware | feature |
+| [WI-067](items/WI-067-release-2-0.md) | Cut 2.0.0 | chore |
+| [WI-068](items/WI-068-phase-7-later-evidence-gated.md) | Phase 7 — Later: evidence-gated extensions | epic |
 
 ## Accepted
 
@@ -78,7 +108,11 @@ The board. One row per live work item, grouped by status. Items live in
 
 | Id | Title | Revisit when |
 | --- | --- | --- |
-| — | | |
+| [WI-069](items/WI-069-circles.md) | Circles: long-lived groups that spawn event groups | Field use or user reports show the 7-day group limit pushing groups to other tools. |
+| [WI-070](items/WI-070-group-management-at-scale.md) | Remove members, chain QR joins and link groups | Groups of 20 or more are common in field use, or a compromised member can't be handled by re-forming the group. |
+| [WI-071](items/WI-071-areas-to-avoid.md) | Shade areas to avoid from trusted reports | Field tests show pins become unreadable in dense areas, after roles (WI-058) ship. |
+| [WI-072](items/WI-072-lora-bridge.md) | Bridge distant crowds with LoRa / Meshtastic hardware | Marshal or medic teams ask for it with hardware in hand, after 2.0. |
+| [WI-073](items/WI-073-legacy-build.md) | Offer a legacy build for Android 8 to 11 | Field diagnostics or user reports show a significant share of intended users on Android 8–11. |
 
 ---
 
