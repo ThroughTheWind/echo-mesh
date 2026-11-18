@@ -50,7 +50,7 @@ Phase 1 of the [roadmap](../../ROADMAP.md).
 
 ## Execution
 
-- **ADR-0008 (proposed)** adds a summary frame to wire version 1: kind `0x05`, 240 bytes, a 16-byte random salt and a 1,768-bit Bloom filter over the held ids, 4 bits per id from SHA-256 of salt and id. Hop budget always 0, never stored or relayed. Added to version 1 rather than a version 2 because no phone runs version 1 yet. `WireCodec` decodes and encodes it, `WireFixtures` and the fuzz seeds include it, and the codec test checks a summary with any hop budget but 0 is rejected.
+- **ADR-0008 (accepted by Antoine on 2026-11-18)** adds a summary frame to wire version 1: kind `0x05`, 240 bytes, a 16-byte random salt and a 1,768-bit Bloom filter over the held ids, 4 bits per id from SHA-256 of salt and id. Hop budget always 0, never stored or relayed. Added to version 1 rather than a version 2 because no phone runs version 1 yet. `WireCodec` decodes and encodes it, `WireFixtures` and the fuzz seeds include it, and the codec test checks a summary with any hop budget but 0 is rejected.
 - **`Relay`** in `:core:mesh` (package `relay`), plain Kotlin against `MeshTransport`:
   - Verify, then store, then relay: every frame goes through `FrameValidator`; a valid one is stored, then passed to every other neighbour with one hop less. This phone's own frames leave with the budget the author set (a budget is the hops a frame may still take after the phone holding it), so a budget of 3 reaches four links away.
   - Anti-entropy: a summary on meeting and every 15 s (±50%) after; the neighbour pushes back what the filter lacks, withdrawals first, then newest, then most severe (`RelayConfig.severity`, a first guess for WI-028), within 16 KB, at most once per half period per link.

@@ -18,7 +18,7 @@ it is superseded by a new record that names it.
 | [ADR-0004](ADR-0004-crypto-design.md) | Secure the mesh with signed frames, a ratcheted group key and a Noise join, built on Tink | accepted | 2026-11-16 |
 | [ADR-0005](ADR-0005-wire-format.md) | Put fixed-layout, versioned, uncompressed binary frames on the air, decoded by hand and fuzzed in CI | accepted | 2026-11-17 |
 | [ADR-0006](ADR-0006-offline-map.md) | Draw the map with VTM from Mapsforge files that the user downloads in a browser and imports | accepted | 2026-11-17 |
-| [ADR-0008](ADR-0008-gossip-summary-frame.md) | Swap what each phone holds as a salted Bloom filter in one fixed-size summary frame, added to wire version 1 | proposed | 2026-11-18 |
+| [ADR-0008](ADR-0008-gossip-summary-frame.md) | Swap what each phone holds as a salted Bloom filter in one fixed-size summary frame, added to wire version 1 | accepted | 2026-11-18 |
 <!-- rungs:end adr-index -->
 
 ## Admission rule

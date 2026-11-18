@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The offline map (ADR-0006). Location is for the user's own position on the map only (spec
+  FR-2.5): shown, never stored or sent. No INTERNET: map files come through the browser and the
+  file picker, and checkManifestPermissions fails the build if any library adds it.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <application>
+        <!-- Shares imported map files with other phones through the share sheet (FR-2.4). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.maps"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/map_files" />
+        </provider>
+    </application>
+</manifest>
