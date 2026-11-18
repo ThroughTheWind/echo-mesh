@@ -1,10 +1,10 @@
 package io.github.throughthewind.echo.core.map
 
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.io.File
-import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
