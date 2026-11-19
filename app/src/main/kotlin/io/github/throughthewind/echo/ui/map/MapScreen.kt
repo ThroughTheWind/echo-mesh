@@ -113,6 +113,7 @@ fun MapScreen(
     onPickerOpened: () -> Unit,
     onOpenList: () -> Unit,
     onOpenProtects: () -> Unit,
+    onOpenGroups: () -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -296,6 +297,8 @@ fun MapScreen(
                 },
             )
             Box(Modifier.weight(1f))
+            MapIconButton(DS.drawable.ic_group, stringResource(R.string.groups_title), onOpenGroups)
+            Box(Modifier.size(LocalSpacing.current.md))
             MapIconButton(DS.drawable.ic_shield, stringResource(R.string.protects_title), onOpenProtects)
         }
 

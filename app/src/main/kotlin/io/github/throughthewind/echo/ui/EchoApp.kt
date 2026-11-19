@@ -10,6 +10,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.throughthewind.echo.App
+import io.github.throughthewind.echo.ui.groups.GroupsScreen
 import io.github.throughthewind.echo.ui.map.MapScreen
 import io.github.throughthewind.echo.ui.onboarding.Onboarding
 import io.github.throughthewind.echo.ui.protects.WhatEchoProtects
@@ -20,8 +21,8 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
-/** The screens of Phase 1. No navigation library: four screens fit in a `when`. */
-private enum class Screen { Map, Reports, Protects }
+/** The top-level screens. No navigation library: a few screens fit in a `when`. */
+private enum class Screen { Map, Reports, Protects, Groups }
 
 /**
  * The app's screens. First launch, and the first launch after a panic wipe, show onboarding before
@@ -48,6 +49,7 @@ fun EchoApp(app: App) {
                 onPickerOpened = { pickOnMap = false },
                 onOpenList = { screen = Screen.Reports },
                 onOpenProtects = { screen = Screen.Protects },
+                onOpenGroups = { screen = Screen.Groups },
             )
         }
 
@@ -65,6 +67,10 @@ fun EchoApp(app: App) {
 
         Screen.Protects -> {
             WhatEchoProtects(onBack = { screen = Screen.Map })
+        }
+
+        Screen.Groups -> {
+            GroupsScreen(app = app, onBack = { screen = Screen.Map })
         }
     }
 }
