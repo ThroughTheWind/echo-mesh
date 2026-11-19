@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -52,6 +53,7 @@ import io.github.throughthewind.echo.R
 import io.github.throughthewind.echo.core.designsystem.theme.LocalSpacing
 import io.github.throughthewind.echo.core.designsystem.theme.LocalStreetColors
 import io.github.throughthewind.echo.core.designsystem.theme.Touch
+import io.github.throughthewind.echo.core.map.OwnPosition
 import io.github.throughthewind.echo.core.mesh.group.GroupBook
 import io.github.throughthewind.echo.core.mesh.group.GroupInfo
 import io.github.throughthewind.echo.core.mesh.group.MemberInfo
@@ -59,11 +61,14 @@ import io.github.throughthewind.echo.core.mesh.group.MemberPosition
 import io.github.throughthewind.echo.core.mesh.node.MeshState
 import io.github.throughthewind.echo.core.mesh.node.Sharing
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
+import io.github.throughthewind.echo.core.model.GeoPoint
 import io.github.throughthewind.echo.ui.common.BackBar
 import io.github.throughthewind.echo.ui.common.IconLine
 import io.github.throughthewind.echo.ui.common.PrimaryButton
 import io.github.throughthewind.echo.ui.common.SecondaryButton
+import io.github.throughthewind.echo.ui.distanceFrom
 import io.github.throughthewind.echo.ui.rememberNow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.Date
@@ -100,6 +105,7 @@ private sealed interface Page {
 fun GroupsScreen(
     app: App,
     onBack: () -> Unit,
+    onShowOnMap: (GeoPoint) -> Unit,
 ) {
     var page by remember { mutableStateOf<Page>(Page.List) }
     BackHandler(enabled = page != Page.List) { page = Page.List }
@@ -115,6 +121,7 @@ fun GroupsScreen(
                 groups = groups,
                 meshOn = meshState is MeshState.On,
                 hasRadio = channel != null,
+                sharingWith = sharing.map { it.groupId }.toSet(),
                 onBack = onBack,
                 onOpen = { page = Page.Roster(it) },
                 onCreate = { page = Page.Create },
@@ -144,6 +151,7 @@ fun GroupsScreen(
                     onShare = { duration -> app.mesh.startSharing(group.id, duration?.let { Clock.System.now() + it }) },
                     onStopSharing = { app.mesh.stopSharing(group.id) },
                     onMute = { member, muted -> channel?.mute(group.id, member, muted) },
+                    onShowOnMap = onShowOnMap,
                     onBack = toList,
                     onAdd = { page = Page.Code(group.id) },
                     onLeave = {
@@ -183,6 +191,7 @@ private fun GroupList(
     groups: List<GroupInfo>,
     meshOn: Boolean,
     hasRadio: Boolean,
+    sharingWith: Set<Bytes>,
     onBack: () -> Unit,
     onOpen: (Bytes) -> Unit,
     onCreate: () -> Unit,
@@ -202,8 +211,11 @@ private fun GroupList(
                 Monogram(group.name, index)
                 Column(Modifier.weight(1f)) {
                     Text(group.name, style = MaterialTheme.typography.titleMedium)
+                    // Only members seen recently are counted: the app can't know who is in a group but silent.
+                    val seen = group.roster.count { it.isMe || it.lastSeen != null }
+                    val row = stringResource(R.string.groups_row, seen, ends(group.expiresAt))
                     Text(
-                        stringResource(R.string.groups_row, group.members.size, ends(group.expiresAt)),
+                        if (group.id in sharingWith) row + " · " + stringResource(R.string.groups_row_sharing) else row,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -284,6 +296,7 @@ private fun GroupRoster(
     onShare: (Duration?) -> Boolean,
     onStopSharing: () -> Unit,
     onMute: suspend (Bytes, Boolean) -> Unit,
+    onShowOnMap: (GeoPoint) -> Unit,
     onBack: () -> Unit,
     onAdd: () -> Unit,
     onLeave: suspend () -> Unit,
@@ -312,6 +325,8 @@ private fun GroupRoster(
             modifier = Modifier.semantics { heading() },
         )
         group.roster.forEachIndexed { index, member ->
+            // Members not heard from for 15 minutes drop off; muted ones stay so they can be unmuted (FR-8.7).
+            if (!member.isMe && !member.muted && member.lastSeen == null) return@forEachIndexed
             val shared = positions.filter { it.member == member.id && now < it.expiresAt }.maxByOrNull { it.at }
             Row(
                 Modifier
@@ -330,10 +345,12 @@ private fun GroupRoster(
                         if (member.isMe) stringResource(R.string.roster_you, member.nickname) else member.nickname,
                         style = MaterialTheme.typography.bodyLarge,
                     )
+                    val lastSeen = member.lastSeen
                     val state =
                         when {
                             member.muted -> stringResource(R.string.member_muted)
                             shared != null -> stringResource(R.string.member_sharing, seenAgo(shared.at, now))
+                            lastSeen != null && !member.isMe -> stringResource(R.string.member_seen, seenAgo(lastSeen, now))
                             else -> null
                         }
                     if (state != null) {
@@ -342,6 +359,11 @@ private fun GroupRoster(
                 }
             }
         }
+        Text(
+            stringResource(R.string.roster_seen_note),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         // Once anyone is muted, say what muting cannot do (screens/GroupRoster).
         if (group.roster.any { it.muted }) Callout(stringResource(R.string.roster_muted_callout), warning = true)
         if (!meshOn) Text(stringResource(R.string.groups_mesh_needed), style = MaterialTheme.typography.bodyMedium)
@@ -353,6 +375,12 @@ private fun GroupRoster(
         MemberSheet(
             member = member,
             groupName = group.name,
+            shared = positions.filter { it.member == member.id && now < it.expiresAt }.maxByOrNull { it.at },
+            now = now,
+            onShowOnMap = { point ->
+                memberSheet = null
+                onShowOnMap(point)
+            },
             onMute = { muted -> scope.launch { onMute(member.id, muted) } },
             onDismiss = { memberSheet = null },
         )
@@ -396,10 +424,18 @@ private const val STALE_ROW_ALPHA = 0.5f
 private fun MemberSheet(
     member: MemberInfo,
     groupName: String,
+    shared: MemberPosition?,
+    now: Instant,
+    onShowOnMap: (GeoPoint) -> Unit,
     onMute: (Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val spacing = LocalSpacing.current
+    val context = LocalContext.current
+    // Your own fix, for the distance, only while this sheet is open (NFR-10).
+    val mine by remember(shared != null) {
+        if (shared != null) OwnPosition.updates(context) else emptyFlow()
+    }.collectAsStateWithLifecycle(null)
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             Modifier
@@ -409,6 +445,15 @@ private fun MemberSheet(
             verticalArrangement = Arrangement.spacedBy(spacing.lg),
         ) {
             Text(member.nickname, style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+            if (shared != null && !member.muted) {
+                val fix = mine
+                val where = fix?.let { distanceFrom(GeoPoint(it.latitude, it.longitude), shared.position) }
+                Text(
+                    listOfNotNull(stringResource(R.string.member_sharing, seenAgo(shared.at, now)), where).joinToString(" · "),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                PrimaryButton(stringResource(R.string.member_show_on_map), { onShowOnMap(shared.position) })
+            }
             if (member.muted) {
                 Text(stringResource(R.string.member_muted), style = MaterialTheme.typography.bodyLarge)
                 PrimaryButton(stringResource(R.string.member_unmute, member.nickname), {

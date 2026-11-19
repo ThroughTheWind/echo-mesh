@@ -3,6 +3,7 @@ package io.github.throughthewind.echo.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -11,6 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.throughthewind.echo.App
+import io.github.throughthewind.echo.core.model.GeoPoint
 import io.github.throughthewind.echo.ui.groups.GroupsScreen
 import io.github.throughthewind.echo.ui.groups.ShareOwnPosition
 import io.github.throughthewind.echo.ui.map.MapScreen
@@ -51,6 +53,12 @@ private fun Screens(
     var screen by rememberSaveable { mutableStateOf(Screen.Map) }
     // Opening the report picker from the list returns to the map with it open.
     var pickOnMap by rememberSaveable { mutableStateOf(false) }
+    // Everything, or my groups only: the same filter on the map and the list (FR-9.3).
+    var groupsOnly by rememberSaveable { mutableStateOf(false) }
+    // A member's shared position to centre the map on, from the roster (screens/GroupRoster).
+    var focus by remember { mutableStateOf<GeoPoint?>(null) }
+    val groups = LocalGroups.current
+    LaunchedEffect(groups.isEmpty()) { if (groups.isEmpty()) groupsOnly = false }
     BackHandler(enabled = screen != Screen.Map) { screen = Screen.Map }
     when (screen) {
         Screen.Map -> {
@@ -62,6 +70,10 @@ private fun Screens(
                 onOpenList = { screen = Screen.Reports },
                 onOpenProtects = { screen = Screen.Protects },
                 onOpenGroups = { screen = Screen.Groups },
+                groupsOnly = groupsOnly,
+                onGroupsOnly = { groupsOnly = it },
+                focus = focus,
+                onFocused = { focus = null },
             )
         }
 
@@ -74,6 +86,8 @@ private fun Screens(
                     pickOnMap = true
                     screen = Screen.Map
                 },
+                groupsOnly = groupsOnly,
+                onGroupsOnly = { groupsOnly = it },
             )
         }
 
@@ -82,7 +96,14 @@ private fun Screens(
         }
 
         Screen.Groups -> {
-            GroupsScreen(app = app, onBack = { screen = Screen.Map })
+            GroupsScreen(
+                app = app,
+                onBack = { screen = Screen.Map },
+                onShowOnMap = {
+                    focus = it
+                    screen = Screen.Map
+                },
+            )
         }
     }
 }

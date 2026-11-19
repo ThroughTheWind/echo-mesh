@@ -65,6 +65,8 @@ data class MemberInfo(
     val isMe: Boolean,
     /** Hidden on this phone only (FR-9.4). */
     val muted: Boolean,
+    /** When this phone last heard from them, if within [GroupChannel.SEEN_FOR]; null otherwise (FR-8.7). */
+    val lastSeen: Instant? = null,
 )
 
 /** A group report this phone could open (FR-9.1): who in which group said it. */
@@ -135,6 +137,9 @@ class GroupChannel(
 
     /** Members' latest shared positions, not yet expired, from every group this phone is in. */
     val positions: StateFlow<List<MemberPosition>> = positionList.asStateFlow()
+
+    /** When each member was last heard from, by group then key id; memory only, nothing older than [SEEN_FOR] (FR-8.7). */
+    private val seen = HashMap<Pair<Bytes, Bytes>, Instant>()
 
     /** Withdrawals seen, target id to the key id that signed them, even before the report arrives. */
     private val withdrawals = HashMap<Bytes, Bytes>()
@@ -223,6 +228,7 @@ class GroupChannel(
             held.values.removeAll { it.groupId == id }
             authors.keys.retainAll(held.keys)
             latest.keys.removeAll { it.first == id }
+            seen.keys.removeAll { it.first == id }
             publish()
         }
     }
@@ -342,6 +348,7 @@ class GroupChannel(
             val minute = now.wireMinute()
             groupVotes.values.removeAll { byMember -> byMember.values.all { it.minute + VOTE_MEMORY_MINUTES < minute } }
             latest.values.removeAll { it.expiresAt <= now || book[it.groupId] == null }
+            seen.entries.removeAll { (key, at) -> now - at > SEEN_FOR || book[key.first] == null }
             publish()
         }
     }
@@ -545,6 +552,8 @@ class GroupChannel(
                         }
                 group.add(joiner)
                 save(group)
+                // The newcomer is in front of this phone: seen now.
+                markSeen(group.id, joiner.keyId, clock())
                 joinEvents.tryEmit(JoinEvent(group.id, group.name, joiner.nickname, throughThisPhone = true))
                 val added = GroupMessage.MemberAdded(joiner.publicKey, joiner.nickname, minute, Wire.MAX_LIFETIME_MINUTES)
                 publishGroups()
@@ -587,6 +596,12 @@ class GroupChannel(
             if (frame.id in held) return false
             val members = book.all.sumOf { it.roster.size }
             val opened = book.open(group) ?: return false
+            val said = opened.message
+            val sent = instantOfWireMinute(said.createdMinute) + ((said as? GroupMessage.Position)?.second ?: 0).seconds
+            val heard = minOf(sent, clock())
+            markSeen(opened.group.id, opened.sender.keyId, heard)
+            // A newcomer was let in in person by the sender, at the same time.
+            if (said is GroupMessage.MemberAdded) markSeen(opened.group.id, GroupInner.keyId(said.member), heard)
             when (val message = opened.message) {
                 is GroupMessage.Report -> {
                     val report =
@@ -682,6 +697,17 @@ class GroupChannel(
         }
     }
 
+    private fun markSeen(
+        group: Bytes,
+        member: Bytes,
+        at: Instant,
+    ) {
+        if (clock() - at > SEEN_FOR) return
+        val key = group to member
+        val previous = seen[key]
+        if (previous == null || previous < at) seen[key] = at
+    }
+
     /** Writes [group]'s record: keys, roster and all, sealed by the vault. */
     private fun save(group: Group) {
         val vault = vault ?: return
@@ -717,6 +743,9 @@ class GroupChannel(
 
         /** How long a newcomer waits for the whole join before scanning again. */
         val JOIN_TIMEOUT: Duration = 30.seconds
+
+        /** Members not heard from for this long drop off the roster; nobody's history is kept (screens/GroupRoster). */
+        val SEEN_FOR: Duration = 15.minutes
 
         /** How long a shared position is shown before it disappears ("a few minutes", FR-10.2; tuned in WI-028). */
         val POSITION_LIFETIME: Duration = 5.minutes
@@ -757,6 +786,15 @@ class GroupChannel(
             expiresAt = instantOfWireMinute(expiresMinute),
             myNickname = myNickname,
             members = roster.map { it.nickname },
-            roster = roster.map { MemberInfo(it.keyId, it.nickname, isMe = it.keyId == self.keyId, muted = isMuted(it.keyId)) },
+            roster =
+                roster.map {
+                    MemberInfo(
+                        id = it.keyId,
+                        nickname = it.nickname,
+                        isMe = it.keyId == self.keyId,
+                        muted = isMuted(it.keyId),
+                        lastSeen = seen[id to it.keyId]?.takeIf { at -> clock() - at <= SEEN_FOR },
+                    )
+                },
         )
 }

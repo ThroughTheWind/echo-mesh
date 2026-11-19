@@ -203,6 +203,11 @@
     <string name="notification_searching">Looking for phones · relaying</string>
     <string name="notification_nearby">%1$s nearby · relaying</string>
     <string name="notification_turn_off">Turn off</string>
+    <string name="notification_sharing_title">Sharing your position with %1$s</string>
+    <string name="notification_sharing_text">Updates while Echo is open · %1$s</string>
+    <string name="notification_stops_in">stops in %1$d h %2$02d</string>
+    <string name="notification_stops_in_minutes">stops in %1$d min</string>
+    <string name="notification_stop_sharing">Stop sharing</string>
     <string name="mesh_honesty">Anyone nearby with a radio receiver can tell your phone is running Echo. Nothing it sends carries your name, number or a fixed ID.</string>
     <string name="mesh_on_snackbar">Mesh on</string>
     <string name="mesh_off_snackbar">Mesh off. Reports you have stay until they expire.</string>
@@ -213,7 +218,8 @@
     <string name="groups_join">Join by scanning</string>
     <string name="groups_full">You\'re in 5 groups, the most Echo allows. Leave one first.</string>
     <string name="groups_cant_remove">You can\'t remove someone from a group. Make a new one and share it in person.</string>
-    <string name="groups_row">Members known: %1$d · ends %2$s</string>
+    <string name="groups_row">%1$d seen recently · ends %2$s</string>
+    <string name="groups_row_sharing">you share your position</string>
     <string name="groups_mesh_needed">Turn the mesh on from the map first. The two phones talk to each other over it.</string>
     <string name="groups_no_radio">This build has no radio, so it can\'t join a group or add people.</string>
     <string name="create_title">New group</string>
@@ -291,4 +297,12 @@
     <string name="member_unmute">Unmute %1$s</string>
     <string name="member_mute_body">Muting hides %1$s\'s reports, votes and position on this phone only. %1$s stays in %2$s and isn\'t told.</string>
     <string name="roster_muted_callout">You can\'t remove someone. Mute them on your phone, or make a new group and share it in person.</string>
+    <string name="member_seen">Seen %1$s</string>
+    <string name="member_show_on_map">Show on map</string>
+    <string name="roster_seen_note">Members not seen for 15 min drop off this list. Nobody\'s history is kept.</string>
+    <string name="joined_snackbar">%1$s joined %2$s</string>
+    <string name="filter_everything">Everything</string>
+    <string name="filter_my_groups">My groups</string>
+    <string name="filter_groups_only">Show my groups only</string>
+    <string name="filter_show_everything">Show everything</string>
 </resources>

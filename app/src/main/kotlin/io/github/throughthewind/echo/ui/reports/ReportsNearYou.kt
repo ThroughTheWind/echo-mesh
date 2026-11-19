@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -14,6 +15,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,6 +41,7 @@ import io.github.throughthewind.echo.core.map.OwnPosition
 import io.github.throughthewind.echo.core.mesh.node.ShownReport
 import io.github.throughthewind.echo.core.model.Geo
 import io.github.throughthewind.echo.core.model.GeoPoint
+import io.github.throughthewind.echo.ui.LocalGroups
 import io.github.throughthewind.echo.ui.MapsState
 import io.github.throughthewind.echo.ui.common.BackBar
 import io.github.throughthewind.echo.ui.common.PrimaryButton
@@ -53,7 +58,7 @@ import kotlin.time.Instant
 /**
  * Every report the phone holds, nearest first (screens/ReportsNearYou, FR-5.6): the way in for
  * TalkBack and for anyone who would rather read than scan a map. Same pins, same detail as the map.
- * The Everything / My groups filter comes with groups (WI-022).
+ * The same Everything / My groups filter as the map (FR-9.3).
  */
 @Composable
 fun ReportsNearYou(
@@ -61,6 +66,8 @@ fun ReportsNearYou(
     maps: MapsState,
     onBack: () -> Unit,
     onReportHere: () -> Unit,
+    groupsOnly: Boolean,
+    onGroupsOnly: (Boolean) -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -79,7 +86,8 @@ fun ReportsNearYou(
     val rows =
         remember(reports, from == null) {
             reports.sortedBy { shown -> from?.let { Geo.distanceMeters(it, shown.report.position) } ?: 0.0 }
-        }.filter { now < it.report.expiresAt }
+        }.filter { now < it.report.expiresAt && (!groupsOnly || it.group != null) }
+    val groups = LocalGroups.current
 
     Scaffold(topBar = { BackBar(stringResource(R.string.reports_title), onBack) }) { padding ->
         Column(
@@ -88,6 +96,21 @@ fun ReportsNearYou(
                 .padding(padding)
                 .navigationBarsPadding(),
         ) {
+            if (groups.isNotEmpty()) {
+                SingleChoiceSegmentedButtonRow(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = LocalSpacing.current.lg, vertical = LocalSpacing.current.sm),
+                ) {
+                    listOf(false to R.string.filter_everything, true to R.string.filter_my_groups).forEachIndexed { i, (only, label) ->
+                        SegmentedButton(
+                            selected = groupsOnly == only,
+                            onClick = { onGroupsOnly(only) },
+                            shape = SegmentedButtonDefaults.itemShape(index = i, count = 2),
+                        ) { Text(stringResource(label)) }
+                    }
+                }
+            }
             if (fix == null && from != null) {
                 Text(
                     stringResource(R.string.reports_from_centre),

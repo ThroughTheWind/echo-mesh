@@ -19,6 +19,7 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-019](items/WI-019-confirm-and-dismiss.md) | Confirm or dismiss a report, with votes that spread | feature | `claude/project-thread-67cn4e` |
 | [WI-020](items/WI-020-position-sharing.md) | Share position with a group, opt-in and short-lived | feature | `claude/project-thread-67cn4e` |
 | [WI-021](items/WI-021-mute-a-member.md) | Mute a group member on this phone | feature | `claude/project-thread-67cn4e` |
+| [WI-022](items/WI-022-group-screens.md) | Build the group screens: create, join, roster, verified style and filters | feature | `claude/project-thread-67cn4e` |
 
 ## Review
 
@@ -37,7 +38,6 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-006](items/WI-006-phase-1-two-phones-one-report.md) | Phase 1 — Two phones, one report: ship 0.1.0 | epic |
 | [WI-015](items/WI-015-release-0-1-0.md) | Set up release signing and cut 0.1.0 | chore |
 | [WI-016](items/WI-016-phase-2-groups.md) | Phase 2 — Groups: ship 0.2.0 | epic |
-| [WI-022](items/WI-022-group-screens.md) | Build the group screens: create, join, roster, verified style and filters | feature |
 | [WI-023](items/WI-023-phase-3-safety-and-street-use.md) | Phase 3 — Safety and street use: ship 0.3.0 | epic |
 | [WI-024](items/WI-024-panic-wipe.md) | Panic wipe in under two seconds | feature |
 | [WI-025](items/WI-025-discreet-mode.md) | Discreet mode | feature |

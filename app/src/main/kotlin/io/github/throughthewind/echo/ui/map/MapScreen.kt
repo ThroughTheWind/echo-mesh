@@ -124,6 +124,10 @@ fun MapScreen(
     onOpenList: () -> Unit,
     onOpenProtects: () -> Unit,
     onOpenGroups: () -> Unit,
+    groupsOnly: Boolean,
+    onGroupsOnly: (Boolean) -> Unit,
+    focus: GeoPoint?,
+    onFocused: () -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -180,6 +184,22 @@ fun MapScreen(
         if (openPicker) {
             picking = true
             onPickerOpened()
+        }
+    }
+
+    // A member's position picked on the roster: centre on it once.
+    LaunchedEffect(focus) {
+        if (focus != null) {
+            camera.centreOn(focus)
+            onFocused()
+        }
+    }
+
+    // Someone joined one of this phone's groups through another member: everyone sees it (FR-8.2).
+    val joinedFormat = stringResource(R.string.joined_snackbar)
+    LaunchedEffect(mesh) {
+        mesh.groupChannel?.joins?.collect { join ->
+            if (!join.throughThisPhone) snackbar.showSnackbar(joinedFormat.format(join.nickname, join.groupName))
         }
     }
 
@@ -299,7 +319,8 @@ fun MapScreen(
         val density = LocalDensity.current
         if (entry != null) {
             OfflineMap(entry, ownFix, camera, Modifier.fillMaxSize())
-            Pins(reports, camera, now, onClick = { detailFor = it })
+            // My groups only hides public pins, your own public ones included (FR-9.3).
+            Pins(if (groupsOnly) reports.filter { it.group != null } else reports, camera, now, onClick = { detailFor = it })
             Members(positions, camera, now)
         } else {
             NoMap(onGetMap = { showGetMap = true })
@@ -364,6 +385,14 @@ fun MapScreen(
             if (!picking) {
                 Row(verticalAlignment = Alignment.Bottom) {
                     MapIconButton(DS.drawable.ic_near_me, listLabel, onOpenList)
+                    if (groups.isNotEmpty()) {
+                        Box(Modifier.size(LocalSpacing.current.md))
+                        MapIconButton(
+                            if (groupsOnly) DS.drawable.ic_group else DS.drawable.ic_filter_alt,
+                            stringResource(if (groupsOnly) R.string.filter_show_everything else R.string.filter_groups_only),
+                            { onGroupsOnly(!groupsOnly) },
+                        )
+                    }
                     Box(Modifier.weight(1f))
                     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(LocalSpacing.current.md)) {
                         MapIconButton(DS.drawable.ic_my_location, stringResource(R.string.map_centre_on_me), ::centreOnMe)

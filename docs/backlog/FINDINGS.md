@@ -7,7 +7,7 @@ Things noticed while doing something else. **A finding is the observation; a wor
 decision.** Recording one must cost almost nothing, or it will not happen — so a finding is a
 **row**, not a file. Items are files; findings are rows. The asymmetry is deliberate.
 
-<!-- NEXT-ID: F-004 -->
+<!-- NEXT-ID: F-005 -->
 
 ## Open
 
@@ -16,6 +16,7 @@ decision.** Recording one must cost almost nothing, or it will not happen — so
 | F-001 | high | next | CI has no slot yet for the Noise test vectors `:core:crypto` must pass (ADR-0004). Decoder fuzzing and the compression ban landed with WI-003. | `.github/workflows/ci.yml` runs the fuzzer and the compression gates, but nothing checks a Noise handshake yet. | When the Noise join is written (WI-017). | Run the cacophony `NKpsk0` vectors as a unit test of `:core:crypto` in the same change as the handshake. |
 | F-002 | medium | next | Wi-Fi Direct and Wi-Fi Aware move data over IP sockets, and Android needs `INTERNET` for any socket, which ADR-0003 and `checkManifestPermissions` forbid. | `adapters/wifidirect/README.md`; Android requires `INTERNET` for `socket()`, to be confirmed by transport research. | Before `:adapters:wifidirect` or `:adapters:wifiaware` gets code. | An ADR that either allows `INTERNET` with sockets bound to the peer-to-peer interface only, or keeps Wi-Fi radios out of the MVP. |
 | F-003 | high | next | `checkForbiddenDependencies` once passed with a forbidden artifact on the classpath while the configuration cache was on: it saw 2 external modules instead of 7. Not reproduced after clearing `.gradle/configuration-cache`. | Local run of 2026-11-17 (WI-002): `:core:crypto` with `com.google.crypto.tink:tink` planted printed "2 external modules, none forbidden" with the cache reused; `--no-configuration-cache` and a fresh cache both failed correctly on the same build file. | Before trusting a cached local run of the gate; CI starts without a configuration cache, so it is not affected today. | Find the cause, or make the gate read the resolved graph in a way the configuration cache cannot serve stale, and add a self-test that plants a dependency under the cache. |
+| F-004 | medium | next | Position sharing pauses when Echo leaves the screen: NFR-10 forbids background location, so the phone's fix is read only while the app is visible, and after 2 minutes the group sees the marker go stale. The design (patterns/PositionSharing) expects sharing to go on behind the notification. Android allows location from a foreground service of type `location` started while the app is visible, without `ACCESS_BACKGROUND_LOCATION`. | WI-020 execution note; `ui/groups/Sharing.kt` `ShareOwnPosition`; the notification says "Updates while Echo is open". | Before the field test (WI-028), or when Antoine reviews WI-020. | Antoine decides whether a `location` foreground service while sharing counts as background location under NFR-10; if not, keep the pause and say so in the share sheet. |
 
 ## Closed
 
