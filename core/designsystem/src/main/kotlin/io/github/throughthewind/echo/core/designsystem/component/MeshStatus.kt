@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -203,8 +204,8 @@ private fun chipDescription(
         is MeshChip.On -> {
             val count = nearbyCount(state.nearby)
             val said =
-                state.lastReport?.let { stringResource(R.string.ds_mesh_described_on, count, ageLabel(it)) }
-                    ?: stringResource(R.string.ds_mesh_described_on_none, count)
+                state.lastReport?.let { pluralStringResource(R.plurals.ds_mesh_described_on, state.nearby, count, ageLabel(it)) }
+                    ?: pluralStringResource(R.plurals.ds_mesh_described_on_none, state.nearby, count)
             if (state.lowDensity) "$said. ${stringResource(R.string.ds_mesh_described_few)}" else said
         }
 

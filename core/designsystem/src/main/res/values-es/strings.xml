@@ -22,8 +22,14 @@
     <string name="ds_mesh_fix">Arreglar</string>
     <string name="ds_mesh_stopped">Retransmisión detenida</string>
     <string name="ds_mesh_no_radio">Esta versión no tiene radio</string>
-    <string name="ds_mesh_described_on">%1$s teléfonos cerca, último aviso %2$s</string>
-    <string name="ds_mesh_described_on_none">%1$s teléfonos cerca, aún sin avisos</string>
+    <plurals name="ds_mesh_described_on">
+        <item quantity="one">%1$s teléfono cerca, último aviso %2$s</item>
+        <item quantity="other">%1$s teléfonos cerca, último aviso %2$s</item>
+    </plurals>
+    <plurals name="ds_mesh_described_on_none">
+        <item quantity="one">%1$s teléfono cerca, aún sin avisos</item>
+        <item quantity="other">%1$s teléfonos cerca, aún sin avisos</item>
+    </plurals>
     <string name="ds_age_seconds">%1$ds</string>
     <string name="ds_age_minutes">%1$d min</string>
     <string name="ds_age_hours">%1$d h</string>

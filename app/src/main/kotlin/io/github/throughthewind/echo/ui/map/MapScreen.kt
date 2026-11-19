@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -355,37 +356,36 @@ fun MapScreen(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(LocalSpacing.current.sm),
         ) {
+            // Four 64 dp buttons leave a phone too little width for the chip beside them (its label
+            // grows with the count and the language), so the buttons hold the top corner and the
+            // chip sits under them; on one line the panic wipe was pushed off the screen.
             Row(
                 Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(LocalSpacing.current.md, Alignment.End),
             ) {
-                MeshStatusChip(
-                    state = meshState.chip(now, settings.meshMeantOn),
-                    onClick = {
-                        when (meshState.problem(settings.meshMeantOn)) {
-                            null -> if (meshState == MeshState.Off) turnMeshOn() else showMeshSheet = true
-                            MeshProblem.RADIO_OFF -> fix(MeshProblem.RADIO_OFF)
-                            MeshProblem.PERMISSION -> fix(MeshProblem.PERMISSION)
-                            else -> showMeshSheet = true
-                        }
-                    },
-                )
-                Box(Modifier.weight(1f))
                 MapIconButton(DS.drawable.ic_group, stringResource(R.string.groups_title), onOpenGroups)
-                Box(Modifier.size(LocalSpacing.current.md))
                 MapIconButton(DS.drawable.ic_settings, stringResource(R.string.settings_open), onOpenSettings)
                 // Discreet mode: one tap, no confirm, the same button turns it off (FR-13.1).
-                Box(Modifier.size(LocalSpacing.current.md))
                 MapIconButton(
                     if (settings.discreet) DS.drawable.ic_visibility_off else DS.drawable.ic_visibility,
                     stringResource(if (settings.discreet) R.string.discreet_on else R.string.discreet_off),
                     { scope.launch { app.setDiscreet(!settings.discreet) } },
                 )
                 LocalPanicWipe.current?.let { wipe ->
-                    Box(Modifier.size(LocalSpacing.current.md))
                     MapIconButton(DS.drawable.ic_delete_forever, stringResource(R.string.wipe_button), wipe)
                 }
             }
+            MeshStatusChip(
+                state = meshState.chip(now, settings.meshMeantOn),
+                onClick = {
+                    when (meshState.problem(settings.meshMeantOn)) {
+                        null -> if (meshState == MeshState.Off) turnMeshOn() else showMeshSheet = true
+                        MeshProblem.RADIO_OFF -> fix(MeshProblem.RADIO_OFF)
+                        MeshProblem.PERMISSION -> fix(MeshProblem.PERMISSION)
+                        else -> showMeshSheet = true
+                    }
+                },
+            )
             // While sharing, one bar per group with its own Stop (FR-10.4).
             SharingBars(sharing, now, onStop = mesh::stopSharing)
             // FR-16.2: with nobody in range, the map says so instead of looking like a quiet street.
@@ -446,7 +446,9 @@ fun MapScreen(
                             text = { Text(stringResource(R.string.map_report), style = MaterialTheme.typography.labelLarge) },
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(width = Touch.hero + Touch.hero / 2, height = Touch.hero),
+                            // A minimum, not a fixed size: a longer label (French, large text) must
+                            // grow the button, or it is clipped and TalkBack finds nothing to read.
+                            modifier = Modifier.sizeIn(minWidth = Touch.hero + Touch.hero / 2, minHeight = Touch.hero),
                         )
                     }
                 }

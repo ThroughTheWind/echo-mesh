@@ -401,7 +401,7 @@
     <string name="settings_large_pins_support">Des épingles plus grandes, plus faciles à voir et à toucher</string>
     <string name="settings_overridden">Désactivé tant que le mode discret est activé</string>
     <string name="settings_privacy_section">Confidentialité</string>
-    <string name="settings_feedback_section">Retour</string>
+    <string name="settings_feedback_section">Retour haptique</string>
     <string name="settings_haptics">Vibration</string>
     <string name="settings_haptics_off">Désactivée</string>
     <string name="settings_haptics_light">Légère</string>

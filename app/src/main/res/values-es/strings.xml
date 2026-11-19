@@ -401,7 +401,7 @@
     <string name="settings_large_pins_support">Marcadores más grandes, más fáciles de ver y tocar</string>
     <string name="settings_overridden">Desactivado mientras el modo discreto esté activado</string>
     <string name="settings_privacy_section">Privacidad</string>
-    <string name="settings_feedback_section">Respuesta</string>
+    <string name="settings_feedback_section">Respuesta háptica</string>
     <string name="settings_haptics">Vibración</string>
     <string name="settings_haptics_off">Desactivada</string>
     <string name="settings_haptics_light">Suave</string>
