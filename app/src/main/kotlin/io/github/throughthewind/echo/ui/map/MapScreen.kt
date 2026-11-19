@@ -82,6 +82,7 @@ import io.github.throughthewind.echo.core.map.OfflineMap
 import io.github.throughthewind.echo.core.map.OwnFix
 import io.github.throughthewind.echo.core.map.OwnPosition
 import io.github.throughthewind.echo.core.map.rememberMapCamera
+import io.github.throughthewind.echo.core.mesh.group.MemberPosition
 import io.github.throughthewind.echo.core.mesh.node.MeshState
 import io.github.throughthewind.echo.core.mesh.node.ShownReport
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
@@ -89,10 +90,15 @@ import io.github.throughthewind.echo.core.model.GeoPoint
 import io.github.throughthewind.echo.core.model.ReportType
 import io.github.throughthewind.echo.ui.LocalGroups
 import io.github.throughthewind.echo.ui.MapsState
+import io.github.throughthewind.echo.ui.colourOf
 import io.github.throughthewind.echo.ui.common.PrimaryButton
 import io.github.throughthewind.echo.ui.common.SecondaryButton
 import io.github.throughthewind.echo.ui.describe
 import io.github.throughthewind.echo.ui.family
+import io.github.throughthewind.echo.ui.groups.MARKER_DP
+import io.github.throughthewind.echo.ui.groups.MemberMarker
+import io.github.throughthewind.echo.ui.groups.SharingBars
+import io.github.throughthewind.echo.ui.groups.message
 import io.github.throughthewind.echo.ui.hex
 import io.github.throughthewind.echo.ui.look
 import io.github.throughthewind.echo.ui.maps.GetMapChoices
@@ -125,6 +131,9 @@ fun MapScreen(
     val meshState by mesh.state.collectAsStateWithLifecycle()
     val reports by mesh.reports.collectAsStateWithLifecycle()
     val pending by mesh.pending.collectAsStateWithLifecycle()
+    val sharing by mesh.sharing.collectAsStateWithLifecycle()
+    val positions by mesh.positions.collectAsStateWithLifecycle()
+    val sharingStopped by mesh.sharingStopped.collectAsStateWithLifecycle()
     val settings by app.settings.settings.collectAsStateWithLifecycle()
     val now = rememberNow(if (pending != null) 250.milliseconds else 1000.milliseconds)
     val camera = rememberMapCamera()
@@ -171,6 +180,16 @@ fun MapScreen(
         if (openPicker) {
             picking = true
             onPickerOpened()
+        }
+    }
+
+    // Sharing that stopped by itself says why, the next time the map is visible (FR-10.1).
+    val stoppedMessage = sharingStopped?.message()
+    LaunchedEffect(sharingStopped) {
+        if (stoppedMessage != null) {
+            // Its own scope: noting it changes this effect's key, which would cancel the snackbar.
+            scope.launch { snackbar.showSnackbar(stoppedMessage) }
+            mesh.sharingStopNoted()
         }
     }
 
@@ -281,6 +300,7 @@ fun MapScreen(
         if (entry != null) {
             OfflineMap(entry, ownFix, camera, Modifier.fillMaxSize())
             Pins(reports, camera, now, onClick = { detailFor = it })
+            Members(positions, camera, now)
         } else {
             NoMap(onGetMap = { showGetMap = true })
         }
@@ -290,28 +310,35 @@ fun MapScreen(
             Crosshair(Modifier.offset { IntOffset(constraints.maxWidth / 2, above / 2) - crosshairHalf(density.density) })
         }
 
-        Row(
+        Column(
             Modifier
                 .statusBarsPadding()
                 .padding(horizontal = LocalSpacing.current.lg)
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.spacedBy(LocalSpacing.current.sm),
         ) {
-            MeshStatusChip(
-                state = meshState.chip(now, settings.meshMeantOn),
-                onClick = {
-                    when (meshState.problem(settings.meshMeantOn)) {
-                        null -> if (meshState == MeshState.Off) turnMeshOn() else showMeshSheet = true
-                        MeshProblem.RADIO_OFF -> fix(MeshProblem.RADIO_OFF)
-                        MeshProblem.PERMISSION -> fix(MeshProblem.PERMISSION)
-                        else -> showMeshSheet = true
-                    }
-                },
-            )
-            Box(Modifier.weight(1f))
-            MapIconButton(DS.drawable.ic_group, stringResource(R.string.groups_title), onOpenGroups)
-            Box(Modifier.size(LocalSpacing.current.md))
-            MapIconButton(DS.drawable.ic_shield, stringResource(R.string.protects_title), onOpenProtects)
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                MeshStatusChip(
+                    state = meshState.chip(now, settings.meshMeantOn),
+                    onClick = {
+                        when (meshState.problem(settings.meshMeantOn)) {
+                            null -> if (meshState == MeshState.Off) turnMeshOn() else showMeshSheet = true
+                            MeshProblem.RADIO_OFF -> fix(MeshProblem.RADIO_OFF)
+                            MeshProblem.PERMISSION -> fix(MeshProblem.PERMISSION)
+                            else -> showMeshSheet = true
+                        }
+                    },
+                )
+                Box(Modifier.weight(1f))
+                MapIconButton(DS.drawable.ic_group, stringResource(R.string.groups_title), onOpenGroups)
+                Box(Modifier.size(LocalSpacing.current.md))
+                MapIconButton(DS.drawable.ic_shield, stringResource(R.string.protects_title), onOpenProtects)
+            }
+            // While sharing, one bar per group with its own Stop (FR-10.4).
+            SharingBars(sharing, now, onStop = mesh::stopSharing)
         }
 
         Column(
@@ -519,6 +546,28 @@ private fun Pins(
                     modifier = Modifier.offset { IntOffset(at.x.toInt() - half, at.y.toInt() - half) },
                 )
             }
+    }
+}
+
+/** Group members' latest shared positions (FR-10.3); an expired one is not drawn at all. */
+@Composable
+private fun Members(
+    positions: List<MemberPosition>,
+    camera: MapCamera,
+    now: Instant,
+) {
+    val groups = LocalGroups.current
+    val half = with(LocalDensity.current) { (MARKER_DP.dp / 2).roundToPx() }
+    Box(Modifier.fillMaxSize()) {
+        positions.filter { now < it.expiresAt }.forEach { member ->
+            val at = camera.toScreen(member.position) ?: return@forEach
+            MemberMarker(
+                member,
+                groups.colourOf(member.groupId),
+                now,
+                Modifier.offset { IntOffset(at.x.toInt() - half, at.y.toInt() - half) },
+            )
+        }
     }
 }
 

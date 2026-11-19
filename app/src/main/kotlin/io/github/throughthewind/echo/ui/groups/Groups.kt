@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -22,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -33,8 +35,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -47,15 +51,19 @@ import io.github.throughthewind.echo.core.designsystem.theme.LocalStreetColors
 import io.github.throughthewind.echo.core.designsystem.theme.Touch
 import io.github.throughthewind.echo.core.mesh.group.GroupBook
 import io.github.throughthewind.echo.core.mesh.group.GroupInfo
+import io.github.throughthewind.echo.core.mesh.group.MemberPosition
 import io.github.throughthewind.echo.core.mesh.node.MeshState
+import io.github.throughthewind.echo.core.mesh.node.Sharing
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.ui.common.BackBar
 import io.github.throughthewind.echo.ui.common.IconLine
 import io.github.throughthewind.echo.ui.common.PrimaryButton
 import io.github.throughthewind.echo.ui.common.SecondaryButton
+import io.github.throughthewind.echo.ui.rememberNow
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.Date
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
@@ -93,6 +101,8 @@ fun GroupsScreen(
     BackHandler(enabled = page != Page.List) { page = Page.List }
     val groups by app.mesh.groups.collectAsStateWithLifecycle()
     val meshState by app.mesh.state.collectAsStateWithLifecycle()
+    val sharing by app.mesh.sharing.collectAsStateWithLifecycle()
+    val positions by app.mesh.positions.collectAsStateWithLifecycle()
     val channel = app.mesh.groupChannel
     val toList = { page = Page.List }
     when (val current = page) {
@@ -125,6 +135,10 @@ fun GroupsScreen(
                 GroupRoster(
                     group = group,
                     meshOn = meshState is MeshState.On,
+                    sharing = sharing.firstOrNull { it.groupId == group.id },
+                    positions = positions.filter { it.groupId == group.id },
+                    onShare = { duration -> app.mesh.startSharing(group.id, duration?.let { Clock.System.now() + it }) },
+                    onStopSharing = { app.mesh.stopSharing(group.id) },
                     onBack = toList,
                     onAdd = { page = Page.Code(group.id) },
                     onLeave = {
@@ -260,17 +274,30 @@ private fun CreateGroup(
 private fun GroupRoster(
     group: GroupInfo,
     meshOn: Boolean,
+    sharing: Sharing?,
+    positions: List<MemberPosition>,
+    onShare: (Duration?) -> Boolean,
+    onStopSharing: () -> Unit,
     onBack: () -> Unit,
     onAdd: () -> Unit,
     onLeave: suspend () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     var confirmLeave by remember { mutableStateOf(false) }
+    var choosing by remember { mutableStateOf(false) }
+    val now = rememberNow()
     GroupPage(title = group.name, onBack = onBack) {
         Text(
             stringResource(R.string.roster_ends, ends(group.expiresAt)),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        ShareRow(
+            groupName = group.name,
+            sharing = sharing,
+            meshOn = meshOn,
+            now = now,
+            onToggle = { on -> if (on) choosing = true else onStopSharing() },
         )
         Text(
             stringResource(R.string.roster_members),
@@ -283,17 +310,39 @@ private fun GroupRoster(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(LocalSpacing.current.lg),
             ) {
-                Monogram(member, index)
-                Text(
-                    if (member == group.myNickname) stringResource(R.string.roster_you, member) else member,
-                    style = MaterialTheme.typography.bodyLarge,
-                )
+                val shared = positions.filter { it.nickname == member && now < it.expiresAt }.maxByOrNull { it.at }
+                Box(Modifier.alpha(if (shared != null && now - shared.at > STALE_AFTER) STALE_ROW_ALPHA else 1f)) {
+                    Monogram(member, index)
+                }
+                Column {
+                    Text(
+                        if (member == group.myNickname) stringResource(R.string.roster_you, member) else member,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    if (shared != null) {
+                        Text(
+                            stringResource(R.string.member_sharing, seenAgo(shared.at, now)),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
             }
         }
         if (!meshOn) Text(stringResource(R.string.groups_mesh_needed), style = MaterialTheme.typography.bodyMedium)
         PrimaryButton(stringResource(R.string.roster_add), onAdd, enabled = meshOn)
         SecondaryButton(stringResource(R.string.roster_leave, group.name), { confirmLeave = true })
         IconLine(DS.drawable.ic_info, MaterialTheme.colorScheme.onSurfaceVariant, stringResource(R.string.groups_cant_remove))
+    }
+    if (choosing) {
+        ShareSheet(
+            groupName = group.name,
+            onStart = { duration ->
+                choosing = false
+                onShare(duration)
+            },
+            onDismiss = { choosing = false },
+        )
     }
     if (confirmLeave) {
         AlertDialog(
@@ -310,6 +359,50 @@ private fun GroupRoster(
             },
             dismissButton = { TextButton(onClick = { confirmLeave = false }) { Text(stringResource(R.string.cancel)) } },
         )
+    }
+}
+
+private const val STALE_ROW_ALPHA = 0.5f
+
+/**
+ * "Share my position" (screens/GroupRoster): off by default every time (FR-10.1). Turning it on asks
+ * for a duration first; turning it off stops at once, with no confirm (FR-10.4).
+ */
+@Composable
+private fun ShareRow(
+    groupName: String,
+    sharing: Sharing?,
+    meshOn: Boolean,
+    now: Instant,
+    onToggle: (Boolean) -> Unit,
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        shape = MaterialTheme.shapes.medium,
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .toggleable(value = sharing != null, enabled = meshOn || sharing != null, role = Role.Switch, onValueChange = onToggle),
+    ) {
+        Row(
+            Modifier.padding(LocalSpacing.current.lg),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(LocalSpacing.current.lg),
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.roster_share), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    when {
+                        sharing != null -> stringResource(R.string.roster_share_on, groupName, sharingLeft(sharing, now))
+                        meshOn -> stringResource(R.string.roster_share_off)
+                        else -> stringResource(R.string.share_mesh_off)
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+            Switch(checked = sharing != null, onCheckedChange = null, enabled = meshOn || sharing != null)
+        }
     }
 }
 

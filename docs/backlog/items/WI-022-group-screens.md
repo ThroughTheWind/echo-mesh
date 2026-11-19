@@ -29,6 +29,7 @@ Phase 2 of the [roadmap](../../ROADMAP.md).
 - Roster of members seen recently with last-seen age, up to 5 groups (FR-8.7).
 - Audience choice on the send button (FR-4.3); verified style and group colour (FR-9.2); filter (FR-9.3).
 - Built from the design system's group components.
+- Carried from WI-020 (2026-11-19): the member sheet with distance and "Show on map" (screens/GroupRoster), and the sharing line in the mesh notification while the app is in the background (patterns/PositionSharing, step 2).
 
 ### Impacts
 

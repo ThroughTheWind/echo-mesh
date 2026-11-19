@@ -63,6 +63,8 @@ class GroupBookTest {
         assertEquals("Owl", back.sender.nickname)
         val vote = GroupMessage.ReportVote(Bytes(ByteArray(32) { 5 }), Vote.DISMISS, now, 90)
         assertEquals(vote, assertNotNull(b.open(frame(a.seal(group, vote, now, 7)))).message, "a vote reads back as sent")
+        val position = GroupMessage.Position(488675, 23632, 59, now, 5)
+        assertEquals(position, assertNotNull(b.open(frame(a.seal(group, position, now, 7)))).message, "a position reads back as sent")
     }
 
     @Test
@@ -168,6 +170,7 @@ class GroupBookTest {
                 report,
                 GroupMessage.Withdrawal(Bytes(ByteArray(32)), now, 90),
                 GroupMessage.ReportVote(Bytes(ByteArray(32)), Vote.CONFIRM, now, 90),
+                GroupMessage.Position(488675, 23632, 0, now, 5),
                 GroupMessage.MemberAdded(Bytes(ByteArray(32) { 1 }), "A much longer nickname here", now, 180),
             ).map { a.seal(group, it, now, 7).size }
         assertEquals(setOf(Wire.GROUP_FRAME_BYTES), sizes.toSet())
@@ -185,6 +188,10 @@ class GroupBookTest {
         assertNull(GroupInner.decode(padded), "padding must be zero")
         val badType = good.copyOf().also { it[GroupInner.KEY_ID_BYTES] = 0x7F }
         assertNull(GroupInner.decode(badType))
+        val position = GroupInner.encode(Bytes(ByteArray(16)), 1, key, GroupMessage.Position(488675, 23632, 59, now, 5))
+        assertNotNull(GroupInner.decode(position))
+        val sixtieth = position.copyOf().also { it[GroupInner.KEY_ID_BYTES + 1 + 8] = 60 }
+        assertNull(GroupInner.decode(sixtieth), "a second of a minute is 0 to 59")
     }
 
     @Test

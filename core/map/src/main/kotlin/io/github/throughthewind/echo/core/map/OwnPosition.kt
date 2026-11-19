@@ -14,7 +14,8 @@ import kotlinx.coroutines.flow.emptyFlow
 
 /**
  * The user's own position from the platform `LocationManager` (spec FR-2.5): no Play Services, held
- * in memory while the map shows it, never stored, never sent, never logged. Empty when location
+ * in memory while a screen uses it, never stored, never logged, and sent only to a group the user
+ * chose to share with, while sharing is on (FR-10). Empty when location
  * permission is not granted; asking for it is the screens' job (WI-013).
  */
 object OwnPosition {

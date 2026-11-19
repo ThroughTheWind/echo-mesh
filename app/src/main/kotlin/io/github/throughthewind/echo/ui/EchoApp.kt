@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.throughthewind.echo.App
 import io.github.throughthewind.echo.ui.groups.GroupsScreen
+import io.github.throughthewind.echo.ui.groups.ShareOwnPosition
 import io.github.throughthewind.echo.ui.map.MapScreen
 import io.github.throughthewind.echo.ui.onboarding.Onboarding
 import io.github.throughthewind.echo.ui.protects.WhatEchoProtects
@@ -38,6 +39,7 @@ fun EchoApp(app: App) {
         return
     }
     val groups by app.mesh.groups.collectAsStateWithLifecycle()
+    ShareOwnPosition(app)
     CompositionLocalProvider(LocalGroups provides groups) { Screens(app, maps) }
 }
 

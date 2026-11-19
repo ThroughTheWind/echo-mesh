@@ -44,6 +44,18 @@ sealed interface GroupMessage {
         override val lifetimeMinutes: Int,
     ) : GroupMessage
 
+    /**
+     * Where a member is, shared on purpose with this group only (FR-10.2). [second] is the second of
+     * [createdMinute] it was taken, so a receiver can show its age to the second. Kept in memory only.
+     */
+    data class Position(
+        val latitude: Int,
+        val longitude: Int,
+        val second: Int,
+        override val createdMinute: Long,
+        override val lifetimeMinutes: Int,
+    ) : GroupMessage
+
     /** A member let someone in: every join is visible to the group (FR-8.2, threat model §5.5). */
     data class MemberAdded(
         val member: Bytes,
@@ -78,6 +90,7 @@ object GroupInner {
     private const val REPORT = 0x01
     private const val VOTE = 0x02
     private const val WITHDRAWAL = 0x03
+    private const val POSITION = 0x04
     private const val MEMBER_ADDED = 0x06
 
     init {
@@ -115,6 +128,13 @@ object GroupInner {
                     require(message.target.size == Wire.MESSAGE_ID_BYTES) { "a message id is 32 bytes" }
                     body.put(message.target.toByteArray())
                     WITHDRAWAL
+                }
+
+                is GroupMessage.Position -> {
+                    require(validPosition(message.latitude, message.longitude)) { "position out of range" }
+                    require(message.second in 0..59) { "a second of a minute is 0 to 59" }
+                    body.putInt(message.latitude).putInt(message.longitude).put(message.second.toByte())
+                    POSITION
                 }
 
                 is GroupMessage.MemberAdded -> {
@@ -156,6 +176,15 @@ object GroupInner {
                     val target = ByteArray(Wire.MESSAGE_ID_BYTES).also { body.get(it) }
                     val (created, lifetime) = times(body) ?: return null
                     GroupMessage.Withdrawal(Bytes(target), created, lifetime)
+                }
+
+                POSITION -> {
+                    val latitude = body.int
+                    val longitude = body.int
+                    val second = body.get().toInt() and 0xFF
+                    if (!validPosition(latitude, longitude) || second > 59) return null
+                    val (created, lifetime) = times(body) ?: return null
+                    GroupMessage.Position(latitude, longitude, second, created, lifetime)
                 }
 
                 MEMBER_ADDED -> {

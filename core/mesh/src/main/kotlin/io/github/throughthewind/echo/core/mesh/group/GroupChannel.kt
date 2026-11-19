@@ -68,6 +68,20 @@ data class GroupReport(
     val hopsLeft: Int,
 )
 
+/** Where a member of one of this phone's groups last said they were (FR-10.3). Memory only. */
+data class MemberPosition(
+    val groupId: Bytes,
+    val groupName: String,
+    /** The member key id: one member, even if two share a nickname. */
+    val member: Bytes,
+    val nickname: String,
+    val position: GeoPoint,
+    /** When the member's phone took it, never later than when it arrived. */
+    val at: Instant,
+    /** After this it is not shown at all (FR-10.2). */
+    val expiresAt: Instant,
+)
+
 /** Someone joined one of this phone's groups (FR-8.2): every join is visible to the group. */
 data class JoinEvent(
     val groupId: Bytes,
@@ -103,6 +117,13 @@ class GroupChannel(
 
     /** Votes from members of this phone's groups, by the report they are on (FR-6.2). */
     val votes: StateFlow<Map<Bytes, List<CastVote>>> = voteList.asStateFlow()
+
+    /** The latest position per member, by group then member key id; in memory, never stored (FR-10.3). */
+    private val latest = LinkedHashMap<Pair<Bytes, Bytes>, MemberPosition>()
+    private val positionList = MutableStateFlow<List<MemberPosition>>(emptyList())
+
+    /** Members' latest shared positions, not yet expired, from every group this phone is in. */
+    val positions: StateFlow<List<MemberPosition>> = positionList.asStateFlow()
 
     /** Withdrawals seen, target id to the key id that signed them, even before the report arrives. */
     private val withdrawals = HashMap<Bytes, Bytes>()
@@ -190,8 +211,35 @@ class GroupChannel(
             invitations.remove(id)?.destroy()
             held.values.removeAll { it.groupId == id }
             authors.keys.retainAll(held.keys)
+            latest.keys.removeAll { it.first == id }
             publish()
         }
+    }
+
+    /**
+     * Sends where this phone is, [position] taken [at], to the group [id] only (FR-10.2). It expires
+     * after [POSITION_LIFETIME] on every phone. False when this phone is not in the group.
+     */
+    suspend fun sharePosition(
+        id: Bytes,
+        position: GeoPoint,
+        at: Instant,
+    ): Boolean {
+        val minute = at.wireMinute()
+        val frame =
+            lock.withLock {
+                val group = book[id] ?: return false
+                val message =
+                    GroupMessage.Position(
+                        WireUnits.of(position.latitude),
+                        WireUnits.of(position.longitude),
+                        (at.epochSeconds - minute * 60).toInt(),
+                        minute,
+                        POSITION_LIFETIME.inWholeMinutes.toInt(),
+                    )
+                book.seal(group, message, clock().wireMinute(), hopBudget)
+            }
+        return relay.publish(frame) is Validation.Opaque
     }
 
     /** Sends a report of [type] at [position] to the group [id] (FR-9.1). Its message id, or null. */
@@ -265,6 +313,7 @@ class GroupChannel(
             val minute = now.wireMinute()
             groupVotes.values.removeAll { byMember -> byMember.values.all { it.minute + VOTE_MEMORY_MINUTES < minute } }
             voteList.value = groupVotes.mapValues { it.value.values.toList() }
+            latest.values.removeAll { it.expiresAt <= now || book[it.groupId] == null }
             publish()
         }
     }
@@ -572,6 +621,29 @@ class GroupChannel(
                     }
                 }
 
+                is GroupMessage.Position -> {
+                    val now = clock()
+                    if (opened.sender.keyId == opened.group.self.keyId) return false
+                    val taken = instantOfWireMinute(message.createdMinute) + message.second.seconds
+                    val at = minOf(taken, now)
+                    val expiresAt = taken + minOf(message.lifetimeMinutes.minutes, POSITION_LIFETIME)
+                    if (expiresAt <= now) return false
+                    val key = opened.group.id to opened.sender.keyId
+                    val previous = latest[key]
+                    if (previous == null || previous.at < at) {
+                        latest[key] =
+                            MemberPosition(
+                                groupId = opened.group.id,
+                                groupName = opened.group.name,
+                                member = opened.sender.keyId,
+                                nickname = opened.sender.nickname,
+                                position = GeoPoint(WireUnits.degrees(message.latitude), WireUnits.degrees(message.longitude)),
+                                at = at,
+                                expiresAt = expiresAt,
+                            )
+                    }
+                }
+
                 is GroupMessage.MemberAdded -> {
                     if (book.all.sumOf { it.roster.size } > members) {
                         joinEvents.tryEmit(JoinEvent(opened.group.id, opened.group.name, message.nickname, throughThisPhone = false))
@@ -619,6 +691,9 @@ class GroupChannel(
         /** How long a newcomer waits for the whole join before scanning again. */
         val JOIN_TIMEOUT: Duration = 30.seconds
 
+        /** How long a shared position is shown before it disappears ("a few minutes", FR-10.2; tuned in WI-028). */
+        val POSITION_LIFETIME: Duration = 5.minutes
+
         /** Withdrawals remembered for reports not seen yet; bounded like everything a peer can fill. */
         private const val MAX_WITHDRAWALS = 512
 
@@ -632,6 +707,7 @@ class GroupChannel(
     private fun publish() {
         val now = clock()
         shown.value = held.values.filter { !it.report.isExpired(now) }
+        positionList.value = latest.values.filter { it.expiresAt > now }
         publishGroups()
     }
 
