@@ -336,26 +336,28 @@ still estimate where a report entered the mesh.
 ## 7. What the app may claim (honest copy)
 
 Every safety sentence in the UI traces to a row here (spec NFR-14). Final wording is the design
-thread's; meaning is fixed here.
+thread's; meaning is fixed here. Each row has an id (P for protects, N for does not protect) that the
+app's strings cite; `scripts/gates/claims.mjs` fails when a claim cites no row, a row that does not
+exist, or when a row is missing from the app's "What Echo protects" page.
 
 **It protects**
-- Group reports, positions and nicknames can be read only by people who joined the group in person.
-- A group report shows which member sent it, and nobody can fake another member's report.
-- Nothing you send carries your name, number or a fixed ID, and the app's radio signals change
+- **P1** Group reports, positions and nicknames can be read only by people who joined the group in person.
+- **P2** A group report shows which member sent it, and nobody can fake another member's report.
+- **P3** Nothing you send carries your name, number or a fixed ID, and the app's radio signals change
   regularly.
-- The app keeps no history of where you or others were. Reports disappear when they expire.
-- A panic wipe makes everything the app stored unreadable within 2 seconds.
-- There is no server, no account, and no internet use except a map download you start yourself.
+- **P4** The app keeps no history of where you or others were. Reports disappear when they expire.
+- **P5** A panic wipe makes everything the app stored unreadable within 2 seconds.
+- **P6** There is no server, no account, and no internet use except a map download you start yourself.
 
 **It does not protect**
-- Anyone nearby with a radio receiver can tell your phone is running this app.
-- Public reports can be fake, and their confirmations can be faked in bulk.
-- Anyone in your group can read everything sent to it, see shared positions, and pass them on. If a
+- **N1** Anyone nearby with a radio receiver can tell your phone is running this app.
+- **N2** Public reports can be fake, and their confirmations can be faked in bulk.
+- **N3** Anyone in your group can read everything sent to it, see shared positions, and pass them on. If a
   member's phone is taken, assume the group is exposed and make a new one in person.
-- If your phone is taken while unlocked, whoever has it can read your groups and post as you until
+- **N4** If your phone is taken while unlocked, whoever has it can read your groups and post as you until
   you have wiped it or your group makes a new one.
-- A determined observer with many receivers may guess roughly where a report was first sent.
-- Downloading a map reveals the region to your network and the map host.
+- **N5** A determined observer with many receivers may guess roughly where a report was first sent.
+- **N6** Downloading a map reveals the region to your network and the map host.
 
 ## 8. Before 1.0: outside review
 

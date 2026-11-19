@@ -44,6 +44,20 @@ command = "node scripts/gates/privacy.mjs"
 why     = "ADR-0003 in seconds and without the Android SDK: no source manifest asks for INTERNET and no catalog entry is a Play Services, Firebase or tracker artifact. Gradle's checkManifestPermissions and checkForbiddenDependencies remain the authority in CI."
 
 [[gates]]
+id      = "claims-self-test"
+kind    = "command"
+tier    = "fast"
+command = "node scripts/gates/claims.mjs --self-test"
+why     = "The claims gate below passes on a fully cited tree, which looks the same as a gate that reads nothing; its fixtures prove each failure."
+
+[[gates]]
+id      = "claims"
+kind    = "command"
+tier    = "fast"
+command = "node scripts/gates/claims.mjs"
+why     = "NFR-14: every safety sentence the app says cites its threat model §7 row, no row is invented, and the What Echo protects page shows every row (WI-026). People act on these sentences under pressure."
+
+[[gates]]
 id      = "design-tokens"
 kind    = "command"
 tier    = "fast"
