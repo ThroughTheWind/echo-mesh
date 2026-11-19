@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
+import java.io.IOException
 import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -70,6 +71,8 @@ class GroupChannel(
     private val relay: Relay,
     private val clock: () -> Instant,
     private val hopBudget: Int,
+    /** Where groups are kept between runs; null keeps them in memory only (tests, no store). */
+    private val vault: SealedRecords? = null,
 ) {
     private val lock = Mutex()
     private val book = GroupBook()
@@ -84,6 +87,9 @@ class GroupChannel(
     /** Open QR codes, at most one per group: each lets in one newcomer, then is destroyed (AC-25). */
     private val invitations = LinkedHashMap<Bytes, Invitation>()
 
+    /** The newest epoch each group's record holds, so a sweep rewrites a record only when its keys moved. */
+    private val savedEpochs = HashMap<Bytes, Long>()
+
     private val groupList = MutableStateFlow<List<GroupInfo>>(emptyList())
     private val shown = MutableStateFlow<List<GroupReport>>(emptyList())
 
@@ -92,12 +98,46 @@ class GroupChannel(
     /** Live, not withdrawn group reports from every group this phone is in. */
     val reports: StateFlow<List<GroupReport>> = shown.asStateFlow()
 
-    /** Opens group frames as the relay stores them, and answers newcomers who scanned a code. */
+    /**
+     * Loads the groups kept on this phone, then opens group frames as the relay stores them and
+     * answers newcomers who scanned a code.
+     */
     fun run(scope: CoroutineScope): Job =
         scope.launch {
-            launch { relay.groupFrames.collect { if (open(it)) rescan() } }
-            launch { relay.joinFrames.collect { (peer, frame) -> answer(peer, frame) } }
+            launch(start = CoroutineStart.UNDISPATCHED) { relay.groupFrames.collect { if (open(it)) rescan() } }
+            launch(start = CoroutineStart.UNDISPATCHED) { relay.joinFrames.collect { (peer, frame) -> answer(peer, frame) } }
+            restore()
+            rescan()
         }
+
+    /**
+     * Loads the groups kept on this phone (FR-12.1). A record past its group's end is deleted, not
+     * kept (FR-12.4); one that cannot be opened, as while the phone is locked, is left alone.
+     */
+    suspend fun restore() {
+        val vault = vault ?: return
+        lock.withLock {
+            val minute = clock().wireMinute()
+            for (name in vault.names().filter { it.startsWith(GroupRecord.PREFIX) }.sorted()) {
+                val record = vault.read(name) ?: continue
+                val group = GroupRecord.decode(record)
+                record.fill(0)
+                if (group == null || GroupRecord.name(group.id) != name) continue
+                if (minute >= group.expiresMinute) {
+                    group.destroy()
+                    vault.delete(name)
+                    continue
+                }
+                if (book[group.id] != null || !book.adopt(group)) {
+                    group.destroy()
+                    continue
+                }
+                savedEpochs[group.id] = group.epochs.newest
+            }
+            saveMoved(minute)
+            publishGroups()
+        }
+    }
 
     /** Creates a group (FR-8.1). Null when this phone is already in five. */
     suspend fun create(
@@ -106,13 +146,19 @@ class GroupChannel(
         lifetime: Duration = GroupBook.DEFAULT_LIFETIME,
     ): GroupInfo? =
         lock.withLock {
-            book.create(name, lifetime, nickname, clock().wireMinute())?.also { publishGroups() }?.info()
+            book
+                .create(name, lifetime, nickname, clock().wireMinute())
+                ?.also {
+                    save(it)
+                    publishGroups()
+                }?.info()
         }
 
     /** Leaves [id] (FR-8.5): its keys go, and so do its reports on this phone. */
     suspend fun leave(id: Bytes) {
         lock.withLock {
             book.leave(id)
+            forget(id)
             invitations.remove(id)?.destroy()
             held.values.removeAll { it.groupId == id }
             authors.keys.retainAll(held.keys)
@@ -161,7 +207,8 @@ class GroupChannel(
     suspend fun sweep() {
         lock.withLock {
             val now = clock()
-            book.sweep(now.wireMinute())
+            book.sweep(now.wireMinute()).forEach { forget(it.id) }
+            saveMoved(now.wireMinute())
             dropInvitations(now)
             held.values.removeAll { it.report.isExpired(now) || book[it.groupId] == null }
             authors.keys.retainAll(held.keys)
@@ -245,6 +292,7 @@ class GroupChannel(
         val info =
             lock.withLock {
                 if (!book.adopt(group)) return@withLock null
+                save(group)
                 publishGroups()
                 group.info()
             }
@@ -348,6 +396,7 @@ class GroupChannel(
                             JoinFrame(frame.session, FIRST_ROSTER_STEP + i, Bytes(session.encrypt(JoinPayloads.roster(chunk))))
                         }
                 group.add(joiner)
+                save(group)
                 val added = GroupMessage.MemberAdded(joiner.publicKey, joiner.nickname, minute, Wire.MAX_LIFETIME_MINUTES)
                 publishGroups()
                 steps to book.seal(group, added, minute, hopBudget)
@@ -377,6 +426,7 @@ class GroupChannel(
     internal suspend fun <T> withBook(action: (GroupBook) -> T): T =
         lock.withLock {
             val result = action(book)
+            book.all.forEach { save(it) }
             publishGroups()
             result
         }
@@ -425,8 +475,37 @@ class GroupChannel(
                 }
             }
             publish()
-            book.all.sumOf { it.roster.size } > members
+            (book.all.sumOf { it.roster.size } > members).also { grew -> if (grew) save(opened.group) }
         }
+    }
+
+    /** Writes [group]'s record: keys, roster and all, sealed by the vault. */
+    private fun save(group: Group) {
+        val vault = vault ?: return
+        val record = GroupRecord.encode(group)
+        try {
+            vault.write(GroupRecord.name(group.id), record)
+            savedEpochs[group.id] = group.epochs.newest
+        } catch (_: IOException) {
+            // The group stays in memory; the next sweep tries again.
+            savedEpochs.remove(group.id)
+        } finally {
+            record.fill(0)
+        }
+    }
+
+    /** Rewrites the records whose keys ratcheted, so a deleted epoch key is gone from storage too. */
+    private fun saveMoved(minute: Long) {
+        book.all.forEach {
+            it.epochs.advanceTo(GroupBook.epochOf(minute))
+            if (savedEpochs[it.id] != it.epochs.newest) save(it)
+        }
+    }
+
+    /** Deletes [id]'s record (FR-8.5, FR-8.6, FR-12.4). */
+    private fun forget(id: Bytes) {
+        savedEpochs.remove(id)
+        vault?.delete(GroupRecord.name(id))
     }
 
     companion object {

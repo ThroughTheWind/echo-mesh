@@ -4,6 +4,7 @@ import io.github.throughthewind.echo.core.mesh.MeshTransport
 import io.github.throughthewind.echo.core.mesh.TransportUnavailableException
 import io.github.throughthewind.echo.core.mesh.group.GroupChannel
 import io.github.throughthewind.echo.core.mesh.group.GroupInfo
+import io.github.throughthewind.echo.core.mesh.group.SealedRecords
 import io.github.throughthewind.echo.core.mesh.relay.Relay
 import io.github.throughthewind.echo.core.mesh.relay.RelayConfig
 import io.github.throughthewind.echo.core.mesh.report.ReportAuthor
@@ -95,11 +96,13 @@ class MeshNode(
     private val clock: () -> Instant,
     random: Random,
     val config: RelayConfig = RelayConfig(),
+    /** Where groups are kept between runs (FR-12.1): the app's sealed store. Null keeps them in memory. */
+    groupVault: SealedRecords? = null,
 ) {
     private val relay: Relay? = transport?.let { Relay(it, clock, random, config) }
 
     /** This phone's groups on the mesh (WI-018); null when there is no radio to reach them over. */
-    val groupChannel: GroupChannel? = relay?.let { GroupChannel(it, clock, config.hopBudget) }
+    val groupChannel: GroupChannel? = relay?.let { GroupChannel(it, clock, config.hopBudget, groupVault) }
 
     /** The groups this phone is in. */
     val groups: StateFlow<List<GroupInfo>> = groupChannel?.groups ?: MutableStateFlow(emptyList<GroupInfo>()).asStateFlow()

@@ -8,6 +8,7 @@ import io.github.throughthewind.echo.core.data.SettingsStore
 import io.github.throughthewind.echo.core.map.MapLibrary
 import io.github.throughthewind.echo.core.map.MapSharing
 import io.github.throughthewind.echo.core.mesh.MeshTransport
+import io.github.throughthewind.echo.core.mesh.group.SealedRecords
 import io.github.throughthewind.echo.core.mesh.node.MeshNode
 import io.github.throughthewind.echo.mesh.MeshService
 import kotlinx.coroutines.CoroutineScope
@@ -31,15 +32,35 @@ class App : Application() {
     /** Android permissions the radios need (NFR-10), asked in context on first turn-on. */
     val meshPermissions: List<String> get() = registration.permissions
 
-    /** Settings, sealed with a Keystore key a panic wipe destroys (WI-010). */
-    val settings: SettingsStore by lazy {
-        SettingsStore(SealedFiles(filesDir.resolve(SEALED_DIRECTORY), KeystoreSealingKey.getOrCreate(SEALING_KEY_ALIAS)))
+    /** Everything the app keeps, sealed with a Keystore key a panic wipe destroys (WI-010). */
+    private val sealed: SealedFiles by lazy {
+        SealedFiles(filesDir.resolve(SEALED_DIRECTORY), KeystoreSealingKey.getOrCreate(SEALING_KEY_ALIAS))
+    }
+
+    val settings: SettingsStore by lazy { SettingsStore(sealed) }
+
+    /** Groups and their keys, kept in the same sealed store (FR-12.1); loaded off the main thread by the mesh. */
+    private val groupRecords: SealedRecords by lazy {
+        object : SealedRecords {
+            override fun names() = sealed.names()
+
+            override fun read(name: String) = sealed.read(name)
+
+            override fun write(
+                name: String,
+                plaintext: ByteArray,
+            ) = sealed.write(name, plaintext)
+
+            override fun delete(name: String) = sealed.delete(name)
+        }
     }
 
     val maps: MapLibrary by lazy { MapLibrary(MapSharing.directory(this)) }
 
     /** One transport in Phase 1; the mesh takes the first registered. */
-    val mesh: MeshNode by lazy { MeshNode(transports.firstOrNull(), scope, Clock.System::now, Randomness.secure()) }
+    val mesh: MeshNode by lazy {
+        MeshNode(transports.firstOrNull(), scope, Clock.System::now, Randomness.secure(), groupVault = groupRecords)
+    }
 
     /** True when the only radio is simulated and reaches no other phone. */
     val simulatedRadio: Boolean get() = registration.simulated

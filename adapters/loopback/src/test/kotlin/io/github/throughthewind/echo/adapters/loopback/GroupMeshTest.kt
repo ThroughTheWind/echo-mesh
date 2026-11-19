@@ -1,11 +1,15 @@
 package io.github.throughthewind.echo.adapters.loopback
 
 import io.github.throughthewind.echo.core.mesh.group.JoinOffer
+import io.github.throughthewind.echo.core.mesh.group.SealedRecords
 import io.github.throughthewind.echo.core.mesh.node.MeshNode
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.model.GeoPoint
 import io.github.throughthewind.echo.core.model.ReportType
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -16,6 +20,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -194,5 +199,82 @@ class GroupMeshTest {
             assertTrue(a.reports.value.none { it.id == id }, "withdrawn everywhere the group reads it")
             assertTrue(d.reports.value.none { it.id == id })
             assertFalse(a.withdraw(id), "only its sender can withdraw it")
+        }
+
+    /** A store that forgets nothing and seals nothing: what the sealed files would hold, in clear. */
+    private class MemoryRecords : SealedRecords {
+        val files = LinkedHashMap<String, ByteArray>()
+
+        override fun names() = files.keys.toSet()
+
+        override fun read(name: String) = files[name]?.copyOf()
+
+        override fun write(
+            name: String,
+            plaintext: ByteArray,
+        ) {
+            files[name] = plaintext.copyOf()
+        }
+
+        override fun delete(name: String) {
+            files.remove(name)
+        }
+    }
+
+    @Test
+    fun `groups outlive a restart, and leaving or expiry deletes what was kept`() =
+        runTest {
+            val start = testScheduler.currentTime
+            val network = LoopbackNetwork(random = Random(9), scope = backgroundScope, clock = { testScheduler.currentTime - start })
+            val clock = { epoch + (testScheduler.currentTime - start).milliseconds }
+            val (pa, pc, restarted) = List(3) { network.phone() }
+            val kept = MemoryRecords()
+            val a = MeshNode(pa, backgroundScope, clock, Random(1))
+            // The first run of the app lives in its own scope, so the test can end it.
+            val firstRun = CoroutineScope(backgroundScope.coroutineContext + Job())
+            val c = MeshNode(pc, firstRun, clock, Random(2), groupVault = kept)
+            a.turnOn()
+            c.turnOn()
+            network.link(pa, pc)
+            delay(1.seconds)
+            val group = assertNotNull(a.groupChannel!!.create("Crew", "Fox", lifetime = 4.hours))
+            assertNotNull(c.groupChannel!!.join(a.groupChannel!!.invite(group.id)!!, "Owl"))
+            assertNotNull(c.groupChannel!!.create("Solo", "Owl"))
+            assertEquals(2, kept.files.size, "each group is kept as soon as it exists")
+
+            // The phone restarts: a new node over the same store, the old one gone.
+            c.turnOff()
+            firstRun.cancel()
+            network.unlink(pa, pc)
+            val back = MeshNode(restarted, backgroundScope, clock, Random(3), groupVault = kept)
+            back.turnOn()
+            network.link(pa, restarted)
+            delay(1.seconds)
+            val crew = back.groups.value.single { it.name == "Crew" }
+            assertEquals(listOf("Fox", "Owl"), crew.members)
+            assertEquals("Owl", crew.myNickname)
+            assertTrue(a.send(ReportType.MEDIC, here, group = group.id))
+            delay(7.seconds)
+            assertEquals(
+                "Fox",
+                back.reports.value
+                    .single()
+                    .group
+                    ?.sender,
+                "the kept keys still open the group's frames",
+            )
+
+            // Two hours on, the keys have ratcheted and the record was rewritten without the old ones.
+            delay(2.hours)
+            assertEquals(2, kept.files.size)
+            back.groupChannel!!.leave(
+                back.groups.value
+                    .single { it.name == "Solo" }
+                    .id,
+            )
+            assertEquals(1, kept.files.size, "leaving deletes the record (FR-8.5)")
+            delay(2.hours)
+            assertEquals(emptyList(), back.groups.value)
+            assertEquals(emptyMap(), kept.files, "an ended group's record is deleted, not hidden (FR-12.4)")
         }
 }
