@@ -31,6 +31,10 @@ vtm = "0.25.0"
 # reads the code (Apache-2.0, pure Java); CameraX gives it frames (Apache-2.0, AndroidX).
 zxing = "3.5.4"
 camerax = "1.4.2"
+# Accessibility tests (WI-031): Compose semantics checked on the JVM. Test classpath only; MIT and
+# EPL-1.0. Robolectric runs JUnit 4 tests, which the JUnit platform runs through the vintage engine.
+robolectric = "4.18.1"
+junit4 = "4.13.2"
 spotless = "8.11.0"
 ktlint = "1.8.0"
 
@@ -55,6 +59,11 @@ compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+junit4 = { module = "junit:junit", version.ref = "junit4" }
+junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine" }
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }

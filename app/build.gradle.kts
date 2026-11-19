@@ -58,6 +58,13 @@ android {
     buildFeatures {
         compose = true
     }
+
+    // Accessibility tests render screens with Robolectric (WI-031): they need the app's resources,
+    // and run on the JUnit platform like every other module's tests.
+    testOptions.unitTests {
+        isIncludeAndroidResources = true
+        all { it.useJUnitPlatform() }
+    }
 }
 
 // ADR-0003: the app never asks for INTERNET. A permission is added to `allowed` only by an ADR that
@@ -95,4 +102,14 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
+
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.compose.ui.test.junit4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.junit4)
+    testRuntimeOnly(platform(libs.junit.bom))
+    testRuntimeOnly(libs.junit.vintage.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    // The empty activity the Compose test rule starts. Debug only; release never links it.
+    debugImplementation(libs.compose.ui.test.manifest)
 }
