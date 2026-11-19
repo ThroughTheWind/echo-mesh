@@ -59,7 +59,8 @@ Never commit the keystore. `*.jks` and `*.keystore` are in `.gitignore`.
 
 Use the `/cut-release` skill, which follows these steps.
 
-1. **Check `main` is ready:** the roadmap phase for this version is merged and CI is green.
+1. **Check `main` is ready:** the roadmap phase for this version is merged and CI is green, and
+   the [storage and radio audits](audits.md) passed on the candidate, with their evidence recorded.
 2. **Prepare it on a branch** `chore/release-X.Y.Z`, in one pull request: set `app = "X.Y.Z"` in
    `gradle/libs.versions.toml`; in `CHANGELOG.md`, rename `## [Unreleased]` to
    `## [X.Y.Z] - YYYY-MM-DD` and add a fresh `## [Unreleased]` above it; write

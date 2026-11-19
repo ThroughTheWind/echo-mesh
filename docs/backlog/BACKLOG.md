@@ -24,6 +24,7 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-024](items/WI-024-panic-wipe.md) | Panic wipe in under two seconds | feature | `claude/project-thread-67cn4e` |
 | [WI-025](items/WI-025-discreet-mode.md) | Discreet mode | feature | `claude/project-thread-67cn4e` |
 | [WI-026](items/WI-026-final-onboarding-copy.md) | Final onboarding and "What this app protects" copy, traced to the threat model | docs | `claude/project-thread-67cn4e` |
+| [WI-027](items/WI-027-storage-and-air-audits.md) | Audit storage and radio for leaks | chore | `claude/project-thread-67cn4e` |
 
 ## Review
 
@@ -42,7 +43,6 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-006](items/WI-006-phase-1-two-phones-one-report.md) | Phase 1 — Two phones, one report: ship 0.1.0 | epic |
 | [WI-015](items/WI-015-release-0-1-0.md) | Set up release signing and cut 0.1.0 | chore |
 | [WI-016](items/WI-016-phase-2-groups.md) | Phase 2 — Groups: ship 0.2.0 | epic |
-| [WI-027](items/WI-027-storage-and-air-audits.md) | Audit storage and radio for leaks | chore |
 | [WI-028](items/WI-028-crowd-field-test.md) | Field-test in a crowd and tune lifetimes, rates and battery | spike |
 | [WI-029](items/WI-029-phase-4-release-1-0.md) | Phase 4 — Release 1.0 | epic |
 | [WI-030](items/WI-030-independent-security-review.md) | Independent security review and fixes | chore |
