@@ -2,9 +2,15 @@
 <!--
   No INTERNET permission, on purpose: the app talks only to other phones over peer-to-peer radio
   (ADR-0003). checkManifestPermissions reads the merged manifest of every variant and fails the
-  build if any library adds it. Radio permissions arrive with the transport adapters.
+  build if any library adds it. Radio permissions arrive with the transport adapters' manifests
+  (the Nearby devices group, NFR-10); the app adds only what its relay service needs.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- The relay foreground service (FR-3.3) and its one notification, asked in context (FR-1.2). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".App"
@@ -20,5 +26,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Started only from a user's tap with the app visible; never at boot (FR-3.3). -->
+        <service
+            android:name=".mesh.MeshService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
     </application>
 </manifest>

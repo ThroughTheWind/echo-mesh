@@ -72,6 +72,7 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:map"))
     implementation(project(":core:designsystem"))
+    implementation(project(":adapters:ble"))
     // The simulated radio is for development only; CI proves the release build does not link it.
     debugImplementation(project(":adapters:loopback"))
 

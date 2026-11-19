@@ -1,5 +1,6 @@
 package io.github.throughthewind.echo.ui.map
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,18 +30,72 @@ import io.github.throughthewind.echo.core.designsystem.theme.LocalSpacing
 import io.github.throughthewind.echo.core.designsystem.theme.Touch
 import io.github.throughthewind.echo.core.mesh.RangeClass
 import io.github.throughthewind.echo.core.mesh.TransportCapabilities
+import io.github.throughthewind.echo.core.mesh.Unavailable
 import io.github.throughthewind.echo.core.mesh.node.MeshNode
 import io.github.throughthewind.echo.core.mesh.node.MeshState
 import io.github.throughthewind.echo.ui.common.IconLine
+import io.github.throughthewind.echo.ui.common.SecondaryButton
 import kotlin.time.Instant
 import io.github.throughthewind.echo.core.designsystem.R as DS
 
-/** The chip's state at [now] (components/MeshStatus): searching for 30 s, then alone, until someone is heard. */
-@Composable
-fun MeshState.chip(now: Instant): MeshChip =
+/** What stands between the user and a working mesh, with its fix (FR-3.5, FR-3.3a). */
+enum class MeshProblem {
+    /** Bluetooth is off. Fix: Android's turn-on dialog. */
+    RADIO_OFF,
+
+    /** Nearby devices was refused. Fix: our sheet once, then Echo's page in Settings. */
+    PERMISSION,
+
+    /** The phone has no usable Bluetooth LE. No fix; the sheet says so. */
+    UNSUPPORTED,
+
+    /** The radio failed to start for a reason it did not name. */
+    FAILED,
+
+    /** The mesh was meant to be on and relaying stopped without the user (FR-3.3a). */
+    STOPPED,
+}
+
+/** The problem [this] state shows, if any. [meantOn]: the user turned the mesh on and not off. */
+fun MeshState.problem(meantOn: Boolean): MeshProblem? =
     when (this) {
         MeshState.Off -> {
-            MeshChip.Off
+            if (meantOn) MeshProblem.STOPPED else null
+        }
+
+        MeshState.Failed -> {
+            MeshProblem.FAILED
+        }
+
+        is MeshState.Unavailable -> {
+            when (reason) {
+                Unavailable.RADIO_OFF -> MeshProblem.RADIO_OFF
+                Unavailable.PERMISSION_MISSING -> MeshProblem.PERMISSION
+                Unavailable.UNSUPPORTED -> MeshProblem.UNSUPPORTED
+            }
+        }
+
+        MeshState.NoRadio, is MeshState.On -> {
+            null
+        }
+    }
+
+/**
+ * The chip's state at [now] (components/MeshStatus): searching for 30 s, then alone, until someone is
+ * heard. A problem reads "… · Fix".
+ */
+@Composable
+fun MeshState.chip(
+    now: Instant,
+    meantOn: Boolean = false,
+): MeshChip =
+    when (this) {
+        MeshState.Off -> {
+            if (meantOn) MeshChip.Stopped else MeshChip.Off
+        }
+
+        is MeshState.Unavailable -> {
+            MeshChip.NeedsFix(stringResource(problemLabel(problem(meantOn)!!)))
         }
 
         MeshState.NoRadio -> {
@@ -61,6 +116,16 @@ fun MeshState.chip(now: Instant): MeshChip =
         }
     }
 
+@StringRes
+private fun problemLabel(problem: MeshProblem): Int =
+    when (problem) {
+        MeshProblem.RADIO_OFF -> R.string.mesh_radio_off
+        MeshProblem.PERMISSION -> R.string.mesh_permission_needed
+        MeshProblem.UNSUPPORTED -> R.string.mesh_unsupported
+        MeshProblem.FAILED -> R.string.mesh_failed
+        MeshProblem.STOPPED -> DS.string.ds_mesh_stopped
+    }
+
 /**
  * The mesh sheet (components/MeshStatus, patterns/MeshOnOff): the on/off switch, approximate facts,
  * the radios by what they can do (never by name), and the honesty callout. No peer is ever listed.
@@ -72,7 +137,9 @@ fun MeshSheet(
     radios: List<TransportCapabilities>,
     simulatedRadio: Boolean,
     now: Instant,
+    meantOn: Boolean,
     onToggle: (Boolean) -> Unit,
+    onFix: (MeshProblem) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val spacing = LocalSpacing.current
@@ -89,6 +156,7 @@ fun MeshSheet(
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.semantics { heading() },
             )
+            state.problem(meantOn)?.let { problem -> Problem(problem, onFix) }
             if (state == MeshState.NoRadio) {
                 Text(stringResource(R.string.mesh_no_radio), style = MaterialTheme.typography.bodyLarge)
             } else {
@@ -146,6 +214,28 @@ fun MeshSheet(
                     Modifier.padding(spacing.lg),
                 )
             }
+        }
+    }
+}
+
+/** One sentence on what went wrong, and the fix as a button when there is one. */
+@Composable
+private fun Problem(
+    problem: MeshProblem,
+    onFix: (MeshProblem) -> Unit,
+) {
+    val (body, action) =
+        when (problem) {
+            MeshProblem.RADIO_OFF -> R.string.mesh_radio_off_body to R.string.mesh_radio_off_fix
+            MeshProblem.PERMISSION -> R.string.mesh_permission_body to R.string.mesh_permission_fix
+            MeshProblem.UNSUPPORTED -> R.string.mesh_unsupported_body to null
+            MeshProblem.FAILED -> R.string.mesh_failed_body to null
+            MeshProblem.STOPPED -> R.string.mesh_stopped_body to R.string.mesh_stopped_fix
+        }
+    Surface(color = MaterialTheme.colorScheme.errorContainer, shape = MaterialTheme.shapes.medium) {
+        Column(Modifier.padding(LocalSpacing.current.lg), verticalArrangement = Arrangement.spacedBy(LocalSpacing.current.md)) {
+            IconLine(DS.drawable.ic_warning, MaterialTheme.colorScheme.onErrorContainer, stringResource(body))
+            if (action != null) SecondaryButton(stringResource(action), { onFix(problem) })
         }
     }
 }

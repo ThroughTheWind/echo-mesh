@@ -1,10 +1,17 @@
 package io.github.throughthewind.echo.ui.map
 
 import android.Manifest
+import android.bluetooth.BluetoothAdapter
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -113,6 +120,7 @@ fun MapScreen(
     val meshState by mesh.state.collectAsStateWithLifecycle()
     val reports by mesh.reports.collectAsStateWithLifecycle()
     val pending by mesh.pending.collectAsStateWithLifecycle()
+    val settings by app.settings.settings.collectAsStateWithLifecycle()
     val now = rememberNow(if (pending != null) 250.milliseconds else 1000.milliseconds)
     val camera = rememberMapCamera()
     val entry = maps.current
@@ -130,6 +138,8 @@ fun MapScreen(
     var detailFor by remember { mutableStateOf<ShownReport?>(null) }
     var showMeshSheet by rememberSaveable { mutableStateOf(false) }
     var showGetMap by rememberSaveable { mutableStateOf(false) }
+    var showNearbySheet by rememberSaveable { mutableStateOf(false) }
+    var showNotificationsSheet by rememberSaveable { mutableStateOf(false) }
     var pickerHeight by remember { mutableIntStateOf(0) }
 
     val sentMessage = stringResource(R.string.sent)
@@ -183,10 +193,58 @@ fun MapScreen(
         }
     }
 
-    fun toggleMesh(on: Boolean) {
+    fun switchMesh(on: Boolean) {
         scope.launch {
-            if (on) mesh.turnOn() else mesh.turnOff()
-            snackbar.showSnackbar(if (on) meshOnMessage else meshOffMessage)
+            if (on) {
+                if (app.meshOn()) snackbar.showSnackbar(meshOnMessage)
+            } else {
+                app.meshOff()
+                snackbar.showSnackbar(meshOffMessage)
+            }
+        }
+    }
+
+    // Turning on, first time only: our Nearby devices sheet, then our Notifications sheet, each
+    // before Android's dialog (patterns/PermissionsInContext). A refusal still turns the mesh on,
+    // so the chip shows the fix in context; the dialog is never shown twice.
+    fun turnMeshOn() {
+        val nearbyMissing = app.meshPermissions.any { !granted(context, it) }
+        val notificationsMissing =
+            !app.simulatedRadio && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                !granted(context, Manifest.permission.POST_NOTIFICATIONS)
+        when {
+            nearbyMissing && !settings.nearbyAsked -> showNearbySheet = true
+            !nearbyMissing && notificationsMissing && !settings.notificationsAsked -> showNotificationsSheet = true
+            else -> switchMesh(true)
+        }
+    }
+
+    fun toggleMesh(on: Boolean) = if (on) turnMeshOn() else switchMesh(false)
+
+    val nearbyLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { turnMeshOn() }
+    val notificationsLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { switchMesh(true) }
+    val bluetoothLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { switchMesh(true) }
+
+    fun fix(problem: MeshProblem) {
+        when (problem) {
+            MeshProblem.RADIO_OFF -> {
+                runCatching { bluetoothLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)) }
+            }
+
+            MeshProblem.PERMISSION -> {
+                if (settings.nearbyAsked) openAppSettings(context) else showNearbySheet = true
+            }
+
+            MeshProblem.STOPPED -> {
+                runCatching { context.startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) }
+            }
+
+            MeshProblem.UNSUPPORTED, MeshProblem.FAILED -> {
+                Unit
+            }
         }
     }
 
@@ -227,8 +285,15 @@ fun MapScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             MeshStatusChip(
-                state = meshState.chip(now),
-                onClick = { if (meshState == MeshState.Off) toggleMesh(true) else showMeshSheet = true },
+                state = meshState.chip(now, settings.meshMeantOn),
+                onClick = {
+                    when (meshState.problem(settings.meshMeantOn)) {
+                        null -> if (meshState == MeshState.Off) turnMeshOn() else showMeshSheet = true
+                        MeshProblem.RADIO_OFF -> fix(MeshProblem.RADIO_OFF)
+                        MeshProblem.PERMISSION -> fix(MeshProblem.PERMISSION)
+                        else -> showMeshSheet = true
+                    }
+                },
             )
             Box(Modifier.weight(1f))
             MapIconButton(DS.drawable.ic_shield, stringResource(R.string.protects_title), onOpenProtects)
@@ -326,7 +391,9 @@ fun MapScreen(
             radios = app.transports.map { it.capabilities },
             simulatedRadio = app.simulatedRadio,
             now = now,
+            meantOn = settings.meshMeantOn,
             onToggle = ::toggleMesh,
+            onFix = ::fix,
             onDismiss = { showMeshSheet = false },
         )
     }
@@ -345,12 +412,59 @@ fun MapScreen(
         )
     }
 
+    if (showNearbySheet) {
+        PermissionSheet(
+            icon = DS.drawable.ic_radar,
+            title = R.string.nearby_title,
+            body = R.string.nearby_body,
+            onContinue = {
+                showNearbySheet = false
+                app.settings.update { it.copy(nearbyAsked = true) }
+                nearbyLauncher.launch(app.meshPermissions.toTypedArray())
+            },
+            onNotNow = {
+                showNearbySheet = false
+                switchMesh(true)
+            },
+        )
+    }
+
+    if (showNotificationsSheet) {
+        PermissionSheet(
+            icon = DS.drawable.ic_info,
+            title = R.string.notifications_title,
+            body = R.string.notifications_body,
+            onContinue = {
+                showNotificationsSheet = false
+                app.settings.update { it.copy(notificationsAsked = true) }
+                notificationsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            },
+            onNotNow = {
+                showNotificationsSheet = false
+                app.settings.update { it.copy(notificationsAsked = true) }
+                switchMesh(true)
+            },
+        )
+    }
+
     if (showGetMap) {
         GetMapSheet(maps, onResult = { scope.launch { snackbar.showSnackbar(it) } }, onDismiss = { showGetMap = false })
     }
 }
 
 private const val MILLIS_PER_SECOND = 1000.0
+
+private fun granted(
+    context: Context,
+    permission: String,
+): Boolean = ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+
+/** Echo's page in Android's Settings, where a refused permission is granted after the dialog. */
+private fun openAppSettings(context: Context) {
+    runCatching {
+        context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)))
+    }
+}
 
 private fun hasLocation(context: Context): Boolean =
     listOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION).any {
@@ -492,6 +606,34 @@ private fun LocationSheet(
             Text(stringResource(R.string.location_body), style = MaterialTheme.typography.bodyLarge)
             PrimaryButton(stringResource(R.string.continue_), onContinue)
             SecondaryButton(stringResource(R.string.location_keep_off), onKeepOff)
+        }
+    }
+}
+
+/** One permission, one sentence of why; only Continue shows Android's dialog (patterns/PermissionsInContext). */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PermissionSheet(
+    @DrawableRes icon: Int,
+    @StringRes title: Int,
+    @StringRes body: Int,
+    onContinue: () -> Unit,
+    onNotNow: () -> Unit,
+) {
+    val spacing = LocalSpacing.current
+    ModalBottomSheet(onDismissRequest = onNotNow) {
+        Column(
+            Modifier
+                .padding(horizontal = spacing.xxl)
+                .navigationBarsPadding()
+                .padding(bottom = spacing.xxl),
+            verticalArrangement = Arrangement.spacedBy(spacing.lg),
+        ) {
+            Icon(painterResource(icon), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Text(stringResource(title), style = MaterialTheme.typography.headlineSmall)
+            Text(stringResource(body), style = MaterialTheme.typography.bodyLarge)
+            PrimaryButton(stringResource(R.string.continue_), onContinue)
+            SecondaryButton(stringResource(R.string.not_now), onNotNow)
         }
     }
 }

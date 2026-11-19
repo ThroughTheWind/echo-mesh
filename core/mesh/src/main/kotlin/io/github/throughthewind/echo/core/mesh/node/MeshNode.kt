@@ -1,6 +1,7 @@
 package io.github.throughthewind.echo.core.mesh.node
 
 import io.github.throughthewind.echo.core.mesh.MeshTransport
+import io.github.throughthewind.echo.core.mesh.TransportUnavailableException
 import io.github.throughthewind.echo.core.mesh.relay.Relay
 import io.github.throughthewind.echo.core.mesh.relay.RelayConfig
 import io.github.throughthewind.echo.core.mesh.report.ReportAuthor
@@ -47,7 +48,12 @@ sealed interface MeshState {
     /** This build has no transport: nothing to turn on. */
     data object NoRadio : MeshState
 
-    /** The transport refused to start, for example a permission was taken back. */
+    /** The transport refused to start for a reason the user can see and maybe fix (FR-3.5). */
+    data class Unavailable(
+        val reason: io.github.throughthewind.echo.core.mesh.Unavailable,
+    ) : MeshState
+
+    /** The transport failed to start for a reason it did not name. */
     data object Failed : MeshState
 
     /** On since [since]: [nearby] phones in range, the last report from another phone at [lastReport]. */
@@ -129,22 +135,29 @@ class MeshNode(
         }
     }
 
-    /** Starts the radio and the relay. Only from a user's tap: never at boot (FR-3.3). */
-    suspend fun turnOn() {
-        val transport = transport ?: return
-        val relay = relay ?: return
+    /**
+     * Starts the radio and the relay. Only from a user's tap: never at boot (FR-3.3). True when the
+     * mesh is on afterwards; otherwise [state] says why not.
+     */
+    suspend fun turnOn(): Boolean {
+        val transport = transport ?: return false
+        val relay = relay ?: return false
         lock.withLock {
-            if (running != null) return
+            if (running != null) return true
             try {
                 transport.start()
             } catch (e: CancellationException) {
                 throw e
+            } catch (e: TransportUnavailableException) {
+                power.value = MeshState.Unavailable(e.reason)
+                return false
             } catch (_: Exception) {
                 power.value = MeshState.Failed
-                return
+                return false
             }
             running = relay.run(scope)
             power.value = MeshState.On(since = clock(), nearby = 0, lastReport = null)
+            return true
         }
     }
 

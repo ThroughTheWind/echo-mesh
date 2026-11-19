@@ -9,9 +9,11 @@ import io.github.throughthewind.echo.core.map.MapLibrary
 import io.github.throughthewind.echo.core.map.MapSharing
 import io.github.throughthewind.echo.core.mesh.MeshTransport
 import io.github.throughthewind.echo.core.mesh.node.MeshNode
+import io.github.throughthewind.echo.mesh.MeshService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 
 /**
@@ -22,7 +24,12 @@ class App : Application() {
     /** Lives as long as the process: the mesh and its reports, in memory only (FR-12.2). */
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-    val transports: List<MeshTransport> by lazy { registeredTransports() }
+    private val registration: Registration by lazy { registeredTransports(this) }
+
+    val transports: List<MeshTransport> get() = registration.transports
+
+    /** Android permissions the radios need (NFR-10), asked in context on first turn-on. */
+    val meshPermissions: List<String> get() = registration.permissions
 
     /** Settings, sealed with a Keystore key a panic wipe destroys (WI-010). */
     val settings: SettingsStore by lazy {
@@ -34,8 +41,27 @@ class App : Application() {
     /** One transport in Phase 1; the mesh takes the first registered. */
     val mesh: MeshNode by lazy { MeshNode(transports.firstOrNull(), scope, Clock.System::now, Randomness.secure()) }
 
-    /** True in development builds, whose only radio is simulated and reaches no other phone. */
-    val simulatedRadio: Boolean get() = SIMULATED_RADIO
+    /** True when the only radio is simulated and reaches no other phone. */
+    val simulatedRadio: Boolean get() = registration.simulated
+
+    /**
+     * Turns the mesh on from a user's tap with the app visible, and with it the foreground service
+     * that keeps it relaying in a pocket (FR-3.3). Remembers that it is meant to be on, so a stop
+     * the user did not ask for shows as one (FR-3.3a). Returns whether it is on.
+     */
+    suspend fun meshOn(): Boolean {
+        if (!mesh.turnOn()) return false
+        withContext(Dispatchers.IO) { settings.update { it.copy(meshMeantOn = true) } }
+        if (!simulatedRadio) MeshService.start(this)
+        return true
+    }
+
+    /** Stops every radio use and the service, and forgets that the mesh was meant to be on (FR-3.1). */
+    suspend fun meshOff() {
+        MeshService.stop(this)
+        mesh.turnOff()
+        withContext(Dispatchers.IO) { settings.update { it.copy(meshMeantOn = false) } }
+    }
 
     private companion object {
         const val SEALED_DIRECTORY = "sealed"
