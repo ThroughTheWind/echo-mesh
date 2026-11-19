@@ -10,7 +10,7 @@
   - Group: `surface-container-high` with a 4dp `group-N` bar and a lock. "**From Sage, in Crew.** Signed by Sage's phone and encrypted to your group. Relayed 2 hops." A group report names the member (threat model §7: "A group report shows which member sent it"), which is what makes [mute](../MuteLeaveAndGroupEnd/README.md) possible.
   - Public: a 2dp **dashed** `outline` box and an info icon. "**From a phone nearby.** Anyone running Echo can send these, and it could be fake. Arrived directly." (or "Relayed 4 hops", FR-5.5). No sender, ever.
 - **Votes line**, split into group and nearby (FR-6.2): "Crew: 2 confirmed · Nearby: 3 confirmed, 1 said gone". Never "verified" (FR-6.5).
-- **Actions:** **Still there** (tonal) and **Gone** (outlined), side by side, one vote per report; after voting the chosen button reads "You said gone" and the other stays available.
+- **Actions:** **Still there** (tonal) and **Gone** (outlined), side by side, one vote per report per phone (FR-6.1): after voting the chosen button reads "You said gone" or "You said still there" and both lock. With no votes yet the votes line reads "No votes yet." A public report's group votes are labelled with the group's name when the phone is in one group, "Your groups" otherwise.
 
 ## Variants
 

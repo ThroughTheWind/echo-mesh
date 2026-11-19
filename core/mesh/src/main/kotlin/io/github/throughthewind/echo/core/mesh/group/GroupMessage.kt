@@ -4,6 +4,7 @@ import io.github.throughthewind.echo.core.crypto.Hashes
 import io.github.throughthewind.echo.core.crypto.MemberKey
 import io.github.throughthewind.echo.core.crypto.Signatures
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
+import io.github.throughthewind.echo.core.mesh.wire.Vote
 import io.github.throughthewind.echo.core.mesh.wire.Wire
 import io.github.throughthewind.echo.core.model.ReportType
 import java.nio.ByteBuffer
@@ -21,6 +22,17 @@ sealed interface GroupMessage {
         /** 1/[Wire.DEGREE_UNITS] degree, as in public reports. */
         val latitude: Int,
         val longitude: Int,
+        override val createdMinute: Long,
+        override val lifetimeMinutes: Int,
+    ) : GroupMessage
+
+    /**
+     * Confirms or dismisses a report, group or public, by its message id (FR-6.1). Counts once per
+     * member key; the latest from a member is the one that counts (threat model §5.7).
+     */
+    data class ReportVote(
+        val target: Bytes,
+        val vote: Vote,
         override val createdMinute: Long,
         override val lifetimeMinutes: Int,
     ) : GroupMessage
@@ -64,6 +76,7 @@ object GroupInner {
     const val NICKNAME_BYTES = 32
 
     private const val REPORT = 0x01
+    private const val VOTE = 0x02
     private const val WITHDRAWAL = 0x03
     private const val MEMBER_ADDED = 0x06
 
@@ -90,6 +103,12 @@ object GroupInner {
                     require(validPosition(message.latitude, message.longitude)) { "position out of range" }
                     body.put(message.type.code.toByte()).putInt(message.latitude).putInt(message.longitude)
                     REPORT
+                }
+
+                is GroupMessage.ReportVote -> {
+                    require(message.target.size == Wire.MESSAGE_ID_BYTES) { "a message id is 32 bytes" }
+                    body.put(message.target.toByteArray()).put(message.vote.code.toByte())
+                    VOTE
                 }
 
                 is GroupMessage.Withdrawal -> {
@@ -124,6 +143,13 @@ object GroupInner {
                     if (!validPosition(latitude, longitude)) return null
                     val (created, lifetime) = times(body) ?: return null
                     GroupMessage.Report(type, latitude, longitude, created, lifetime)
+                }
+
+                VOTE -> {
+                    val target = ByteArray(Wire.MESSAGE_ID_BYTES).also { body.get(it) }
+                    val vote = Vote.of(body.get().toInt() and 0xFF) ?: return null
+                    val (created, lifetime) = times(body) ?: return null
+                    GroupMessage.ReportVote(Bytes(target), vote, created, lifetime)
                 }
 
                 WITHDRAWAL -> {

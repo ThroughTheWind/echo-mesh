@@ -7,11 +7,17 @@ import io.github.throughthewind.echo.core.mesh.group.GroupInfo
 import io.github.throughthewind.echo.core.mesh.group.SealedRecords
 import io.github.throughthewind.echo.core.mesh.relay.Relay
 import io.github.throughthewind.echo.core.mesh.relay.RelayConfig
+import io.github.throughthewind.echo.core.mesh.report.CastVote
 import io.github.throughthewind.echo.core.mesh.report.ReportAuthor
+import io.github.throughthewind.echo.core.mesh.report.Tally
 import io.github.throughthewind.echo.core.mesh.report.Validation
+import io.github.throughthewind.echo.core.mesh.report.VoteRule
 import io.github.throughthewind.echo.core.mesh.report.toReport
+import io.github.throughthewind.echo.core.mesh.report.wireMinute
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.mesh.wire.PublicReportFrame
+import io.github.throughthewind.echo.core.mesh.wire.PublicVoteFrame
+import io.github.throughthewind.echo.core.mesh.wire.Vote
 import io.github.throughthewind.echo.core.model.GeoPoint
 import io.github.throughthewind.echo.core.model.Report
 import io.github.throughthewind.echo.core.model.ReportType
@@ -30,6 +36,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
@@ -43,6 +50,10 @@ data class ShownReport(
     val mine: Boolean,
     /** For a group report (FR-9.2): the group's name and who in it sent it. Null for a public one. */
     val group: GroupTag? = null,
+    /** Confirmations and dismissals, split into group and nearby, and whether it is probably gone (FR-6). */
+    val tally: Tally = Tally(expiresMinute = report.expiresAt.wireMinute()),
+    /** This phone's own vote on it, if it voted: one vote per report (FR-6.1). */
+    val myVote: Vote? = null,
 )
 
 /** Where a group report came from, shown in the verified style (FR-9.2). */
@@ -112,6 +123,7 @@ class MeshNode(
     private val power = MutableStateFlow<MeshState>(if (transport == null) MeshState.NoRadio else MeshState.Off)
     private val ownIds = MutableStateFlow<Set<Bytes>>(emptySet())
     private val waiting = MutableStateFlow<PendingReport?>(null)
+    private val myVotes = MutableStateFlow<Map<Bytes, Vote>>(emptyMap())
     private var grace: Job? = null
 
     /** On, off, or unable; with the count of phones nearby while on. */
@@ -129,25 +141,33 @@ class MeshNode(
         if (relay == null || groupChannel == null) {
             MutableStateFlow(emptyList<ShownReport>()).asStateFlow()
         } else {
-            combine(relay.reports, ownIds, groupChannel.reports) { held, own, fromGroups ->
-                held.mapNotNull { frame ->
-                    val report = frame.frame as? PublicReportFrame ?: return@mapNotNull null
-                    ShownReport(
-                        id = frame.id,
-                        report = report.toReport(),
-                        hops = if (frame.id in own) 0 else (config.hopBudget - frame.hopsLeft).coerceAtLeast(0),
-                        mine = frame.id in own,
-                    )
-                } +
-                    fromGroups.map {
+            val votes =
+                combine(relay.votes, groupChannel.votes, myVotes) { public, group, mine -> Triple(public, group, mine) }
+            combine(relay.reports, ownIds, groupChannel.reports, votes) { held, own, fromGroups, (public, group, mine) ->
+                val nearby =
+                    public
+                        .mapNotNull { it.frame as? PublicVoteFrame }
+                        .groupBy({ it.target }, { CastVote(it.publicKey, fromGroup = false, vote = it.vote, minute = it.createdMinute) })
+                val shown =
+                    held.mapNotNull { frame ->
+                        val report = frame.frame as? PublicReportFrame ?: return@mapNotNull null
                         ShownReport(
-                            id = it.id,
-                            report = it.report,
-                            hops = if (it.mine) 0 else (config.hopBudget - it.hopsLeft).coerceAtLeast(0),
-                            mine = it.mine,
-                            group = GroupTag(it.groupId, it.groupName, it.sender),
+                            id = frame.id,
+                            report = report.toReport(),
+                            hops = if (frame.id in own) 0 else (config.hopBudget - frame.hopsLeft).coerceAtLeast(0),
+                            mine = frame.id in own,
                         )
-                    }
+                    } +
+                        fromGroups.map {
+                            ShownReport(
+                                id = it.id,
+                                report = it.report,
+                                hops = if (it.mine) 0 else (config.hopBudget - it.hopsLeft).coerceAtLeast(0),
+                                mine = it.mine,
+                                group = GroupTag(it.groupId, it.groupName, it.sender),
+                            )
+                        }
+                shown.map { it.withVotes(nearby[it.id].orEmpty() + group[it.id].orEmpty(), mine[it.id]) }
             }.stateIn(scope, SharingStarted.Eagerly, emptyList())
         }
 
@@ -253,6 +273,31 @@ class MeshNode(
         grace = null
     }
 
+    /**
+     * Confirms or dismisses the report [id] (FR-6.1): once per report, never on this phone's own.
+     * A group report's vote goes to its group only. A public report gets a public vote, under a
+     * fresh one-time key, and a vote to each of this phone's groups, so members count it as a
+     * member's (FR-6.2, threat model §5.7). False when it cannot vote.
+     */
+    suspend fun vote(
+        id: Bytes,
+        vote: Vote,
+    ): Boolean {
+        val relay = relay ?: return false
+        val channel = groupChannel ?: return false
+        val shown = reports.value.firstOrNull { it.id == id } ?: return false
+        if (shown.mine || shown.myVote != null || id in myVotes.value) return false
+        myVotes.value = myVotes.value + (id to vote)
+        val r = shown.report
+        val until =
+            r.createdAt.wireMinute() + maxOf(r.lifetime.inWholeMinutes, 2 * r.type.defaultLifetime.inWholeMinutes)
+        val tag = shown.group
+        if (tag != null) return channel.vote(tag.groupId, id, vote, until)
+        val sent = relay.publish(author.vote(id, vote, until, config.hopBudget)) is Validation.Valid
+        groups.value.forEach { channel.vote(it.id, id, vote, until) }
+        return sent
+    }
+
     /** Withdraws one of this phone's reports everywhere it spread (FR-4.5). False if it cannot. */
     suspend fun withdraw(id: Bytes): Boolean {
         val relay = relay ?: return false
@@ -268,4 +313,22 @@ class MeshNode(
         /** How long a mesh that has heard nobody yet says "Looking for phones" (components/MeshStatus). */
         val SEARCHING: Duration = 30.seconds
     }
+}
+
+/** [this] with its votes counted: the tally, the time left a confirmation gave it, and this phone's vote. */
+private fun ShownReport.withVotes(
+    votes: List<CastVote>,
+    mine: Vote?,
+): ShownReport {
+    val createdMinute = report.createdAt.wireMinute()
+    val tally =
+        VoteRule.tally(
+            votes,
+            createdMinute,
+            report.lifetime.inWholeMinutes.toInt(),
+            report.type.defaultLifetime.inWholeMinutes
+                .toInt(),
+        )
+    val lifetime = (tally.expiresMinute - createdMinute).minutes
+    return copy(report = if (lifetime > report.lifetime) report.copy(lifetime = lifetime) else report, tally = tally, myVote = mine)
 }

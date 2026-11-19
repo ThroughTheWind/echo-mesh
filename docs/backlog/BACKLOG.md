@@ -16,6 +16,7 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-007](items/WI-007-ble-spike-reference-phones.md) | Prove BLE discovery and exchange on the three reference phones | spike | `claude/project-thread-67cn4e` |
 | [WI-017](items/WI-017-group-keys-and-qr-join.md) | Create groups and join them in person by QR | feature | `claude/project-thread-67cn4e` |
 | [WI-018](items/WI-018-encrypted-group-reports.md) | Send encrypted group reports that everyone relays and only members read | feature | `claude/project-thread-67cn4e` |
+| [WI-019](items/WI-019-confirm-and-dismiss.md) | Confirm or dismiss a report, with votes that spread | feature | `claude/project-thread-67cn4e` |
 
 ## Review
 
@@ -34,7 +35,6 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-006](items/WI-006-phase-1-two-phones-one-report.md) | Phase 1 — Two phones, one report: ship 0.1.0 | epic |
 | [WI-015](items/WI-015-release-0-1-0.md) | Set up release signing and cut 0.1.0 | chore |
 | [WI-016](items/WI-016-phase-2-groups.md) | Phase 2 — Groups: ship 0.2.0 | epic |
-| [WI-019](items/WI-019-confirm-and-dismiss.md) | Confirm or dismiss a report, with votes that spread | feature |
 | [WI-020](items/WI-020-position-sharing.md) | Share position with a group, opt-in and short-lived | feature |
 | [WI-021](items/WI-021-mute-a-member.md) | Mute a group member on this phone | feature |
 | [WI-022](items/WI-022-group-screens.md) | Build the group screens: create, join, roster, verified style and filters | feature |

@@ -9,13 +9,16 @@ import io.github.throughthewind.echo.core.crypto.Randomness
 import io.github.throughthewind.echo.core.mesh.PeerHandle
 import io.github.throughthewind.echo.core.mesh.relay.HeldFrame
 import io.github.throughthewind.echo.core.mesh.relay.Relay
+import io.github.throughthewind.echo.core.mesh.report.CastVote
 import io.github.throughthewind.echo.core.mesh.report.Validation
+import io.github.throughthewind.echo.core.mesh.report.VoteRule
 import io.github.throughthewind.echo.core.mesh.report.WireUnits
 import io.github.throughthewind.echo.core.mesh.report.instantOfWireMinute
 import io.github.throughthewind.echo.core.mesh.report.wireMinute
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.mesh.wire.GroupFrame
 import io.github.throughthewind.echo.core.mesh.wire.JoinFrame
+import io.github.throughthewind.echo.core.mesh.wire.Vote
 import io.github.throughthewind.echo.core.mesh.wire.Wire
 import io.github.throughthewind.echo.core.model.GeoPoint
 import io.github.throughthewind.echo.core.model.Report
@@ -93,6 +96,13 @@ class GroupChannel(
 
     /** Who sent each held report, by member key id: only they may withdraw it. */
     private val authors = HashMap<Bytes, Bytes>()
+
+    /** Group votes by target report, then by member key id: a member's latest counts (§5.7). */
+    private val groupVotes = LinkedHashMap<Bytes, LinkedHashMap<Bytes, CastVote>>()
+    private val voteList = MutableStateFlow<Map<Bytes, List<CastVote>>>(emptyMap())
+
+    /** Votes from members of this phone's groups, by the report they are on (FR-6.2). */
+    val votes: StateFlow<Map<Bytes, List<CastVote>>> = voteList.asStateFlow()
 
     /** Withdrawals seen, target id to the key id that signed them, even before the report arrives. */
     private val withdrawals = HashMap<Bytes, Bytes>()
@@ -208,6 +218,26 @@ class GroupChannel(
         return (relay.publish(frame) as? Validation.Opaque)?.id
     }
 
+    /**
+     * Sends this phone's [vote] on the report [target] to the group [id] (FR-6.1), living until
+     * [untilMinute], the latest the report could live. False when this phone is not in the group.
+     */
+    suspend fun vote(
+        id: Bytes,
+        target: Bytes,
+        vote: Vote,
+        untilMinute: Long,
+    ): Boolean {
+        val minute = clock().wireMinute()
+        val frame =
+            lock.withLock {
+                val group = book[id] ?: return false
+                val left = (untilMinute - minute).toInt().coerceIn(1, Wire.MAX_LIFETIME_MINUTES)
+                book.seal(group, GroupMessage.ReportVote(target, vote, minute, left), minute, hopBudget)
+            }
+        return relay.publish(frame) is Validation.Opaque
+    }
+
     /** Withdraws this phone's own group report [id] (FR-4.5). False if it is not ours or is gone. */
     suspend fun withdraw(id: Bytes): Boolean {
         val minute = clock().wireMinute()
@@ -231,6 +261,10 @@ class GroupChannel(
             held.values.removeAll { it.report.isExpired(now) || book[it.groupId] == null }
             authors.keys.retainAll(held.keys)
             if (withdrawals.size > MAX_WITHDRAWALS) withdrawals.clear()
+            // A vote outlives its report by at most the longest lifetime; then it is forgotten.
+            val minute = now.wireMinute()
+            groupVotes.values.removeAll { byMember -> byMember.values.all { it.minute + VOTE_MEMORY_MINUTES < minute } }
+            voteList.value = groupVotes.mapValues { it.value.values.toList() }
             publish()
         }
     }
@@ -499,6 +533,36 @@ class GroupChannel(
                         )
                 }
 
+                is GroupMessage.ReportVote -> {
+                    val cast = CastVote(opened.sender.keyId, fromGroup = true, vote = message.vote, minute = message.createdMinute)
+                    if (message.target !in groupVotes && groupVotes.size >= MAX_VOTE_TARGETS) {
+                        groupVotes.remove(groupVotes.keys.first())
+                    }
+                    val byMember = groupVotes.getOrPut(message.target) { LinkedHashMap() }
+                    val previous = byMember[cast.voter]
+                    if (previous == null || previous.minute <= cast.minute) byMember[cast.voter] = cast
+                    if (message.vote == Vote.CONFIRM) {
+                        // A confirmation refreshes the report's time left, capped (FR-6.3).
+                        val report = held[message.target]
+                        if (report != null) {
+                            val r = report.report
+                            val until =
+                                VoteRule.extendedBy(
+                                    r.createdAt.wireMinute(),
+                                    r.lifetime.inWholeMinutes.toInt(),
+                                    r.type.defaultLifetime.inWholeMinutes
+                                        .toInt(),
+                                    message.createdMinute,
+                                )
+                            val lifetime = (until - r.createdAt.wireMinute()).minutes
+                            if (lifetime > r.lifetime) held[message.target] = report.copy(report = r.copy(lifetime = lifetime))
+                        } else {
+                            relay.groupConfirmed(message.target, message.createdMinute)
+                        }
+                    }
+                    voteList.value = groupVotes.mapValues { it.value.values.toList() }
+                }
+
                 is GroupMessage.Withdrawal -> {
                     // Only the member who sent a report can withdraw it.
                     withdrawals[message.target] = opened.sender.keyId
@@ -557,6 +621,10 @@ class GroupChannel(
 
         /** Withdrawals remembered for reports not seen yet; bounded like everything a peer can fill. */
         private const val MAX_WITHDRAWALS = 512
+
+        /** Reports with group votes remembered; bounded like everything a peer can fill. */
+        private const val MAX_VOTE_TARGETS = 512
+        private const val VOTE_MEMORY_MINUTES = 2L * Wire.MAX_LIFETIME_MINUTES
         private const val FIRST_ROSTER_STEP = 3
         private const val INBOX_CAPACITY = 32
     }

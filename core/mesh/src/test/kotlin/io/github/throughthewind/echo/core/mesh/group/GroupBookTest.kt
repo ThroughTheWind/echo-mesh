@@ -5,6 +5,7 @@ import io.github.throughthewind.echo.core.crypto.MemberKey
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.mesh.wire.DecodeResult
 import io.github.throughthewind.echo.core.mesh.wire.GroupFrame
+import io.github.throughthewind.echo.core.mesh.wire.Vote
 import io.github.throughthewind.echo.core.mesh.wire.Wire
 import io.github.throughthewind.echo.core.mesh.wire.WireCodec
 import io.github.throughthewind.echo.core.model.ReportType
@@ -60,6 +61,8 @@ class GroupBookTest {
         assertEquals("Crew", opened.group.name)
         val back = assertNotNull(a.open(frame(b.groups().first().let { b.seal(it, report, now, 7) })))
         assertEquals("Owl", back.sender.nickname)
+        val vote = GroupMessage.ReportVote(Bytes(ByteArray(32) { 5 }), Vote.DISMISS, now, 90)
+        assertEquals(vote, assertNotNull(b.open(frame(a.seal(group, vote, now, 7)))).message, "a vote reads back as sent")
     }
 
     @Test
@@ -164,6 +167,7 @@ class GroupBookTest {
             listOf(
                 report,
                 GroupMessage.Withdrawal(Bytes(ByteArray(32)), now, 90),
+                GroupMessage.ReportVote(Bytes(ByteArray(32)), Vote.CONFIRM, now, 90),
                 GroupMessage.MemberAdded(Bytes(ByteArray(32) { 1 }), "A much longer nickname here", now, 180),
             ).map { a.seal(group, it, now, 7).size }
         assertEquals(setOf(Wire.GROUP_FRAME_BYTES), sizes.toSet())

@@ -402,6 +402,7 @@ fun MapScreen(
                         detailFor = null
                     }
                 },
+                onVote = { vote -> scope.launch { mesh.vote(live.id, vote) } },
                 onDismiss = { detailFor = null },
             )
         }

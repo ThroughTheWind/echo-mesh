@@ -113,6 +113,11 @@
     <string name="source_yours">yours</string>
     <string name="source_group">from %1$s in %2$s</string>
     <string name="pin_described">%1$s, %2$s, %3$s</string>
+    <plurals name="pin_confirmations">
+        <item quantity="one">%1$d confirmation</item>
+        <item quantity="other">%1$d confirmations</item>
+    </plurals>
+    <string name="pin_probably_gone">probably gone</string>
     <string name="direction_north">north</string>
     <string name="direction_north_east">north-east</string>
     <string name="direction_east">east</string>
@@ -147,7 +152,18 @@
     <string name="detail_group_body">Signed by %1$s\'s phone and encrypted to your group.</string>
     <string name="detail_withdraw">Withdraw report</string>
     <string name="detail_withdrawn">Report withdrawn</string>
-    <string name="detail_votes_later">Still there and Gone votes arrive with a later version.</string>
+    <string name="vote_still_there">Still there</string>
+    <string name="vote_gone">Gone</string>
+    <string name="vote_said_there">You said still there</string>
+    <string name="vote_said_gone">You said gone</string>
+    <string name="votes_from">%1$s: %2$s</string>
+    <string name="votes_confirmed">%1$d confirmed</string>
+    <string name="votes_said_gone">%1$d said gone</string>
+    <string name="votes_nearby">Nearby</string>
+    <string name="votes_your_groups">Your groups</string>
+    <string name="votes_none">No votes yet.</string>
+    <string name="detail_gone_public">Faded because far more nearby phones said it\'s gone. Those votes can be faked, so it stays on the map until it expires.</string>
+    <string name="detail_gone_group">Faded because someone in %1$s said it\'s gone and nobody in %1$s has confirmed it since.</string>
 
     <!-- Mesh (patterns/MeshOnOff, components/MeshStatus) -->
     <string name="mesh_sheet_title">Mesh</string>

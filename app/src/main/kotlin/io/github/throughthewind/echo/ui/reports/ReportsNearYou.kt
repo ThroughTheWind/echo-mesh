@@ -138,6 +138,7 @@ fun ReportsNearYou(
                         detailFor = null
                     }
                 },
+                onVote = { vote -> scope.launch { app.mesh.vote(live.id, vote) } },
                 onDismiss = { detailFor = null },
             )
         }

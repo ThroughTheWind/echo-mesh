@@ -4,7 +4,9 @@ import io.github.throughthewind.echo.core.crypto.Hashes
 import io.github.throughthewind.echo.core.crypto.OneTimeSigningKey
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.mesh.wire.PublicReportFrame
+import io.github.throughthewind.echo.core.mesh.wire.PublicVoteFrame
 import io.github.throughthewind.echo.core.mesh.wire.SignedFrame
+import io.github.throughthewind.echo.core.mesh.wire.Vote
 import io.github.throughthewind.echo.core.mesh.wire.Wire
 import io.github.throughthewind.echo.core.mesh.wire.WireCodec
 import io.github.throughthewind.echo.core.mesh.wire.WithdrawalFrame
@@ -127,6 +129,34 @@ class ReportAuthor(
             lastSent[type] = now
             return true
         }
+    }
+
+    /**
+     * Signs a public [vote] on the report [target], with a fresh one-time key so no two votes from
+     * this phone can be linked (FR-6.1, FR-6.2). It lives until [untilMinute], the latest the report
+     * could live, at most [Wire.MAX_LIFETIME_MINUTES]. One vote per report is the caller's rule.
+     */
+    fun vote(
+        target: Bytes,
+        vote: Vote,
+        untilMinute: Long,
+        hopBudget: Int,
+    ): ByteArray {
+        require(target.size == Wire.MESSAGE_ID_BYTES) { "a message id is 32 bytes" }
+        require(hopBudget in 0..Wire.MAX_HOP_BUDGET) { "hop budget out of range: $hopBudget" }
+        val nowMinute = clock().wireMinute()
+        val key = OneTimeSigningKey.generate()
+        val unsigned =
+            PublicVoteFrame(
+                hopBudget = hopBudget,
+                publicKey = Bytes(key.publicKey),
+                target = target,
+                vote = vote,
+                createdMinute = nowMinute,
+                lifetimeMinutes = (untilMinute - nowMinute).toInt().coerceIn(1, Wire.MAX_LIFETIME_MINUTES),
+                signature = Bytes(ByteArray(Wire.SIGNATURE_BYTES)),
+            )
+        return WireCodec.encode(unsigned.copy(signature = Bytes(key.sign(WireCodec.signingInput(unsigned)))))
     }
 
     /** When [type] may be reported again (FR-4.6), or null if it may be now. */

@@ -143,6 +143,27 @@ class Relay(
     /** Public reports to show: live and not withdrawn. Updated as frames arrive and expire. */
     val reports: StateFlow<List<HeldFrame>> = shown.asStateFlow()
 
+    private val heldVotes = MutableStateFlow<List<HeldFrame>>(emptyList())
+
+    /** Public votes held, for the tallies (FR-6.2). Updated with [reports]. */
+    val votes: StateFlow<List<HeldFrame>> = heldVotes.asStateFlow()
+
+    private fun publishHeld(minute: Long) {
+        shown.value = store.reports(minute)
+        heldVotes.value = store.votes(minute)
+    }
+
+    /** A group member confirmed the public report [id] at [minute]: this phone keeps it longer (FR-6.3). */
+    suspend fun groupConfirmed(
+        id: Bytes,
+        minute: Long,
+    ) {
+        mutex.withLock {
+            store.groupConfirmed(id, minute)
+            publishHeld(clock().wireMinute())
+        }
+    }
+
     private val inRange = MutableStateFlow(0)
 
     /**
@@ -250,7 +271,7 @@ class Relay(
         mutex.withLock {
             val minute = clock().wireMinute()
             store.sweep(minute)
-            shown.value = store.reports(minute)
+            publishHeld(minute)
         }
     }
 
@@ -345,7 +366,7 @@ class Relay(
         val link = held.link
         store.put(held)
         stats = stats.copy(stored = stats.stored + 1)
-        shown.value = store.reports(nowMinute)
+        publishHeld(nowMinute)
         if (held.frame is GroupFrame && held.id in store) groupArrivals.tryEmit(held)
         if (held.withdrawn || held.id !in store) return emptyList()
         val onward = onward(held) ?: return emptyList()

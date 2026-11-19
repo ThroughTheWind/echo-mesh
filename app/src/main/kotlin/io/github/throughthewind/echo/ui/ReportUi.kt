@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import io.github.throughthewind.echo.R
 import io.github.throughthewind.echo.core.designsystem.component.Expiry
@@ -95,11 +96,16 @@ fun ShownReport.look(now: Instant): PinLook {
         icon = report.type.icon,
         source = if (tag == null) PinSource.Nearby else PinSource.Group(groups.colourOf(tag.groupId), initials(tag.groupName)),
         timeLeft = Expiry.fraction(report.expiresAt - now, report.lifetime),
+        confirmations = tally.groupConfirmed + tally.nearbyConfirmed,
+        probablyGone = tally.probablyGone,
         mine = mine,
     )
 }
 
-/** "{Type}, {source}, {N} minutes left" (components/ReportPin): "from Sage in Crew" for a group. */
+/**
+ * "{Type}, {source}, {N} minutes left[, {N} confirmations][, probably gone]" (components/ReportPin):
+ * "from Sage in Crew" for a group.
+ */
 @Composable
 fun ShownReport.describe(now: Instant): String {
     val tag = group
@@ -109,7 +115,12 @@ fun ShownReport.describe(now: Instant): String {
             tag != null -> stringResource(R.string.source_group, tag.sender, tag.groupName)
             else -> stringResource(R.string.source_nearby)
         }
-    return stringResource(R.string.pin_described, stringResource(report.type.label), source, timeLeftLabel(report.expiresAt - now))
+    val confirmations = tally.groupConfirmed + tally.nearbyConfirmed
+    return listOfNotNull(
+        stringResource(R.string.pin_described, stringResource(report.type.label), source, timeLeftLabel(report.expiresAt - now)),
+        if (confirmations > 0) pluralStringResource(R.plurals.pin_confirmations, confirmations, confirmations) else null,
+        if (tally.probablyGone) stringResource(R.string.pin_probably_gone) else null,
+    ).joinToString(", ")
 }
 
 @Composable
