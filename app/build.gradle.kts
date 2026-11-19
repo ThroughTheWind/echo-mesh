@@ -60,10 +60,17 @@ android {
     }
 
     // Accessibility tests render screens with Robolectric (WI-031): they need the app's resources,
-    // and run on the JUnit platform like every other module's tests.
+    // and run on the JUnit platform like every other module's tests. A failure prints its message,
+    // so CI says which control is unnamed or too small instead of only the line that asserted.
     testOptions.unitTests {
         isIncludeAndroidResources = true
-        all { it.useJUnitPlatform() }
+        all {
+            it.useJUnitPlatform()
+            it.testLogging {
+                events("failed")
+                exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+            }
+        }
     }
 }
 
