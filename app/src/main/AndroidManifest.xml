@@ -13,6 +13,10 @@
     <!-- While a share runs, the same service keeps the fix coming with the screen off (NFR-10,
          WI-075). Never ACCESS_BACKGROUND_LOCATION: checkManifestPermissions forbids it. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <!-- Also declared by core:map, which shows the fix; repeated here because the service's
+         location type needs them in this manifest (lint ForegroundServicePermission). -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Scanning a group's join code in person (FR-8.2), asked in context when the user taps Join. -->
     <uses-permission android:name="android.permission.CAMERA" />
