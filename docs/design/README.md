@@ -49,6 +49,10 @@ Every entry is a folder with a `README.md` (the spec) and a `preview.html` (a fr
 
 [Map](screens/MapView/README.md) (home) · [Reports near you](screens/ReportsNearYou/README.md) · [Group roster](screens/GroupRoster/README.md) · [Maps](screens/MapsScreen/README.md) · [Settings](screens/SettingsScreen/README.md) · [What Echo protects](screens/WhatEchoProtects/README.md)
 
+## Landing page
+
+[Landing page](landing/README.md): the web layer on these tokens, with its [positioning and messaging](landing/MESSAGING.md). Every status on the page is computed from the backlog and every protection line comes from [What Echo protects](screens/WhatEchoProtects/README.md); `tools/landing.py check` is the `landing-claims` gate.
+
 ## Spec coverage
 
 [`SPEC-COVERAGE.md`](SPEC-COVERAGE.md) maps every requirement, user story and acceptance criterion in the spec to the entries that answer it, including the ones with no UI. `tools/tokens.py check` fails when the spec gains an id without a row.

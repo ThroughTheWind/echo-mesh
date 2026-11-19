@@ -50,6 +50,13 @@ tier    = "fast"
 command = "python3 -B docs/design/tools/tokens.py check"
 why     = "Color.kt and the previews are generated from tokens.json, and street contrast (7:1 text in Dark and Sun) is the design system's promise; a hand edit or a weaker colour fails here, not on a sunny street."
 
+[[gates]]
+id      = "landing-claims"
+kind    = "command"
+tier    = "fast"
+command = "python3 -B docs/design/tools/landing.py check"
+why     = "The landing page is where Echo is most tempted to overclaim, and a reader may take it to a protest. Every status chip and the stage banner are computed from the backlog, protection lines come word for word from the threat model's honest copy, and the page loads nothing from another site; a stale or hand-edited page fails here, not in front of a reader."
+
 # ── module gates ──────────────────────────────────────────────────────────────
 # Generated. Edit the owning module's parameters, not these entries.
 

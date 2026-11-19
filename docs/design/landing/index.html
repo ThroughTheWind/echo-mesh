@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="dark light">
+<title>Echo: see what's happening around you, with no internet</title>
+<meta name="description" content="Echo is a free, open-source Android app for protests. Phones nearby share short-lived map reports over Bluetooth, with no server, no account and no internet.">
+<!-- Reference page for the landing design system (README.md). Everything inside data-claim and
+     data-stage elements, and the sprite, is written by tools/landing.py build: edit landing.source.json. -->
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="landing.css">
+</head>
+<body>
+<!-- sprite:begin --><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="i-check_circle" viewBox="0 -960 960 960"><path d="m420.52-395.22-93.45-93.45q-9.96-9.96-24.42-9.96t-25.61 10.96q-9.95 10.19-9.95 24.63 0 14.43 10.19 24.39l119.13 120.13q10.31 10.19 24.05 10.19t24.17-10.19l236.13-236.37q11.2-10.96 11.2-25.3t-11.2-25.48q-10.96-9.96-25.92-9.46t-25.1 10.46L420.52-395.22Zm59.51 321.2q-83.46 0-157.54-31.88-74.07-31.88-129.39-87.2-55.32-55.32-87.2-129.36-31.88-74.04-31.88-157.51 0-84.46 31.88-158.54 31.88-74.07 87.16-128.9 55.28-54.84 129.34-86.82 74.06-31.99 157.55-31.99 84.48 0 158.59 31.97 74.1 31.97 128.91 86.77 54.82 54.8 86.79 128.88 31.98 74.08 31.98 158.6 0 83.5-31.99 157.57-31.98 74.07-86.82 129.36-54.83 55.29-128.87 87.17-74.04 31.88-158.51 31.88Z"/></symbol><symbol id="i-warning" viewBox="0 -960 960 960"><path d="M93.91-116.89q-10.19 0-17.65-4.72-7.46-4.72-11.93-12.43-4.48-7.72-4.98-16.42-.5-8.69 4.98-17.89L450.41-835q5.48-8.96 13.06-12.93 7.57-3.98 16.53-3.98t16.53 3.98q7.58 3.97 13.06 12.93l386.08 666.65q5.48 9.2 4.98 17.89-.5 8.7-4.98 16.42-4.47 7.71-11.93 12.43t-17.65 4.72H93.91ZM506.1-246.34q8.86-8.86 8.86-22.09 0-13.24-8.86-21.98t-22.1-8.74q-13.24 0-22.1 8.74-8.86 8.74-8.86 21.98 0 13.23 8.86 22.09t22.1 8.86q13.24 0 22.1-8.86Zm-.6-110.16Q514-365 514-378v-162.09q0-13-8.5-21.5t-21.5-8.5q-13 0-21.5 8.5t-8.5 21.5V-378q0 13 8.5 21.5T484-348q13 0 21.5-8.5Z"/></symbol><symbol id="i-block" viewBox="0 -960 960 960"><path d="M321.73-106q-74.08-31.98-129.03-86.93-54.96-54.96-86.82-129.01-31.86-74.04-31.86-158.54 0-83.87 32.02-158.03 32.02-74.15 86.76-128.95 54.74-54.79 128.86-86.77 74.12-31.99 158.33-31.99 84.21 0 158.33 31.99 74.13 31.98 128.87 86.77 54.74 54.8 86.89 128.95 32.14 74.16 32.14 158.03 0 84.5-31.98 158.54-31.98 74.05-86.94 129.01-54.95 54.95-129.05 86.93-74.09 31.98-158.27 31.98T321.73-106Zm372.49-113.76q12.91-9.96 24.85-21.14 11.93-11.18 21.89-24.6l-475.7-475.7q-13.18 9.96-24.6 21.9-11.42 11.93-21.38 24.84l474.94 474.7Z"/></symbol><symbol id="i-schedule" viewBox="0 -960 960 960"><path d="M515.63-493.54v-165.87q0-14.12-9.29-23.38-9.28-9.25-23.29-9.25t-23.34 9.25q-9.34 9.26-9.34 23.38v178.93q0 6.72 2.24 12.4 2.24 5.69 6.72 11.23l141.13 146.13Q610.48-300 624.9-300.5q14.43-.5 24.38-10.22 9.96-9.71 9.96-23.91t-9.96-24.15L515.63-493.54Zm-35.6 419.52q-83.46 0-157.51-31.95-74.05-31.94-129.32-87.21-55.28-55.26-87.23-129.3-31.95-74.03-31.95-157.49 0-83.46 32-157.54 32-74.07 87.2-129.27 55.2-55.2 129.25-87.32 74.05-32.12 157.53-32.12t157.53 32.12q74.05 32.12 129.25 87.32 55.2 55.2 87.32 129.25 32.12 74.05 32.12 157.53T854.1-322.47q-32.12 74.05-87.32 129.25-55.2 55.2-129.24 87.2t-157.51 32Z"/></symbol><symbol id="i-sync" viewBox="0 -960 960 960"><path d="M223.83-477q0 62.04 23.14 107.71 23.14 45.66 62.66 79.18l28.57 19.57v-88.26q0-13.48 8.85-22.34 8.86-8.86 22.46-8.86 13.6 0 22.46 8.86 8.86 8.86 8.86 22.34v168.32q0 14.68-9.7 24.37-9.7 9.7-24.37 9.7H198.67q-13.47 0-22.33-8.98-8.86-8.98-8.86-22.46t8.86-22.33q8.86-8.86 22.57-8.86h92.59l-12.61-10.33q-64.24-52.2-93.84-112.55-29.59-60.36-29.59-135.08 0-95.91 51.05-174.85 51.06-78.93 136.21-119.17 12.19-5.48 23.15.72 10.96 6.19 15.2 18.87 5 12.67-.84 25.48-5.84 12.82-18.03 19.54-63.05 33.52-100.71 95.06Q223.83-549.8 223.83-477Zm512.34-6q0-47.04-23.26-95.71-23.26-48.66-60.3-86.18l-27.57-24.57v88.26q0 13.48-8.97 22.34-8.98 8.86-22.46 8.86t-22.46-8.98q-8.98-8.98-8.98-22.45v-168.09q0-14.68 9.7-24.37 9.7-9.7 24.61-9.7h167.85q13.47 0 22.45 8.86 8.98 8.86 8.98 22.34t-8.98 22.46q-8.98 8.97-22.45 8.97H670.5l12.85 12.33q60.48 56.48 90.83 121.2 30.36 64.71 30.36 124.43 0 94.91-49.43 172.85-49.44 77.93-132.83 120.17-12.19 6.48-24.65.78-12.46-5.69-17.46-19.37-5.24-12.67.6-25.48 5.84-12.82 18.27-19.54 63.57-32.52 100.35-94.56Q736.17-410.2 736.17-483Z"/></symbol><symbol id="i-lock" viewBox="0 -960 960 960"><path d="M222.15-74.5q-28.1 0-48.12-20.01-20.01-20.02-20.01-48.12v-429.7q0-28.2 20.01-48.28 20.02-20.09 48.12-20.09h65.22v-90.73q0-80.37 56.27-136.86 56.26-56.49 136.41-56.49t136.36 56.49q56.22 56.49 56.22 136.86v90.73h65.22q28.2 0 48.28 20.09 20.09 20.08 20.09 48.28v429.7q0 28.1-20.09 48.12-20.08 20.01-48.28 20.01h-515.7ZM534.5-302.51q22.5-22.03 22.5-52.97 0-30-22.67-54.5t-54.5-24.5q-31.83 0-54.33 24.5t-22.5 55q0 30.5 22.67 52.5t54.5 22q31.83 0 54.33-22.03Zm-179-338.19h249v-90.68q0-52.39-36.15-88.71-36.15-36.32-88.18-36.32-52.02 0-88.34 36.32-36.33 36.32-36.33 88.71v90.68Z"/></symbol><symbol id="i-map" viewBox="0 -960 960 960"><path d="M589.37-121.74 349-206.78 160.76-131.3q-9.19 3.23-17.15 1.62-7.96-1.62-14.68-6.1-6.95-4.48-10.93-11.32-3.98-6.83-3.98-16.03V-731q0-14.91 8.58-26.59 8.57-11.67 22.49-17.15l181.28-63.76q5.48-2 11.2-2.74 5.71-.74 11.43-.74t11.43.74q5.72.74 11.2 2.74L612-754.22l187.48-75.48q8.95-3.23 16.91-2.12 7.96 1.12 14.79 5.6 6.84 4.48 10.94 11.82 4.1 7.33 4.1 16.53V-223q0 13.15-8.7 22.71-8.69 9.55-21.61 14.03l-181.28 64.52q-5.48 2.24-11.2 2.98-5.71.74-11.43.74t-11.43-.74q-5.72-.74-11.2-2.98ZM578-197.63v-499.98l-196-66v499.98l196 66Z"/></symbol><symbol id="i-radar" viewBox="0 -960 960 960"><path d="M319.82-101.31q-75.02-32.32-130.61-87.9-55.58-55.59-87.9-130.61Q69-394.85 69-480t32.31-160.18q32.32-75.02 87.9-130.61 55.59-55.58 130.61-87.9Q394.85-891 480-891t160.18 32.31q75.02 32.32 130.61 87.9 55.58 55.59 87.9 130.61Q891-565.15 891-480t-32.31 160.18q-32.32 75.02-87.9 130.61-55.59 55.58-130.61 87.9Q565.15-69 480-69t-160.18-32.31Zm160.12-33.19q64.11 0 120.64-20.98t102.25-59.69l-70.09-68.85q-31.96 24.19-70.53 38.17T480-231.87q-103.59 0-175.86-72.27-72.27-72.27-72.27-175.86 0-103.59 72.27-175.98 72.27-72.39 175.86-72.39 103.59 0 175.98 72.39 72.39 72.39 72.39 175.98 0 43.79-14.15 82.27-14.14 38.48-38.24 70.71l68.85 68.85q37.71-45.48 59.19-101.51 21.48-56.03 21.48-120.38 0-144.09-100.73-244.77Q624.03-825.5 479.94-825.5q-144.09 0-244.77 100.73Q134.5-624.03 134.5-479.94q0 144.09 100.67 244.77Q335.85-134.5 479.94-134.5Zm-.03-162.87q29.81 0 56.79-8.74 26.97-8.74 49.21-24.98l-71.61-70.37q-7.79 3.4-16.45 5.18-8.65 1.78-17.96 1.78-35.28 0-60.33-25.11-25.06-25.1-25.06-60.44 0-35.34 25.11-60.4 25.1-25.05 60.44-25.05 35.34 0 60.4 25.06 25.05 25.07 25.05 60.35 0 9.29-2.36 18.36-2.36 9.08-6.07 18.03l71.84 69.61q16.37-22.26 25.04-49.22 8.68-26.97 8.68-56.63 0-76.26-53.22-129.47Q556.2-662.63 480-662.63q-76.2 0-129.41 53.22Q297.37-556.2 297.37-480q0 76.2 53.27 129.41 53.26 53.22 129.27 53.22Z"/></symbol><symbol id="i-add_location_alt" viewBox="0 -960 960 960"><path d="M530.93-509.27q20.98-20.95 20.98-50.82t-21.06-50.84q-21.07-20.98-50.94-20.98-29.87 0-50.73 21.06-20.85 21.07-20.85 50.94 0 29.87 20.94 50.73 20.95 20.85 50.82 20.85t50.84-20.94ZM457.3-98.72q-11.21-3.74-19.69-11.98-43.44-38.47-93.15-88.21-49.72-49.74-92.08-107.1-42.36-57.36-70.36-120.2-28-62.83-28-126.51 0-152.39 98.41-242.94 98.42-90.56 227.57-90.56 41.24 0 62.38 19.02 21.14 19.03 21.14 57.98v9.85q0 30.31 21.28 51.59 21.28 21.28 51.59 21.28h55.13v55.37q0 14.72 5.46 28.25 5.45 13.52 15.5 23.42 10 10.24 21.36 14.48t25.36 6.24q25.91 2.72 36.25 17.82 10.33 15.09 10.33 38.33 0 28.57-13.04 65.92-13.04 37.34-30.09 72.81-17.04 35.47-33.7 63.65-16.67 28.19-24.67 39.43-44.04 58.24-92.36 107.03-48.31 48.79-89.29 83.05-8.72 8.24-20.18 11.98-11.47 3.74-22.7 3.74-11.23 0-22.45-3.74ZM731.52-766.5h-95.13q-13.94 0-23.41-9.51-9.46-9.51-9.46-23.53 0-14.03 9.34-23.24 9.35-9.22 23.29-9.22h95.37v-95.37q0-13.95 9.51-23.29 9.52-9.34 23.54-9.34t23.23 9.34q9.22 9.34 9.22 23.29V-832h95.37q13.95 0 23.29 9.39 9.34 9.4 9.34 23.42 0 14.02-9.34 23.35-9.34 9.34-23.29 9.34h-95.37v95.13q0 13.95-9.39 23.41t-23.41 9.46q-14.02 0-23.36-9.34t-9.34-23.29v-95.37Z"/></symbol><symbol id="i-hourglass_bottom" viewBox="0 -960 960 960"><path d="M600.45-573.55q49.4-49.41 49.4-120.45v-123.85h-339.7V-694q0 71.04 49.4 120.45 49.41 49.4 120.45 49.4t120.45-49.4ZM188.09-74.02q-14.68 0-24.37-9.7-9.7-9.69-9.7-24.37 0-14.67 9.7-24.37 9.69-9.69 24.37-9.69h53.93V-267q0-70.28 38.93-128.04Q319.87-452.8 384.43-480q-64.56-28.2-103.48-85.96-38.93-57.76-38.93-128.04v-123.85h-53.93q-14.68 0-24.37-9.69-9.7-9.7-9.7-24.37 0-14.68 9.7-24.49 9.69-9.82 24.37-9.82h583.82q14.68 0 24.49 9.82 9.82 9.81 9.82 24.49 0 14.67-9.82 24.37-9.81 9.69-24.49 9.69h-53.69V-694q0 70.28-38.93 128.04Q640.37-508.2 575.8-480q64.57 27.2 103.49 84.96 38.93 57.76 38.93 128.04v124.85h53.69q14.68 0 24.49 9.69 9.82 9.7 9.82 24.37 0 14.68-9.82 24.37-9.81 9.7-24.49 9.7H188.09Z"/></symbol><symbol id="i-group" viewBox="0 -960 960 960"><path d="M32.5-251.37q0-36.67 18.84-66.49 18.83-29.81 52.51-44.77 73.48-32 132.69-46.24 59.22-14.24 121.94-14.24 63.19 0 121.79 14.12 58.6 14.12 132.08 46.36 33.67 14.72 53.01 44.53 19.34 29.82 19.34 66.73v32.33q0 28.34-19.9 48.24-19.89 19.89-48.47 19.89h-515.7q-28.35 0-48.24-19.89-19.89-19.9-19.89-48.24v-32.33Zm694.37 100.46q6.91-16.68 12.37-33.21 5.46-16.53 5.46-34.92v-30.89q0-64.2-29-104.97-29-40.77-89.63-68.69 67.8 8.24 129.16 22.72 61.36 14.48 99.36 34.24 33.71 19 53.31 48.91 19.6 29.92 19.6 67.55v31.13q0 28.34-19.89 48.24-19.89 19.89-48.24 19.89h-132.5ZM248.33-526.83q-42.72-42.71-42.72-110.27 0-67.55 42.72-110.27 42.71-42.72 110.15-42.72 67.43 0 110.27 42.72 42.84 42.72 42.84 110.27 0 67.56-42.84 110.27-42.84 42.72-110.27 42.72-67.44 0-110.15-42.72Zm436.16-.12q-42.84 42.84-110.27 42.84-11.24 0-24.5-1.62t-24.98-5.86q24.48-25.48 36.98-62.57 12.5-37.1 12.5-83.06 0-45.71-12.5-80.93-12.5-35.22-36.98-64.46 11.24-3.24 24.62-5.36t24.86-2.12q67.43 0 110.27 42.84 42.84 42.84 42.84 110.15 0 67.32-42.84 110.15Z"/></symbol><symbol id="i-medical_services" viewBox="0 -960 960 960"><path d="M142.15-74.02q-27.6 0-47.86-20.27-20.27-20.26-20.27-47.86v-512.83q0-27.7 20.27-48.03 20.26-20.34 47.86-20.34H314.5v-100q0-27.35 20.27-47.74 20.26-20.39 47.86-20.39h194.74q27.6 0 47.86 20.39 20.27 20.39 20.27 47.74v100h172.35q27.7 0 48.03 20.34 20.34 20.33 20.34 48.03v512.83q0 27.6-20.34 47.86-20.33 20.27-48.03 20.27h-675.7Zm240.48-649.33h194.74v-100H382.63v100Zm63.3 358.85v85.93q0 14.43 9.88 24.25 9.87 9.82 24.37 9.82 14.49 0 24.19-9.82 9.7-9.82 9.7-24.25v-85.93H600q14.42 0 24.24-9.87 9.83-9.87 9.83-24.37 0-14.5-9.83-24.19-9.82-9.7-24.24-9.7h-85.93v-85.94q0-14.42-9.88-24.24-9.87-9.82-24.37-9.82-14.49 0-24.19 9.82-9.7 9.82-9.7 24.24v85.94H360q-14.42 0-24.24 9.87-9.83 9.87-9.83 24.37 0 14.5 9.83 24.19 9.82 9.7 24.24 9.7h85.93Z"/></symbol><symbol id="i-door_open" viewBox="0 -960 960 960"><path d="M148.33-114.02q-14.67 0-24.49-9.87-9.82-9.87-9.82-24.61 0-14.5 9.82-24.2 9.82-9.69 24.49-9.69h45.69v-583.54q0-28.1 20.02-48.12 20.01-20.02 48.35-20.02h435.22q28.34 0 48.35 20.02 20.02 20.02 20.02 48.12v583.54h45.93q14.43 0 24.25 9.87t9.82 24.37q0 14.74-9.82 24.43-9.82 9.7-24.25 9.7H148.33Zm549.28-68.37v-583.54H520.74v-23.57q36.54 5.96 60.29 34.8 23.75 28.85 23.75 65.4v457.87q0 24.76-16.21 43.84-16.21 19.07-40.72 23.29v-18.09h149.76Zm-260.22-264.5q13.7 0 23.15-9.96Q470-466.8 470-480.5t-9.58-23.27q-9.58-9.58-23.53-9.58-13.43 0-23.39 9.7T403.54-480q0 13.2 9.96 23.15 9.96 9.96 23.89 9.96Z"/></symbol><symbol id="i-local_police" viewBox="0 -960 960 960"><path d="m480-438.57 82.76 62.53q5.24 3.47 10.34.24 5.1-3.24 3.1-9.2l-34.77-102.76 86.53-61.52q5.47-3.48 3.36-9.7-2.12-6.22-7.84-6.22H518.96l-31-100.28q-2.24-5.72-7.96-5.72t-7.96 5.72l-31 100.28H336.76q-5.72 0-7.84 6.22t3.36 9.7l84.29 61.52-35.53 102.52q-2.24 5.96 2.86 9.7 5.1 3.74 10.58.5L480-438.57ZM469.07-79.38q-5.22-1.12-10.7-3.36-140.2-47-222.27-170.65Q154.02-377.04 154.02-523v-194.33q0-21.63 12.32-39.4 12.31-17.77 31.94-25.49l257.85-96.28q12.2-4.48 23.87-4.48 11.67 0 23.87 4.48l257.85 96.28q19.63 7.72 32.06 25.49 12.44 17.77 12.44 39.4V-523q0 145.96-82.2 269.61-82.19 123.65-222.39 170.65-5.48 2.24-10.7 3.36-5.21 1.12-10.93 1.12t-10.93-1.12Z"/></symbol><symbol id="i-fence" viewBox="0 -960 960 960"><path d="M235.93-150.43q-14.42 0-24.24-9.83-9.82-9.82-9.82-24.24v-138.8h-55.94q-13.91 0-23.98-9.82-10.08-9.83-10.08-24.25t9.7-24.24q9.69-9.82 24.36-9.82h55.94v-94.5h-55.94q-13.91 0-23.98-9.83-10.08-9.82-10.08-24.24 0-14.42 9.7-24.24 9.69-9.83 24.36-9.83h55.94v-123.65q0-6.63 2.36-12.89 2.36-6.26 7.84-11.74l81.43-81.43q9.96-10.2 23.75-10.2t23.99 10.2l57.33 57.56 57.56-57.56q10.26-10.2 24.4-10.2 14.14 0 24.34 10.2l57.56 57.32 56.33-57.32q10.26-10.2 24.52-10.2t24.22 10.2l81.43 81.43q5.48 5.48 7.96 11.74 2.48 6.26 2.48 12.89v123.65h54.7q14.42 0 24.36 9.88 9.94 9.87 9.94 24.37 0 14.49-9.94 24.19-9.94 9.7-24.36 9.7h-54.7v94.5h54.7q14.42 0 24.36 9.87t9.94 24.37q0 14.49-9.94 24.19-9.94 9.7-24.36 9.7h-54.94v138.8q0 14.42-9.82 24.24-9.82 9.83-24.24 9.83H235.93ZM270-554.07h94.5v-109.97l-47.13-47.13L270-664.04v109.97Zm162.63 0h94.74v-109.97L480-711.17l-47.37 47.13v109.97Zm163.87 0H690v-109.97l-47.37-47.13-46.13 46.37v110.73ZM270-391.43h94.5v-94.5H270v94.5Zm162.63 0h94.74v-94.5h-94.74v94.5Zm163.87 0H690v-94.5h-93.5v94.5ZM270-218.57h94.5V-323.3H270v104.73Zm162.63 0h94.74V-323.3h-94.74v104.73Zm163.87 0H690V-323.3h-93.5v104.73Z"/></symbol><symbol id="i-foggy" viewBox="0 -960 960 960"><path d="M724.07-198.07q-15.56 0-27.08-11.39-11.51-11.4-11.51-27.19 0-15.56 11.51-27.07 11.52-11.52 27.08-11.52 15.79 0 27.19 11.52 11.39 11.51 11.39 27.07 0 15.79-11.39 27.19-11.4 11.39-27.19 11.39ZM278.1-68.28q-15.69 0-27.14-11.4-11.46-11.4-11.46-27.19 0-15.55 11.4-27.07 11.39-11.52 27.19-11.52 15.45 0 26.9 11.52 11.44 11.52 11.44 27.07 0 15.79-11.44 27.19-11.44 11.4-26.89 11.4ZM240-198.07q-15.79 0-27.19-11.39-11.4-11.4-11.4-27.19 0-15.56 11.4-27.07 11.4-11.52 27.19-11.52h360q15.79 0 27.19 11.52 11.4 11.51 11.4 27.07 0 15.79-11.4 27.19-11.4 11.39-27.19 11.39H240ZM402.15-68.28q-15.79 0-27.19-11.4-11.39-11.4-11.39-27.19 0-15.55 11.39-27.07 11.4-11.52 27.19-11.52h280q15.69 0 27.02 11.52t11.33 27.07q0 15.79-11.33 27.19-11.33 11.4-27.02 11.4h-280ZM290-338.57q-88.67 0-151.37-62.81-62.7-62.82-62.7-151.25 0-80.2 56.86-143.15 56.86-62.96 141.58-69.68 32.72-56 85.93-88.74 53.22-32.73 119.69-32.73 91.49 0 153.83 57.61 62.33 57.62 77.53 142.86 79.72 4.96 126.22 55.42 46.5 50.45 46.5 118.41 0 71.67-50.75 122.87-50.75 51.19-123.32 51.19H290Z"/></symbol><symbol id="i-water_drop" viewBox="0 -960 960 960"><path d="M247.2-169.7q-93.18-95.67-93.18-238.3 0-61.61 27.21-123.05 27.2-61.45 69.75-119.57 42.54-58.12 94.12-110.89 51.57-52.77 100.83-96.79 7.96-6.72 16.42-9.58 8.45-2.86 17.65-2.86t17.65 2.86q8.46 2.86 16.42 9.58 49.26 44.02 100.83 96.79 51.58 52.77 94.12 110.89 42.55 58.12 69.87 119.57 27.33 61.44 27.33 123.05 0 142.63-93.3 238.3Q619.63-74.02 480-74.02T247.2-169.7Zm232.28-39.26q16.72 0 25.93-6.09 9.22-6.1 9.22-17.58 0-11.72-9.1-18.32-9.1-6.59-27.05-6.59-43.2 0-84.31-26.26-41.1-26.27-52.87-90.4-2-9.23-9.35-15.33-7.36-6.1-16.32-6.1-12.2 0-18.55 8.98-6.36 8.98-4.36 18.69 15 84.24 71 121.62 56 37.38 115.76 37.38Z"/></symbol><symbol id="i-shield" viewBox="0 -960 960 960"><path d="M469.07-79.38q-5.22-1.12-10.7-3.36-140.2-47-222.27-170.65Q154.02-377.04 154.02-523v-194.33q0-21.63 12.32-39.4 12.31-17.77 31.94-25.49l257.85-96.28q12.2-4.48 23.87-4.48 11.67 0 23.87 4.48l257.85 96.28q19.63 7.72 32.06 25.49 12.44 17.77 12.44 39.4V-523q0 145.96-82.2 269.61-82.19 123.65-222.39 170.65-5.48 2.24-10.7 3.36-5.21 1.12-10.93 1.12t-10.93-1.12Z"/></symbol><symbol id="i-key" viewBox="0 -960 960 960"><path d="M188.5-388.5Q151-426 151-480t37.5-91.5Q226-609 280-609t91.5 37.5Q409-534 409-480t-37.5 91.5Q334-351 280-351t-91.5-37.5Zm91.5 154q82.22 0 145.26-46.72 63.04-46.71 82.52-123.15h30.97l45.77 45.94q5.48 5.47 11.32 7.71 5.83 2.24 12.67 2.24t12.54-2.25q5.71-2.25 11.45-7.94l61.57-61.81L753-359.15q5.48 5.48 11.2 7.95 5.71 2.48 12.55 2.6 6.84.12 12.67-2 5.84-2.12 11.56-7.6l101.85-99.69q5.71-5.72 8.07-11.48 2.36-5.76 2.36-12.5 0-6.73-2.36-12.75-2.36-6.01-7.83-11.73l-41.57-41.32q-5.57-5.48-11.22-7.72-5.65-2.24-12.65-2.24H507.82q-23.28-73.67-82.5-120.77Q366.1-725.5 280-725.5q-102.39 0-173.95 71.61Q34.5-582.28 34.5-479.94q0 102.09 71.71 173.77Q177.93-234.5 280-234.5Z"/></symbol><symbol id="i-info" viewBox="0 -960 960 960"><path d="M506.29-286.75q9.34-9.38 9.34-23.25v-177.37q0-13.87-9.46-23.25t-23.3-9.38q-13.83 0-23.16 9.38-9.34 9.38-9.34 23.25V-310q0 13.87 9.46 23.25t23.3 9.38q13.83 0 23.16-9.38Zm-.28-313.89q10.58-10.24 10.58-25.36 0-16.24-10.52-26.92-10.51-10.67-26.05-10.67-15.81 0-26.21 10.67-10.4 10.68-10.4 26.8 0 15.27 10.58 25.49 10.58 10.22 26.01 10.22 15.43 0 26.01-10.23ZM480.3-74.02q-84.2 0-158.04-31.88-73.84-31.88-129.16-87.2-55.32-55.32-87.2-129.2-31.88-73.88-31.88-158.17 0-84.28 31.88-158.2 31.88-73.91 87.16-128.74 55.28-54.84 129.18-86.82 73.9-31.99 158.21-31.99 84.3 0 158.25 31.97 73.94 31.97 128.75 86.77 54.82 54.8 86.79 128.88 31.98 74.08 31.98 158.33 0 84.24-31.99 158.07-31.98 73.84-86.82 128.95-54.83 55.1-128.87 87.17Q564.5-74.02 480.3-74.02Z"/></symbol><symbol id="i-download" viewBox="0 -960 960 960"><path d="M467.34-331.32q-5.95-2.48-11.45-7.94L302.26-492.89q-10.19-10.47-9.69-24.51.5-14.04 10.3-24.23 10.68-10.23 24.81-10.1 14.12.14 24.32 10.34l93.93 94.69v-325.21q0-14.4 9.88-24.35 9.87-9.96 24.37-9.96 14.49 0 24.19 9.96 9.7 9.95 9.7 24.35v325.21L609-541.39q10-10.2 23.61-9.96 13.62.25 24.23 10.46 10.09 10.22 9.98 24.47-.12 14.25-10.32 24.53L504.11-339.26q-5.52 5.46-11.62 7.94-6.09 2.49-12.65 2.49-6.56 0-12.5-2.49Zm-245.19 177.3q-27.6 0-47.86-20.27-20.27-20.26-20.27-47.86v-108.94q0-14.42 9.87-24.24 9.87-9.82 24.37-9.82 14.5 0 24.2 9.82 9.69 9.82 9.69 24.24v108.94h515.7v-108.94q0-14.42 9.87-24.24 9.87-9.82 24.35-9.82 14.48 0 24.31 9.82 9.84 9.82 9.84 24.24v108.94q0 27.6-20.34 47.86-20.33 20.27-48.03 20.27h-515.7Z"/></symbol></svg><!-- sprite:end -->
+<a class="l-skip" href="#main">Skip to content</a>
+
+<div class="l-preview" role="note">
+  <div class="l-wrap">
+    <svg class="l-ic" aria-hidden="true"><use href="#i-info"/></svg>
+    <p data-landing="preview">Preview: this is the page Echo will publish with 1.0. It assumes 1.0 has shipped, and it can&#x27;t be deployed until it has.</p>
+  </div>
+</div>
+
+<header class="l-header">
+  <div class="l-wrap">
+    <a class="l-mark" href="#main"><svg class="l-ic" aria-hidden="true"><use href="#i-radar"/></svg>Echo</a>
+    <nav class="l-nav" aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#protects">What it protects</a>
+      <a href="#check">Check it</a>
+      <a href="https://github.com/ThroughTheWind/echo-mesh">Source</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="l-hero" aria-labelledby="hero-title">
+  <div class="l-wrap">
+    <div class="l-hero__copy">
+      <p class="l-eyebrow" data-landing="release">Echo 1.0 · Android 12 and later · Free and open source</p>
+      <h1 id="hero-title" class="l-display">See what's happening around you. No internet needed.</h1>
+      <p class="l-lead">Phones nearby pass short-lived reports to each other over Bluetooth: police line, tear gas, medic, exit open. Each one sits on an offline map and disappears when it expires.</p>
+      <div class="l-cta" data-landing="cta"><a class="l-btn l-btn--primary" href="https://github.com/ThroughTheWind/echo-mesh/releases">Get Echo</a><a class="l-btn l-btn--outlined" href="#protects">Read what it protects</a></div>
+      <ul class="l-facts" aria-label="In short">
+        <li data-fact="no-server"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg>No server</li>
+        <li data-fact="no-server"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg>No account</li>
+        <li data-fact="no-server"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg>No internet</li>
+        <li data-fact="expire"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg>Reports expire</li>
+      </ul>
+    </div>
+
+    <figure class="l-map" role="img" aria-label="Illustration: an offline street map with reports for a police line, tear gas, a blocked street, a medic and an open exit, passed between nearby phones.">
+      <svg class="l-map__base" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <path class="m-water" d="M-10 420 C 80 400, 140 450, 230 430 S 360 400, 420 430 L 420 520 L -10 520 Z"/>
+        <rect class="m-park" x="40" y="250" width="110" height="90" rx="10"/>
+        <rect class="m-block" x="40" y="40" width="110" height="80" rx="6"/>
+        <rect class="m-block" x="40" y="140" width="110" height="90" rx="6"/>
+        <rect class="m-block" x="180" y="40" width="80" height="80" rx="6"/>
+        <rect class="m-block" x="290" y="40" width="80" height="190" rx="6"/>
+        <rect class="m-block" x="180" y="140" width="80" height="90" rx="6"/>
+        <rect class="m-block" x="180" y="250" width="190" height="90" rx="6"/>
+        <path class="m-road" stroke-width="16" d="M165 -10 V 400"/>
+        <path class="m-road" stroke-width="16" d="M-10 240 H 410"/>
+        <path class="m-minor" stroke-width="9" d="M275 -10 V 350 M-10 130 H 410 M-10 360 C 120 370, 260 370, 410 355"/>
+        <text class="m-label" x="172" y="470" transform="rotate(-90 172 470)">Main street</text>
+        <path class="m-hop" d="M110 330 Q 150 280 210 300 Q 260 320 300 290 Q 330 260 320 200"/>
+        <path class="m-hop" d="M210 300 Q 230 360 200 395"/>
+        <circle class="m-phone" cx="110" cy="330" r="7"/>
+        <circle class="m-phone" cx="300" cy="290" r="7"/>
+        <circle class="m-phone" cx="320" cy="200" r="7"/>
+        <circle class="m-phone" cx="200" cy="395" r="7"/>
+        <circle class="m-you" cx="210" cy="300" r="10"/>
+      </svg>
+      <span class="l-map__status" aria-hidden="true"><svg class="l-ic" aria-hidden="true"><use href="#i-radar"/></svg>Mesh on · 9 nearby phones</span>
+      <span class="l-pin l-pin--hazard" style="left:58%;top:24%" aria-hidden="true"><svg class="l-pin__ring" viewBox="0 0 64 64"><circle class="track" cx="32" cy="32" r="30"/><circle class="left" cx="32" cy="32" r="30" stroke-dasharray="150 189"/></svg><span class="l-pin__shape"><svg class="l-ic" aria-hidden="true"><use href="#i-local_police"/></svg></span></span>
+      <span class="l-pin l-pin--hazard" style="left:23%;top:18%" aria-hidden="true"><svg class="l-pin__ring" viewBox="0 0 64 64"><circle class="track" cx="32" cy="32" r="30"/><circle class="left" cx="32" cy="32" r="30" stroke-dasharray="70 189"/></svg><span class="l-pin__shape"><svg class="l-ic" aria-hidden="true"><use href="#i-foggy"/></svg></span></span>
+      <span class="l-pin l-pin--blocked" style="left:84%;top:48%" aria-hidden="true"><svg class="l-pin__ring" viewBox="0 0 64 64"><circle class="track" cx="32" cy="32" r="30"/><circle class="left" cx="32" cy="32" r="30" stroke-dasharray="120 189"/></svg><span class="l-pin__shape"><svg class="l-ic" aria-hidden="true"><use href="#i-fence"/></svg></span></span>
+      <span class="l-pin l-pin--safe" style="left:24%;top:58%" aria-hidden="true"><svg class="l-pin__ring" viewBox="0 0 64 64"><circle class="track" cx="32" cy="32" r="30"/><circle class="left" cx="32" cy="32" r="30" stroke-dasharray="170 189"/></svg><span class="l-pin__shape"><svg class="l-ic" aria-hidden="true"><use href="#i-medical_services"/></svg></span></span>
+      <span class="l-pin l-pin--safe" style="left:68%;top:86%" aria-hidden="true"><svg class="l-pin__ring" viewBox="0 0 64 64"><circle class="track" cx="32" cy="32" r="30"/><circle class="left" cx="32" cy="32" r="30" stroke-dasharray="100 189"/></svg><span class="l-pin__shape"><svg class="l-ic" aria-hidden="true"><use href="#i-door_open"/></svg></span></span>
+      <span class="l-map__cap" aria-hidden="true">Illustration</span>
+    </figure>
+  </div>
+</section>
+
+<section id="how" class="l-section l-section--tint" aria-labelledby="how-title">
+  <div class="l-wrap">
+    <div class="l-section__head">
+      <h2 id="how-title" class="l-title">How it works</h2>
+      <p class="l-lead">Echo isn't a chat app. It's a map that every phone nearby helps keep up to date, even when the phone network is down or overloaded.</p>
+    </div>
+    <ol class="l-steps">
+      <li class="l-step"><span class="l-step__n" aria-hidden="true">1</span><h3 class="l-h3">Get the map before you go</h3><p class="l-muted">Download your area at home, or import a map file a friend shares. On the street, Echo needs no connection at all.</p></li>
+      <li class="l-step"><span class="l-step__n" aria-hidden="true">2</span><h3 class="l-h3">Turn on the mesh</h3><p class="l-muted">Your phone listens for other phones running Echo and passes reports along, even with the screen off.</p></li>
+      <li class="l-step"><span class="l-step__n" aria-hidden="true">3</span><h3 class="l-h3">Glance, then act</h3><p class="l-muted">See what's around you at arm's length. Drop a report where it happened, and it spreads from phone to phone.</p></li>
+    </ol>
+    <h3 class="l-h3" style="margin-bottom: var(--space-md)">What it does</h3>
+    <ul class="l-claims l-claims--cols" data-expect="available">
+      <li class="l-claim" data-claim="drop"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">Drop a report on the map in a few taps: police line, medic, water, exit open.</span><span class="l-chip l-chip--available">Available</span></li>
+      <li class="l-claim" data-claim="hop"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">Reports hop from phone to phone nearby, with no server in between.</span><span class="l-chip l-chip--available">Available</span></li>
+      <li class="l-claim" data-claim="expire"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">Every report has a short lifetime, then every phone drops it.</span><span class="l-chip l-chip--available">Available</span></li>
+      <li class="l-claim" data-claim="map"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">Works on an offline map of your area that you get before you go.</span><span class="l-chip l-chip--available">Available</span></li>
+      <li class="l-claim" data-claim="confirm"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">Confirm a report is still true, or say it&#x27;s gone, and see how many nearby phones agree.</span><span class="l-chip l-chip--available">Available</span></li>
+      <li class="l-claim" data-claim="position"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">Share your position with your group only, and only while you turn it on.</span><span class="l-chip l-chip--available">Available</span></li>
+      <li class="l-claim" data-claim="discreet"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">Discreet mode: darkest screen, no sound, no vibration, neutral notifications.</span><span class="l-chip l-chip--available">Available</span></li>
+      <li class="l-claim" data-claim="languages"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">In English, French and Spanish.</span><span class="l-chip l-chip--available">Available</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="glance" class="l-section" aria-labelledby="glance-title">
+  <div class="l-wrap">
+    <div class="l-section__head">
+      <h2 id="glance-title" class="l-title">Read at arm's length</h2>
+      <p class="l-lead">Shape and colour both say what a report is, so it reads in sunlight, at night, and without telling colours apart. The ring shows how long it has left.</p>
+    </div>
+    <ul class="l-legend">
+      <li>
+        <span class="l-pins" aria-hidden="true">
+          <span class="l-pin l-pin--hazard is-static"><span class="l-pin__shape"><svg class="l-ic"><use href="#i-local_police"/></svg></span></span>
+          <span class="l-pin l-pin--hazard is-static"><span class="l-pin__shape"><svg class="l-ic"><use href="#i-foggy"/></svg></span></span>
+        </span>
+        <div><p class="l-h3">Danger</p><p class="l-muted">A diamond. Police line, tear gas, kettling.</p></div>
+      </li>
+      <li>
+        <span class="l-pins" aria-hidden="true">
+          <span class="l-pin l-pin--blocked is-static"><span class="l-pin__shape"><svg class="l-ic"><use href="#i-fence"/></svg></span></span>
+          <span class="l-pin l-pin--blocked is-static"><span class="l-pin__shape"><svg class="l-ic"><use href="#i-block"/></svg></span></span>
+        </span>
+        <div><p class="l-h3">Blocked</p><p class="l-muted">A square. Barrier, street closed.</p></div>
+      </li>
+      <li>
+        <span class="l-pins" aria-hidden="true">
+          <span class="l-pin l-pin--safe is-static"><span class="l-pin__shape"><svg class="l-ic"><use href="#i-medical_services"/></svg></span></span>
+          <span class="l-pin l-pin--safe is-static"><span class="l-pin__shape"><svg class="l-ic"><use href="#i-water_drop"/></svg></span></span>
+          <span class="l-pin l-pin--safe is-static"><span class="l-pin__shape"><svg class="l-ic"><use href="#i-door_open"/></svg></span></span>
+        </span>
+        <div><p class="l-h3">Help and exits</p><p class="l-muted">A circle. Medic, water, exit open.</p></div>
+      </li>
+      <li>
+        <span class="l-pins" aria-hidden="true">
+          <span class="l-pin l-pin--safe is-static"><svg class="l-pin__ring" viewBox="0 0 64 64"><circle class="track" cx="32" cy="32" r="30"/><circle class="left" cx="32" cy="32" r="30" stroke-dasharray="60 189"/></svg><span class="l-pin__shape"><svg class="l-ic"><use href="#i-medical_services"/></svg></span></span>
+        </span>
+        <div><p class="l-h3">Time left</p><p class="l-muted">The ring empties as a report gets old. When it's gone, the report is gone from every phone.</p></div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="protects" class="l-section l-section--tint" aria-labelledby="protects-title">
+  <div class="l-wrap">
+    <div class="l-section__head">
+      <h2 id="protects-title" class="l-title">What Echo protects, and what it doesn't</h2>
+      <p class="l-lead">Read both lists before you rely on Echo. They use the same words as the app, and each line comes from the <a href="https://github.com/ThroughTheWind/echo-mesh/blob/main/docs/threat-model.md">threat model</a>.</p>
+    </div>
+    <div class="l-pair">
+      <div class="l-card l-card--yes">
+        <div class="l-card__head"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><h3 class="l-h3">It protects</h3></div>
+        <ul class="l-claims" data-expect="available">
+          <li class="l-claim" data-claim="group-read"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">Group reports, positions and nicknames can be read only by people who joined the group in person.</span><span class="l-chip l-chip--available">Available</span></li>
+          <li class="l-claim" data-claim="group-sender"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">A group report shows which member sent it, and nobody can fake another member&#x27;s report.</span><span class="l-chip l-chip--available">Available</span></li>
+          <li class="l-claim" data-claim="no-fixed-id"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">Nothing you send carries your name, number or a fixed ID, and Echo&#x27;s radio signals change regularly.</span><span class="l-chip l-chip--available">Available</span></li>
+          <li class="l-claim" data-claim="no-history"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">Echo keeps no history of where you or others were. Reports disappear when they expire.</span><span class="l-chip l-chip--available">Available</span></li>
+          <li class="l-claim" data-claim="wipe"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">A panic wipe makes everything Echo stored unreadable within 2 seconds.</span><span class="l-chip l-chip--available">Available</span></li>
+          <li class="l-claim" data-claim="no-server"><svg class="l-ic" aria-hidden="true"><use href="#i-shield"/></svg><span class="l-claim__text">There&#x27;s no server, no account, and no internet use except a map download you start yourself.</span><span class="l-chip l-chip--design">Checked by the build</span></li>
+        </ul>
+      </div>
+      <div class="l-card l-card--no">
+        <div class="l-card__head"><svg class="l-ic" aria-hidden="true"><use href="#i-warning"/></svg><h3 class="l-h3">It doesn't protect</h3></div>
+        <ul class="l-claims">
+          <li class="l-claim" data-claim="limit-detectable"><svg class="l-ic" aria-hidden="true"><use href="#i-warning"/></svg><span class="l-claim__text">Anyone nearby with a radio receiver can tell your phone is running Echo.</span><span class="l-chip l-chip--limit">Known limit</span></li>
+          <li class="l-claim" data-claim="limit-fake"><svg class="l-ic" aria-hidden="true"><use href="#i-warning"/></svg><span class="l-claim__text">Public reports can be fake, and their confirmations can be faked in bulk.</span><span class="l-chip l-chip--limit">Known limit</span></li>
+          <li class="l-claim" data-claim="limit-members"><svg class="l-ic" aria-hidden="true"><use href="#i-warning"/></svg><span class="l-claim__text">Anyone in your group can read everything sent to it, see shared positions, and pass them on. If a member&#x27;s phone is taken, assume the group is exposed and make a new one in person.</span><span class="l-chip l-chip--limit">Known limit</span></li>
+          <li class="l-claim" data-claim="limit-unlocked"><svg class="l-ic" aria-hidden="true"><use href="#i-warning"/></svg><span class="l-claim__text">If your phone is taken while unlocked, whoever has it can read your groups and post as you until you wipe it or your group makes a new one.</span><span class="l-chip l-chip--limit">Known limit</span></li>
+          <li class="l-claim" data-claim="limit-origin"><svg class="l-ic" aria-hidden="true"><use href="#i-warning"/></svg><span class="l-claim__text">Someone with many receivers may guess roughly where a report was first sent.</span><span class="l-chip l-chip--limit">Known limit</span></li>
+          <li class="l-claim" data-claim="limit-download"><svg class="l-ic" aria-hidden="true"><use href="#i-warning"/></svg><span class="l-claim__text">Downloading a map reveals the region to your network and the map host.</span><span class="l-chip l-chip--limit">Known limit</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="check" class="l-section" aria-labelledby="check-title">
+  <div class="l-wrap">
+    <div class="l-section__head">
+      <h2 id="check-title" class="l-title">Don't take our word for it</h2>
+      <p class="l-lead">Echo was reviewed by people outside the project before this release. Everything it is and isn't is written down in the open, and the build refuses code that breaks its rules.</p>
+    </div>
+    <ul class="l-claims" data-expect="available">
+      <li class="l-claim" data-claim="review"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">An independent security review of the protocol, the cryptography and the code.</span><span class="l-chip l-chip--available">Available</span></li>
+      <li class="l-claim" data-claim="signing"><svg class="l-ic" aria-hidden="true"><use href="#i-check_circle"/></svg><span class="l-claim__text">Who signs Echo, and how to check that a download is really theirs, is published.</span><span class="l-chip l-chip--available">Available</span></li>
+      <li class="l-claim" data-claim="no-trackers"><svg class="l-ic" aria-hidden="true"><use href="#i-shield"/></svg><span class="l-claim__text">No ads, no analytics, no crash reports and no Google Play Services.</span><span class="l-chip l-chip--design">Checked by the build</span></li>
+      <li class="l-claim" data-claim="open"><svg class="l-ic" aria-hidden="true"><use href="#i-shield"/></svg><span class="l-claim__text">Free and open source under GPL-3.0: anyone can read the code and build it.</span><span class="l-chip l-chip--design">By design</span></li>
+    </ul>
+    <p class="l-small l-muted" style="margin-top: var(--space-xxl)">Read the <a href="https://github.com/ThroughTheWind/echo-mesh/blob/main/docs/threat-model.md">threat model</a>, the <a href="https://github.com/ThroughTheWind/echo-mesh/blob/main/docs/decisions/ADR-0003-gpl-no-servers-no-proprietary-dependencies.md">no-servers decision</a> and the <a href="https://github.com/ThroughTheWind/echo-mesh/blob/main/docs/ROADMAP.md">roadmap</a>. Found a weakness? <a href="https://github.com/ThroughTheWind/echo-mesh/blob/main/SECURITY.md">Report it privately</a>.</p>
+  </div>
+</section>
+
+<section id="next" class="l-section l-section--tint" aria-labelledby="next-title">
+  <div class="l-wrap">
+    <div class="l-section__head">
+      <h2 id="next-title" class="l-title">What's next</h2>
+      <p class="l-lead">Planned for the releases after this one, mostly for groups through the whole day. The label says which release.</p>
+    </div>
+    <ul class="l-claims l-claims--cols">
+      <li class="l-claim" data-claim="next-rally"><svg class="l-ic" aria-hidden="true"><use href="#i-schedule"/></svg><span class="l-claim__text">One rally point per group, so you know where to meet if you get split up.</span><span class="l-chip l-chip--planned">Planned for 1.1</span></li>
+      <li class="l-claim" data-claim="next-checkins"><svg class="l-ic" aria-hidden="true"><use href="#i-schedule"/></svg><span class="l-claim__text">Group check-ins that show who hasn&#x27;t checked in.</span><span class="l-chip l-chip--planned">Planned for 1.1</span></li>
+      <li class="l-claim" data-claim="next-jail-card"><svg class="l-ic" aria-hidden="true"><use href="#i-schedule"/></svg><span class="l-claim__text">A jail-support card on your phone, with the numbers to call.</span><span class="l-chip l-chip--planned">Planned for 1.1</span></li>
+      <li class="l-claim" data-claim="next-lock"><svg class="l-ic" aria-hidden="true"><use href="#i-schedule"/></svg><span class="l-claim__text">An app lock with an attempt limit, and a duress PIN that wipes Echo.</span><span class="l-chip l-chip--planned">Planned for 1.1</span></li>
+      <li class="l-claim" data-claim="next-briar"><svg class="l-ic" aria-hidden="true"><use href="#i-schedule"/></svg><span class="l-claim__text">A handoff to Briar when you need to talk, not just pin.</span><span class="l-chip l-chip--planned">Planned for 1.1</span></li>
+      <li class="l-claim" data-claim="next-share"><svg class="l-ic" aria-hidden="true"><use href="#i-schedule"/></svg><span class="l-claim__text">Pass Echo itself from phone to phone, with a check that it&#x27;s the real app.</span><span class="l-chip l-chip--planned">Planned for 2.0</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="never" class="l-section" aria-labelledby="never-title">
+  <div class="l-wrap">
+    <div class="l-section__head">
+      <h2 id="never-title" class="l-title">What Echo won't do</h2>
+      <p class="l-lead">Every feature is something that can leak or break. These stay out on purpose.</p>
+    </div>
+    <ul class="l-claims l-claims--cols">
+      <li class="l-claim" data-claim="never-chat"><svg class="l-ic" aria-hidden="true"><use href="#i-block"/></svg><span class="l-claim__text">Chat. Briar already does messaging without servers; Echo carries reports.</span><span class="l-chip l-chip--never">Not planned</span></li>
+      <li class="l-claim" data-claim="never-media"><svg class="l-ic" aria-hidden="true"><use href="#i-block"/></svg><span class="l-claim__text">Photos, video or voice. They carry faces and metadata that put people at risk.</span><span class="l-chip l-chip--never">Not planned</span></li>
+      <li class="l-claim" data-claim="never-bridges"><svg class="l-ic" aria-hidden="true"><use href="#i-block"/></svg><span class="l-claim__text">Relays over the internet or satellite. A bridge is a place to watch from.</span><span class="l-chip l-chip--never">Not planned</span></li>
+      <li class="l-claim" data-claim="never-routes"><svg class="l-ic" aria-hidden="true"><use href="#i-block"/></svg><span class="l-claim__text">Suggested routes out. The mesh can&#x27;t know a street is clear, and a wrong route hurts people.</span><span class="l-chip l-chip--never">Not planned</span></li>
+      <li class="l-claim" data-claim="never-ios"><svg class="l-ic" aria-hidden="true"><use href="#i-block"/></svg><span class="l-claim__text">iPhone. Apple limits the background radio a mesh depends on.</span><span class="l-chip l-chip--never">Not planned</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="who" class="l-section l-section--tint" aria-labelledby="who-title">
+  <div class="l-wrap">
+    <div class="l-section__head">
+      <h2 id="who-title" class="l-title">Who it's for</h2>
+    </div>
+    <ul class="l-grid">
+      <li><h3 class="l-h3">People marching</h3><p class="l-muted">Know what's ahead without reading a feed, and tell others in a few taps.</p><a href="#how">How it works</a></li>
+      <li><h3 class="l-h3">Affinity groups, medics and support</h3><p class="l-muted">Join your group in person by scanning a QR code, then share reports and, when you choose, where you are. Medics and water points can pin themselves and move on.</p><a href="#protects">What groups can and can't rely on</a></li>
+      <li><h3 class="l-h3">Trainers and human-rights groups</h3><p class="l-muted">Check Echo before you recommend it. The threat model, the decisions and the code are public, and we want to hear what the people you train need.</p><a href="https://github.com/ThroughTheWind/echo-mesh/blob/main/docs/threat-model.md">Read the threat model</a></li>
+      <li><h3 class="l-h3">Developers, reviewers and translators</h3><p class="l-muted">Kotlin and Compose, no proprietary dependencies, and a simulated crowd to test against.</p><a href="https://github.com/ThroughTheWind/echo-mesh/blob/main/CONTRIBUTING.md">Start contributing</a></li>
+    </ul>
+  </div>
+</section>
+
+<section id="faq" class="l-section" aria-labelledby="faq-title">
+  <div class="l-wrap">
+    <div class="l-section__head"><h2 id="faq-title" class="l-title">Questions</h2></div>
+    <div class="l-faq">
+      <details id="faq-ready"><summary>How do I get ready for a protest?</summary><div><p>At home, the day before: install Echo, get the map of the area, and read both lists above. Join your group in person and try a report together. On the day, turn on the mesh when you arrive.</p></div></details>
+      <details><summary>Can the police tell I'm using it?</summary><div><p>Yes, if they have a radio receiver nearby. It's the first line of what Echo doesn't protect. If being seen with it is a risk where you are, keep the mesh off.</p></div></details>
+      <details><summary>Does Echo hide who I am?</summary><div><p>Nothing you send carries your name, number or a fixed ID, and there is no account to make. That isn't the same as being impossible to find: someone with many receivers may guess roughly where a report was first sent. Both are in the lists above.</p></div></details>
+      <details><summary>Can a report be fake?</summary><div><p>Yes. Anyone nearby can send a public report, and confirmations can be faked in bulk. Treat a public report as a tip, not a fact, and look at its age.</p></div></details>
+      <details><summary>Why not use Signal or Briar?</summary><div><p>Use them for messages. Signal needs the internet, and Briar is built for conversations. Echo does one different thing: a shared map of short-lived reports that every phone nearby can see.</p></div></details>
+      <details><summary>How do I know I have the real app?</summary><div><p>Get Echo only from this project's <a href="https://github.com/ThroughTheWind/echo-mesh/releases">GitHub releases</a>. Each release says who signed it and how to check that your download is theirs.</p></div></details>
+      <details><summary>Does this page track me?</summary><div><p>No. It runs no script, sets no cookies and loads nothing from other sites. Like every website, the server that hosts it sees your IP address. Links from here don't tell the next site where you came from.</p></div></details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="l-footer">
+  <div class="l-wrap">
+    <nav aria-label="Project">
+      <a href="https://github.com/ThroughTheWind/echo-mesh">Source code</a>
+      <a href="https://github.com/ThroughTheWind/echo-mesh/blob/main/SECURITY.md">Report a vulnerability</a>
+      <a href="https://github.com/ThroughTheWind/echo-mesh/blob/main/LICENSE">GPL-3.0</a>
+      <a href="https://github.com/ThroughTheWind/zapper">Zapper, Echo's sibling</a>
+    </nav>
+    <p class="l-small">Echo is free software. This page runs no script and loads nothing from other sites.</p>
+  </div>
+</footer>
+</body>
+</html>
