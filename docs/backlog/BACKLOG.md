@@ -25,6 +25,8 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-025](items/WI-025-discreet-mode.md) | Discreet mode | feature | `claude/project-thread-67cn4e` |
 | [WI-026](items/WI-026-final-onboarding-copy.md) | Final onboarding and "What this app protects" copy, traced to the threat model | docs | `claude/project-thread-67cn4e` |
 | [WI-027](items/WI-027-storage-and-air-audits.md) | Audit storage and radio for leaks | chore | `claude/project-thread-67cn4e` |
+| [WI-031](items/WI-031-accessibility-pass.md) | Accessibility pass | chore | `claude/project-thread-67cn4e` |
+| [WI-032](items/WI-032-reproducible-build.md) | Verify the build is reproducible and F-Droid ready | chore | `claude/project-thread-67cn4e` |
 | [WI-034](items/WI-034-steering-report-warnings.md) | Warn on public steering reports and hide their public counts | feature | `claude/project-thread-67cn4e` |
 | [WI-035](items/WI-035-low-density-honesty.md) | Tell people when the mesh around them is too thin | feature | `claude/project-thread-67cn4e` |
 | [WI-036](items/WI-036-field-diagnostics.md) | Export a field diagnostics file with no positions or reports | feature | `claude/project-thread-67cn4e` |
@@ -53,8 +55,6 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-028](items/WI-028-crowd-field-test.md) | Field-test in a crowd and tune lifetimes, rates and battery | spike |
 | [WI-029](items/WI-029-phase-4-release-1-0.md) | Phase 4 — Release 1.0 | epic |
 | [WI-030](items/WI-030-independent-security-review.md) | Independent security review and fixes | chore |
-| [WI-031](items/WI-031-accessibility-pass.md) | Accessibility pass | chore |
-| [WI-032](items/WI-032-reproducible-build.md) | Verify the build is reproducible and F-Droid ready | chore |
 | [WI-033](items/WI-033-release-1-0.md) | Final docs and cut 1.0.0 | chore |
 | [WI-039](items/WI-039-phase-5-release-1-1.md) | Phase 5 — Release 1.1: groups through the whole day | epic |
 | [WI-040](items/WI-040-accept-threat-model-1-1.md) | Review and accept the threat model's 1.1 section | docs |

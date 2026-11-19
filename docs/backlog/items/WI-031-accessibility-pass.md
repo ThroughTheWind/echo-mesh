@@ -2,10 +2,10 @@
 id: WI-031
 title: Accessibility pass
 type: chore
-status: planned
-branch:
+status: in_progress
+branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-17
+updated: 2026-11-19
 related: [NFR-11, NFR-12]
 epic: WI-029
 children: []

@@ -2,10 +2,10 @@
 id: WI-032
 title: Verify the build is reproducible and F-Droid ready
 type: chore
-status: planned
-branch:
+status: in_progress
+branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-17
+updated: 2026-11-19
 related: [AC-31, NFR-24, FR-19.4, NFR-16, ADR-0003]
 epic: WI-029
 children: []
