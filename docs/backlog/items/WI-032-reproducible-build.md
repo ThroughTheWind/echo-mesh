@@ -47,4 +47,11 @@ Phase 4 of the [roadmap](../../ROADMAP.md).
 
 ## Execution
 
+2026-11-19.
+
+- `scripts/reproducible.sh` builds the unsigned release APK of a commit twice, from two worktrees at different paths, in different time zones and locales, and fails on any difference: first file by file (CRC, size and name, so the report names what differs), then byte for byte. A comparison that lists no files fails rather than passing blind.
+- With `--against <apk>` it builds once and compares with a published, signed APK, the signature files apart. The release workflow runs it on the tag before publishing; `docs/releasing.md` says how anyone runs the same check.
+- A CI job, `reproducible`, runs the two-build comparison on every pull request. Its first run gave two identical builds.
+- `fastlane/metadata/android/en-US/` holds the store text and `docs/fdroid/` a draft F-Droid metadata file; its signing key line waits for the release key (WI-038). Submitting stays after 1.0.
+
 ## Review

@@ -47,4 +47,11 @@ Phase 4 of the [roadmap](../../ROADMAP.md).
 
 ## Execution
 
+2026-11-19.
+
+- `app/src/test/.../a11y/AccessibilityTest.kt` renders the screens that carry a report from tap to read with Robolectric and reads the semantics tree TalkBack reads: every clickable node must have a spoken name and be at least 48 dp each way. It drops a report by name alone at normal and double font size, cancels the grace period by name, reads a public steering report end to end (it must say it could be a trap), and checks the mesh sheet and What Echo protects. Material's sheet drag handle is skipped: TalkBack works it through its own actions, and every sheet also closes with Back and its own button.
+- The check found real defects on its first run: no bottom sheet scrolled, so on a small screen the report sheet squeezed its vote buttons to 32 dp and the mesh sheet its field diagnostics row to nothing. Every sheet's content now scrolls, and components/BottomSheet says it must.
+- The app's unit tests print a failure's message in full, so CI names the control instead of only the line that asserted.
+- Screens that need the whole app (map, settings, groups) are left to the TalkBack walkthrough on phones, queued with the other phone checks.
+
 ## Review
