@@ -36,14 +36,17 @@ import io.github.throughthewind.echo.R
 import io.github.throughthewind.echo.core.designsystem.component.ReportPin
 import io.github.throughthewind.echo.core.designsystem.component.timeLeftCompact
 import io.github.throughthewind.echo.core.designsystem.theme.LocalSpacing
+import io.github.throughthewind.echo.core.designsystem.theme.LocalStreetColors
 import io.github.throughthewind.echo.core.designsystem.theme.Touch
 import io.github.throughthewind.echo.core.map.OwnPosition
 import io.github.throughthewind.echo.core.mesh.node.ShownReport
+import io.github.throughthewind.echo.core.mesh.node.couldBeATrap
 import io.github.throughthewind.echo.core.model.Geo
 import io.github.throughthewind.echo.core.model.GeoPoint
 import io.github.throughthewind.echo.ui.LocalGroups
 import io.github.throughthewind.echo.ui.MapsState
 import io.github.throughthewind.echo.ui.common.BackBar
+import io.github.throughthewind.echo.ui.common.IconLine
 import io.github.throughthewind.echo.ui.common.PrimaryButton
 import io.github.throughthewind.echo.ui.describe
 import io.github.throughthewind.echo.ui.distanceFrom
@@ -54,6 +57,7 @@ import io.github.throughthewind.echo.ui.rememberNow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import kotlin.time.Instant
+import io.github.throughthewind.echo.core.designsystem.R as DS
 
 /**
  * Every report the phone holds, nearest first (screens/ReportsNearYou, FR-5.6): the way in for
@@ -187,7 +191,15 @@ private fun ReportRow(
     ListItem(
         leadingContent = { ReportPin(shown.look(now), contentDescription = shown.describe(now), onClick = onClick) },
         headlineContent = { Text(stringResource(shown.report.type.label), style = MaterialTheme.typography.titleMedium) },
-        supportingContent = { Text(listOfNotNull(where, source).joinToString(" · "), style = MaterialTheme.typography.bodyMedium) },
+        supportingContent = {
+            Column {
+                Text(listOfNotNull(where, source).joinToString(" · "), style = MaterialTheme.typography.bodyMedium)
+                if (shown.couldBeATrap) {
+                    // FR-15.2: the same warning as the pin's "?", in words.
+                    IconLine(DS.drawable.ic_warning, LocalStreetColors.current.blocked, stringResource(R.string.row_could_be_trap))
+                }
+            }
+        },
         trailingContent = { Text(timeLeftCompact(shown.report.expiresAt - now), style = MaterialTheme.typography.labelLarge) },
         modifier =
             Modifier

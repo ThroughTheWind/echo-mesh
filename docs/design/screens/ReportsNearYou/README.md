@@ -6,7 +6,7 @@
 
 - [Top app bar](../../components/TopAppBar/README.md) "Reports near you", opened from the map's "Reports near you" action (a TalkBack action on the map, and the list icon next to the filter).
 - The same filter as the map, as a [segmented button](../../components/SegmentedButton/README.md): **Everything** / **My groups** (FR-9.3).
-- Rows: the pin (with its verified or unverified style and ring), type, then "distance direction · source · confirmations"; compact time left at the end. A group row names the member (threat model §7). Tapping opens [Report detail](../../patterns/ReportDetail/README.md).
+- Rows: the pin (with its verified or unverified style and ring), type, then "distance direction · source · confirmations"; compact time left at the end. A group row names the member (threat model §7). A public steering report from another phone adds a second support line with a warning icon, "Unconfirmed · could be a trap", and counts only group confirmations (extended spec FR-15.2, FR-15.3). Tapping opens [Report detail](../../patterns/ReportDetail/README.md).
 - Bottom: **Report at the map centre** opens [Drop a report](../../patterns/ReportPicker/README.md) without needing the map.
 
 ## Rules

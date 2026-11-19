@@ -78,6 +78,8 @@
     <string name="not_protects_5">Someone with many receivers may guess roughly where a report was first sent.</string>
     <!-- §7 N6 -->
     <string name="not_protects_6">Downloading a map reveals the region to your network and the map host.</string>
+    <!-- §7 N7 -->
+    <string name="not_protects_7">A public report saying where to go, or that a place is safe, can be a trap. Echo marks it unconfirmed and hides its public confirmations.</string>
 
     <!-- Get a map (patterns/GetAMap) -->
     <string name="get_map_title">Get a map</string>
@@ -143,6 +145,10 @@
         <item quantity="other">%1$d confirmations</item>
     </plurals>
     <string name="pin_probably_gone">probably gone</string>
+    <string name="pin_could_be_trap">unconfirmed, could be a trap</string>
+    <string name="row_could_be_trap">Unconfirmed · could be a trap</string>
+    <!-- §7 N7 -->
+    <string name="detail_could_be_trap">Unconfirmed: could be a trap. Anyone nearby could have sent this, and a fake one can lead people into a kettle. Check with your group before you go.</string>
     <string name="direction_north">north</string>
     <string name="direction_north_east">north-east</string>
     <string name="direction_east">east</string>

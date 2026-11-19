@@ -14,6 +14,14 @@ class ReportTest {
     private val here = GeoPoint(48.8566, 2.3522)
 
     @Test
+    fun `the steering types are exit open, all clear and street closed (FR-15_1)`() {
+        assertEquals(
+            setOf(ReportType.EXIT_OPEN, ReportType.ALL_CLEAR, ReportType.STREET_CLOSED),
+            ReportType.entries.filter { it.steering }.toSet(),
+        )
+    }
+
+    @Test
     fun `a report expires exactly at its lifetime`() {
         val report = Report(ReportType.MEDIC, here, created, 15.minutes)
         assertFalse(report.isExpired(created + 14.minutes))

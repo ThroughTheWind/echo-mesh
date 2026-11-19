@@ -39,6 +39,8 @@ import io.github.throughthewind.echo.core.designsystem.theme.LocalSpacing
 import io.github.throughthewind.echo.core.designsystem.theme.LocalStreetColors
 import io.github.throughthewind.echo.core.designsystem.theme.Touch
 import io.github.throughthewind.echo.core.mesh.node.ShownReport
+import io.github.throughthewind.echo.core.mesh.node.couldBeATrap
+import io.github.throughthewind.echo.core.mesh.node.publicConfirmationsHidden
 import io.github.throughthewind.echo.core.mesh.wire.Vote
 import io.github.throughthewind.echo.core.model.GeoPoint
 import io.github.throughthewind.echo.ui.LocalGroups
@@ -100,6 +102,7 @@ fun ReportDetailSheet(
                 }
             }
             ExpiryBar(left = report.expiresAt - now, lifetime = report.lifetime)
+            if (shown.couldBeATrap) Callout(stringResource(R.string.detail_could_be_trap), warning = true)
             if (shown.tally.probablyGone) ProbablyGone(shown)
             Provenance(shown)
             VotesLine(shown)
@@ -148,8 +151,9 @@ private fun VotesLine(shown: ShownReport) {
     val parts =
         listOfNotNull(
             counts(t.groupConfirmed, t.groupDismissed)?.let { stringResource(R.string.votes_from, group, it) },
+            // FR-15.3: no public confirmation count on a public steering report; dismissals still show.
             counts(
-                t.nearbyConfirmed,
+                if (shown.publicConfirmationsHidden) 0 else t.nearbyConfirmed,
                 t.nearbyDismissed,
             )?.let { stringResource(R.string.votes_from, stringResource(R.string.votes_nearby), it) },
         )

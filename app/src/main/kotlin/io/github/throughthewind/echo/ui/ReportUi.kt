@@ -14,6 +14,8 @@ import io.github.throughthewind.echo.core.designsystem.component.PinSource
 import io.github.throughthewind.echo.core.designsystem.component.timeLeftLabel
 import io.github.throughthewind.echo.core.mesh.group.GroupInfo
 import io.github.throughthewind.echo.core.mesh.node.ShownReport
+import io.github.throughthewind.echo.core.mesh.node.confirmationsShown
+import io.github.throughthewind.echo.core.mesh.node.couldBeATrap
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.model.Compass
 import io.github.throughthewind.echo.core.model.Geo
@@ -96,9 +98,10 @@ fun ShownReport.look(now: Instant): PinLook {
         icon = report.type.icon,
         source = if (tag == null) PinSource.Nearby else PinSource.Group(groups.colourOf(tag.groupId), initials(tag.groupName)),
         timeLeft = Expiry.fraction(report.expiresAt - now, report.lifetime),
-        confirmations = tally.groupConfirmed + tally.nearbyConfirmed,
+        confirmations = confirmationsShown,
         probablyGone = tally.probablyGone,
         mine = mine,
+        couldBeATrap = couldBeATrap,
     )
 }
 
@@ -115,9 +118,10 @@ fun ShownReport.describe(now: Instant): String {
             tag != null -> stringResource(R.string.source_group, tag.sender, tag.groupName)
             else -> stringResource(R.string.source_nearby)
         }
-    val confirmations = tally.groupConfirmed + tally.nearbyConfirmed
+    val confirmations = confirmationsShown
     return listOfNotNull(
         stringResource(R.string.pin_described, stringResource(report.type.label), source, timeLeftLabel(report.expiresAt - now)),
+        if (couldBeATrap) stringResource(R.string.pin_could_be_trap) else null,
         if (confirmations > 0) pluralStringResource(R.plurals.pin_confirmations, confirmations, confirmations) else null,
         if (tally.probablyGone) stringResource(R.string.pin_probably_gone) else null,
     ).joinToString(", ")

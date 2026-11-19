@@ -61,6 +61,8 @@ data class PinLook(
     val confirmations: Int = 0,
     val probablyGone: Boolean = false,
     val mine: Boolean = false,
+    /** A public steering report from another phone: marked "could be a trap" (extended spec FR-15.2). */
+    val couldBeATrap: Boolean = false,
 )
 
 /** Visual sizes from the component spec, scaled with the Large pins setting. */
@@ -130,6 +132,15 @@ fun ReportPin(
                 background = groupColor(colors, look.source.colorIndex),
                 content = MaterialTheme.colorScheme.surface,
                 modifier = Modifier.align(Alignment.TopStart),
+            )
+        }
+        if (look.couldBeATrap) {
+            // An amber "?" at the bottom: unconfirmed, whatever its votes say (FR-15.2).
+            Badge(
+                text = "?",
+                background = colors.blocked,
+                content = colors.onBlocked,
+                modifier = Modifier.align(Alignment.BottomEnd),
             )
         }
         if (look.confirmations >= 2) {

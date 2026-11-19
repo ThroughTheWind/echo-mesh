@@ -40,6 +40,7 @@ private val doesNot =
         R.string.not_protects_4,
         R.string.not_protects_5,
         R.string.not_protects_6,
+        R.string.not_protects_7,
     )
 
 /**

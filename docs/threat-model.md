@@ -358,6 +358,9 @@ exist, or when a row is missing from the app's "What Echo protects" page.
   you have wiped it or your group makes a new one.
 - **N5** A determined observer with many receivers may guess roughly where a report was first sent.
 - **N6** Downloading a map reveals the region to your network and the map host.
+- **N7** A public report that tells you where to go, or that a place is safe, can be a trap set to lead
+  people somewhere. The app marks it unconfirmed and does not show its public confirmations
+  (extended spec FR-15).
 
 ## 8. Before 1.0: outside review
 
