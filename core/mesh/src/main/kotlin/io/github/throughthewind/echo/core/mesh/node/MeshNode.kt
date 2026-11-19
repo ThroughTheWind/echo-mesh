@@ -2,6 +2,8 @@ package io.github.throughthewind.echo.core.mesh.node
 
 import io.github.throughthewind.echo.core.mesh.MeshTransport
 import io.github.throughthewind.echo.core.mesh.TransportUnavailableException
+import io.github.throughthewind.echo.core.mesh.group.GroupChannel
+import io.github.throughthewind.echo.core.mesh.group.GroupInfo
 import io.github.throughthewind.echo.core.mesh.relay.Relay
 import io.github.throughthewind.echo.core.mesh.relay.RelayConfig
 import io.github.throughthewind.echo.core.mesh.report.ReportAuthor
@@ -38,6 +40,15 @@ data class ShownReport(
     val hops: Int,
     /** Sent from this phone, so it can be withdrawn (FR-4.5). */
     val mine: Boolean,
+    /** For a group report (FR-9.2): the group's name and who in it sent it. Null for a public one. */
+    val group: GroupTag? = null,
+)
+
+/** Where a group report came from, shown in the verified style (FR-9.2). */
+data class GroupTag(
+    val groupId: Bytes,
+    val groupName: String,
+    val sender: String,
 )
 
 /** Whether the mesh is on, as the mesh status shows it (spec FR-3.1, FR-3.2). */
@@ -69,6 +80,8 @@ data class PendingReport(
     val type: ReportType,
     val position: GeoPoint,
     val sendsAt: Instant,
+    /** The group it goes to, or null for everyone nearby (FR-4.3). */
+    val group: Bytes? = null,
 )
 
 /**
@@ -84,6 +97,12 @@ class MeshNode(
     val config: RelayConfig = RelayConfig(),
 ) {
     private val relay: Relay? = transport?.let { Relay(it, clock, random, config) }
+
+    /** This phone's groups on the mesh (WI-018); null when there is no radio to reach them over. */
+    val groupChannel: GroupChannel? = relay?.let { GroupChannel(it, clock, config.hopBudget) }
+
+    /** The groups this phone is in. */
+    val groups: StateFlow<List<GroupInfo>> = groupChannel?.groups ?: MutableStateFlow(emptyList<GroupInfo>()).asStateFlow()
     private val author = ReportAuthor(clock)
     private val lock = Mutex()
     private var running: Job? = null
@@ -102,12 +121,12 @@ class MeshNode(
             }.stateIn(scope, SharingStarted.Eagerly, power.value)
         }
 
-    /** Every live report this phone holds, its own included. */
+    /** Every live report this phone holds, its own included, public and from its groups. */
     val reports: StateFlow<List<ShownReport>> =
-        if (relay == null) {
+        if (relay == null || groupChannel == null) {
             MutableStateFlow(emptyList<ShownReport>()).asStateFlow()
         } else {
-            combine(relay.reports, ownIds) { held, own ->
+            combine(relay.reports, ownIds, groupChannel.reports) { held, own, fromGroups ->
                 held.mapNotNull { frame ->
                     val report = frame.frame as? PublicReportFrame ?: return@mapNotNull null
                     ShownReport(
@@ -116,7 +135,16 @@ class MeshNode(
                         hops = if (frame.id in own) 0 else (config.hopBudget - frame.hopsLeft).coerceAtLeast(0),
                         mine = frame.id in own,
                     )
-                }
+                } +
+                    fromGroups.map {
+                        ShownReport(
+                            id = it.id,
+                            report = it.report,
+                            hops = if (it.mine) 0 else (config.hopBudget - it.hopsLeft).coerceAtLeast(0),
+                            mine = it.mine,
+                            group = GroupTag(it.groupId, it.groupName, it.sender),
+                        )
+                    }
             }.stateIn(scope, SharingStarted.Eagerly, emptyList())
         }
 
@@ -126,10 +154,12 @@ class MeshNode(
     init {
         // Reports expire with the mesh off too.
         if (relay != null) {
+            groupChannel?.run(scope)
             scope.launch {
                 while (true) {
                     delay(config.sweepEvery)
                     relay.sweep()
+                    groupChannel?.sweep()
                 }
             }
         }
@@ -183,26 +213,31 @@ class MeshNode(
 
     /**
      * Puts a report of [type] at [position] in its grace period: it is signed and sent after
-     * [SEND_GRACE] unless [cancelPending] is called first (FR-4.7). Returns false when another report
-     * is already waiting or the type is rate-limited.
+     * [SEND_GRACE] unless [cancelPending] is called first (FR-4.7). It goes to everyone nearby, or
+     * only to the group [group] (FR-4.3). Returns false when another report is already waiting or
+     * the type is rate-limited; the rate limit counts both audiences (FR-4.6).
      */
     fun send(
         type: ReportType,
         position: GeoPoint,
+        group: Bytes? = null,
     ): Boolean {
         val relay = relay ?: return false
         if (waiting.value != null || author.nextAllowed(type) != null) return false
-        val pending = PendingReport(type, position, clock() + SEND_GRACE)
+        val pending = PendingReport(type, position, clock() + SEND_GRACE, group)
         waiting.value = pending
         grace =
             scope.launch {
                 delay(SEND_GRACE)
-                if (waiting.compareAndSet(pending, null)) {
+                if (!waiting.compareAndSet(pending, null)) return@launch
+                if (group == null) {
                     val outcome = author.report(type, position, config.hopBudget)
                     if (outcome is ReportAuthor.Outcome.Sent) {
                         ownIds.value = ownIds.value + outcome.id
                         relay.publish(outcome.frame)
                     }
+                } else if (author.takeSlot(type)) {
+                    groupChannel?.sendReport(group, type, position)
                 }
             }
         return true
@@ -218,6 +253,7 @@ class MeshNode(
     /** Withdraws one of this phone's reports everywhere it spread (FR-4.5). False if it cannot. */
     suspend fun withdraw(id: Bytes): Boolean {
         val relay = relay ?: return false
+        if (groupChannel?.withdraw(id) == true) return true
         val frame = author.withdraw(id, config.hopBudget) ?: return false
         return relay.publish(frame) is Validation.Valid
     }

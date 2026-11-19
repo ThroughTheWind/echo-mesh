@@ -4,6 +4,7 @@ import io.github.throughthewind.echo.core.crypto.Hashes
 import io.github.throughthewind.echo.core.crypto.Signatures
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.mesh.wire.DecodeResult
+import io.github.throughthewind.echo.core.mesh.wire.GroupFrame
 import io.github.throughthewind.echo.core.mesh.wire.PublicReportFrame
 import io.github.throughthewind.echo.core.mesh.wire.Rejection
 import io.github.throughthewind.echo.core.mesh.wire.SignedFrame
@@ -28,7 +29,7 @@ enum class FrameRejection {
     /** The signature does not verify over the bytes received with the key in the frame. */
     BAD_SIGNATURE,
 
-    /** A kind this version of the app does not act on yet (group frames: WI-018), or a summary. */
+    /** A kind the relay does not store: a summary or a join, which never travel past one hop. */
     UNSUPPORTED_KIND,
 
     /** The link that sent it has used up its signature checks for now (threat model §5.8). */
@@ -45,6 +46,17 @@ sealed interface Validation {
         val id: Bytes,
         val frame: SignedFrame,
         /** The frame as it arrived, for a relay to forward with a lower hop budget. */
+        val received: Bytes,
+    ) : Validation
+
+    /**
+     * A group frame: relayed by everyone, readable only by members (spec FR-5.4, threat model
+     * §5.3). Nothing in it can be checked from outside but its size, so it is stored and relayed by
+     * [id] under the same budgets as every other frame, and members open it above the relay.
+     */
+    class Opaque(
+        val id: Bytes,
+        val frame: GroupFrame,
         val received: Bytes,
     ) : Validation
 
@@ -89,6 +101,11 @@ object FrameValidator {
                 is DecodeResult.Rejected -> return Validation.Rejected(FrameRejection.MALFORMED, wire = result.reason)
                 is DecodeResult.Accepted -> result
             }
+        (decoded.frame as? GroupFrame)?.let { group ->
+            val id = Bytes(Hashes.sha256(decoded.contentBytes.toByteArray()))
+            if (seen(id)) return Validation.Rejected(FrameRejection.DUPLICATE)
+            return Validation.Opaque(id, group, Bytes(bytes))
+        }
         val frame = decoded.frame as? SignedFrame ?: return Validation.Rejected(FrameRejection.UNSUPPORTED_KIND)
         val created = frame.createdMinute
         if (created > nowMinute + FUTURE_TOLERANCE_MINUTES) {

@@ -115,6 +115,20 @@ class ReportAuthor(
         }
     }
 
+    /**
+     * Counts a report of [type] that is not signed here (a group report) against the same rate limit
+     * as public ones (FR-4.6). False, and nothing counted, when [type] is rate-limited now.
+     */
+    fun takeSlot(type: ReportType): Boolean {
+        val now = clock()
+        synchronized(lock) {
+            val last = lastSent[type]
+            if (last != null && now < last + RATE_LIMIT) return false
+            lastSent[type] = now
+            return true
+        }
+    }
+
     /** When [type] may be reported again (FR-4.6), or null if it may be now. */
     fun nextAllowed(type: ReportType): Instant? =
         synchronized(lock) {

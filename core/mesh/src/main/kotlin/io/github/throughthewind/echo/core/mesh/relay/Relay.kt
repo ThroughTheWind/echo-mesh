@@ -11,6 +11,8 @@ import io.github.throughthewind.echo.core.mesh.report.wireMinute
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.mesh.wire.DecodeResult
 import io.github.throughthewind.echo.core.mesh.wire.FrameKind
+import io.github.throughthewind.echo.core.mesh.wire.GroupFrame
+import io.github.throughthewind.echo.core.mesh.wire.JoinFrame
 import io.github.throughthewind.echo.core.mesh.wire.PublicReportFrame
 import io.github.throughthewind.echo.core.mesh.wire.SummaryFrame
 import io.github.throughthewind.echo.core.mesh.wire.Wire
@@ -20,10 +22,14 @@ import io.github.throughthewind.echo.core.model.ReportType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -152,6 +158,36 @@ class Relay(
 
     suspend fun stats(): Stats = mutex.withLock { stats }
 
+    private val groupArrivals = MutableSharedFlow<HeldFrame>(extraBufferCapacity = 64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    /**
+     * Every new group frame this phone stores, from the air or its own, for the groups layer to
+     * try opening. Relaying does not wait for it: members and non-members relay alike (FR-5.4).
+     */
+    val groupFrames: SharedFlow<HeldFrame> = groupArrivals.asSharedFlow()
+
+    private val joinArrivals =
+        MutableSharedFlow<Pair<PeerHandle, JoinFrame>>(extraBufferCapacity = 32, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    /** Join steps from phones in direct range (ADR-0009). Never stored, never relayed. */
+    val joinFrames: SharedFlow<Pair<PeerHandle, JoinFrame>> = joinArrivals.asSharedFlow()
+
+    /** Group frames held now, for a group just joined to open what is already around. */
+    suspend fun heldGroupFrames(): List<HeldFrame> = mutex.withLock { store.groupFrames(clock().wireMinute()) }
+
+    /**
+     * Sends a join step to [peer], or to every phone in direct range when null (the joiner does not
+     * know which neighbour showed the code). One hop only, never relayed (ADR-0009).
+     */
+    suspend fun sendJoin(
+        peer: PeerHandle?,
+        frame: JoinFrame,
+    ) {
+        val bytes = WireCodec.encode(frame)
+        val targets = if (peer != null) listOf(peer) else mutex.withLock { links.keys.toList() }
+        transmit(targets.map { it to bytes })
+    }
+
     /** True when this phone holds the frame [id], live or withdrawn. */
     suspend fun holds(id: Bytes): Boolean = mutex.withLock { id in store }
 
@@ -196,8 +232,14 @@ class Relay(
         val now = clock()
         val (validation, sends) =
             mutex.withLock {
-                val v = FrameValidator.validate(frame, now.wireMinute(), transport.capabilities.maxFrameBytes, seen = { it in store })
-                v to if (v is Validation.Valid) accept(v, link = null, nowMinute = now.wireMinute()) else emptyList()
+                val minute = now.wireMinute()
+                val v = FrameValidator.validate(frame, minute, transport.capabilities.maxFrameBytes, seen = { it in store })
+                v to
+                    when (v) {
+                        is Validation.Valid -> accept(HeldFrame(v.id, v.frame, v.received, null), minute)
+                        is Validation.Opaque -> accept(HeldFrame(v, null, minute), minute)
+                        is Validation.Rejected -> emptyList()
+                    }
             }
         transmit(sends)
         return validation
@@ -260,6 +302,11 @@ class Relay(
         if (bytes.size == FrameKind.SUMMARY.size && (bytes[1].toInt() and 0xFF) == FrameKind.SUMMARY.code) {
             return answer(from, link, bytes, millis, minute)
         }
+        if (bytes.size == FrameKind.JOIN.size && (bytes[1].toInt() and 0xFF) == FrameKind.JOIN.code) {
+            val join = (WireCodec.decode(bytes, transport.capabilities.maxFrameBytes) as? DecodeResult.Accepted)?.frame as? JoinFrame
+            if (join == null) reject(FrameRejection.MALFORMED) else joinArrivals.tryEmit(from to join)
+            return emptyList()
+        }
         val validation =
             FrameValidator.validate(
                 bytes,
@@ -281,22 +328,26 @@ class Relay(
             is Validation.Valid -> {
                 clockCheck.observe(validation.frame.createdMinute, minute)
                 if (validation.frame is PublicReportFrame) lastArrival.value = now
-                accept(validation, from, minute)
+                accept(HeldFrame(validation.id, validation.frame, validation.received, from), minute)
+            }
+
+            is Validation.Opaque -> {
+                accept(HeldFrame(validation, from, minute), minute)
             }
         }
     }
 
     /** Stores a valid frame and returns where to pass it on: every other neighbour, one hop less. */
     private fun accept(
-        valid: Validation.Valid,
-        link: PeerHandle?,
+        held: HeldFrame,
         nowMinute: Long,
     ): List<Pair<PeerHandle, ByteArray>> {
-        val held = HeldFrame(valid.id, valid.frame, valid.received, link)
+        val link = held.link
         store.put(held)
         stats = stats.copy(stored = stats.stored + 1)
         shown.value = store.reports(nowMinute)
-        if (held.withdrawn || valid.id !in store) return emptyList()
+        if (held.frame is GroupFrame && held.id in store) groupArrivals.tryEmit(held)
+        if (held.withdrawn || held.id !in store) return emptyList()
         val onward = onward(held) ?: return emptyList()
         val targets = links.keys.filter { it != link }
         stats = stats.copy(forwarded = stats.forwarded + targets.size)
@@ -337,7 +388,7 @@ class Relay(
 
     private fun answerOrder(): Comparator<HeldFrame> =
         compareBy<HeldFrame> { if (it.frame is WithdrawalFrame) 0 else 1 }
-            .thenByDescending { it.frame.createdMinute }
+            .thenByDescending { it.sortMinute }
             .thenBy { (it.frame as? PublicReportFrame)?.let { r -> config.severity.indexOf(r.type) } ?: config.severity.size }
 
     /**
