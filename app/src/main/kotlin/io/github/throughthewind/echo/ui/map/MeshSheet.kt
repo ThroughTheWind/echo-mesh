@@ -28,6 +28,7 @@ import io.github.throughthewind.echo.core.designsystem.component.MeshChip
 import io.github.throughthewind.echo.core.designsystem.component.ageLabel
 import io.github.throughthewind.echo.core.designsystem.component.nearbyCount
 import io.github.throughthewind.echo.core.designsystem.theme.LocalSpacing
+import io.github.throughthewind.echo.core.designsystem.theme.LocalStreetColors
 import io.github.throughthewind.echo.core.designsystem.theme.Touch
 import io.github.throughthewind.echo.core.mesh.RangeClass
 import io.github.throughthewind.echo.core.mesh.TransportCapabilities
@@ -110,7 +111,7 @@ fun MeshState.chip(
         is MeshState.On -> {
             val age = lastReport?.let { now - it }
             when {
-                nearby > 0 -> MeshChip.On(nearby, age)
+                nearby > 0 -> MeshChip.On(nearby, age, lowDensity = lowDensity(now))
                 now - since < MeshNode.SEARCHING -> MeshChip.Searching
                 else -> MeshChip.Alone(age)
             }
@@ -183,6 +184,17 @@ fun MeshSheet(
                         )
                     }
                     Switch(checked = on, onCheckedChange = null)
+                }
+                if (state is MeshState.On && state.lowDensity(now)) {
+                    // FR-16.1: an empty map in a thin crowd is not "all clear".
+                    Surface(color = LocalStreetColors.current.blockedContainer, shape = MaterialTheme.shapes.medium) {
+                        IconLine(
+                            DS.drawable.ic_warning,
+                            LocalStreetColors.current.onBlockedContainer,
+                            stringResource(R.string.mesh_low_density),
+                            Modifier.padding(spacing.lg),
+                        )
+                    }
                 }
                 if (state is MeshState.On) {
                     Fact(stringResource(R.string.mesh_phones_in_range), nearbyCount(state.nearby))

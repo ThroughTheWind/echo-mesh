@@ -83,6 +83,7 @@ import io.github.throughthewind.echo.core.map.OwnFix
 import io.github.throughthewind.echo.core.map.OwnPosition
 import io.github.throughthewind.echo.core.map.rememberMapCamera
 import io.github.throughthewind.echo.core.mesh.group.MemberPosition
+import io.github.throughthewind.echo.core.mesh.node.MeshNode
 import io.github.throughthewind.echo.core.mesh.node.MeshState
 import io.github.throughthewind.echo.core.mesh.node.ShownReport
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
@@ -91,6 +92,7 @@ import io.github.throughthewind.echo.core.model.ReportType
 import io.github.throughthewind.echo.ui.LocalGroups
 import io.github.throughthewind.echo.ui.MapsState
 import io.github.throughthewind.echo.ui.colourOf
+import io.github.throughthewind.echo.ui.common.IconLine
 import io.github.throughthewind.echo.ui.common.PrimaryButton
 import io.github.throughthewind.echo.ui.common.SecondaryButton
 import io.github.throughthewind.echo.ui.describe
@@ -374,6 +376,22 @@ fun MapScreen(
             }
             // While sharing, one bar per group with its own Stop (FR-10.4).
             SharingBars(sharing, now, onStop = mesh::stopSharing)
+            // FR-16.2: with nobody in range, the map says so instead of looking like a quiet street.
+            val alone = meshState as? MeshState.On
+            if (alone != null && alone.nearby == 0 && now - alone.since >= MeshNode.SEARCHING) {
+                Surface(
+                    color = LocalStreetColors.current.blockedContainer,
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = Modifier.padding(horizontal = LocalSpacing.current.lg),
+                ) {
+                    IconLine(
+                        DS.drawable.ic_warning,
+                        LocalStreetColors.current.onBlockedContainer,
+                        stringResource(R.string.map_alone),
+                        Modifier.padding(LocalSpacing.current.md),
+                    )
+                }
+            }
         }
 
         Column(

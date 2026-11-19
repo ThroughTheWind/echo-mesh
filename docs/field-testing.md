@@ -35,6 +35,9 @@ data comes from files that testers export by hand, after reading them.
      the file's delivery delays give the spread;
    - **battery (NFR-9):** the file reads the battery every 10 minutes; note when a phone was
      charged or unplugged;
+   - **low density (FR-16.4):** at the sparse level, note in the log when the mesh chip says "Few
+     phones" and whether reports were in fact missing; the file's `peers` column shows how many
+     phones each phone heard, to set the threshold (now under 3 in 5 minutes) and its copy;
    - **report lifetimes in use:** whether reports were still useful when they expired, from the
      testers' own judgment, in the log.
 5. If Android stops the mesh, the file counts it (`service_killed`). If the whole app was stopped

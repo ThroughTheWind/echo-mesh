@@ -17,6 +17,7 @@ The home screen: the offline map with reports, your position, group members who 
 ## States
 
 - **No map loaded:** blank `map-land` with a faint 100m grid and a banner "No map here · Get a map" (pins still show, positioned on the grid).
+- **No phones nearby** (mesh on, nobody in range after the first 30 s): an amber banner under the top bar, "No phones nearby. Reports can't reach you, so an empty map doesn't mean all clear." (extended spec FR-16.2). It goes as soon as a phone is in range.
 - **Mesh off:** pins you already have stay until they expire; the chip says "Mesh off · Turn on".
 - **Discreet:** discreet theme, brightness `discreet-brightness`, Large pins ignored, cone hidden.
 - **Filter on (groups only):** filter button shows the `group` glyph; public pins hide.

@@ -14,6 +14,8 @@
     <string name="ds_mesh_searching">Looking for phones</string>
     <string name="ds_mesh_nearby">%1$s nearby</string>
     <string name="ds_mesh_alone">No phones nearby</string>
+    <string name="ds_mesh_few">Few phones · %1$s nearby</string>
+    <string name="ds_mesh_described_few">Few phones heard lately: the map may be missing reports</string>
     <string name="ds_mesh_fix">Fix</string>
     <string name="ds_mesh_stopped">Relaying stopped</string>
     <string name="ds_mesh_no_radio">No radio in this build</string>

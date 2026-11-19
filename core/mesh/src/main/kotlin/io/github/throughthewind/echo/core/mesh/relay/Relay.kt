@@ -40,6 +40,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
@@ -64,6 +65,8 @@ data class RelayConfig(
     val globalFramesPerSecond: Double = 500.0,
     val globalFrameBurst: Double = 2_000.0,
     val sweepEvery: Duration = 30.seconds,
+    /** How far back distinct peers are counted for the low-density state (FR-16.1; tuned in WI-028). */
+    val densityWindow: Duration = 5.minutes,
     /** Most severe first: the order a summary is answered in after recency (FR-5.1). */
     val severity: List<ReportType> = DEFAULT_SEVERITY,
 ) {
@@ -174,6 +177,30 @@ class Relay(
      */
     val nearby: StateFlow<Int> = inRange.asStateFlow()
 
+    // Peer handles heard in the last densityWindow, with when, to count them (FR-16.1). In memory,
+    // for that window only; never stored, sent or shown.
+    private val heard = LinkedHashMap<PeerHandle, Long>()
+    private val recent = MutableStateFlow(0)
+
+    /** Distinct peer handles heard in the last [RelayConfig.densityWindow] (FR-16.1). Rotation may over-count. */
+    val recentPeers: StateFlow<Int> = recent.asStateFlow()
+
+    private fun heardFrom(
+        peer: PeerHandle,
+        millis: Long,
+    ) {
+        heard.remove(peer)
+        heard[peer] = millis
+        forgetHeard(millis)
+    }
+
+    private fun forgetHeard(millis: Long) {
+        val since = millis - config.densityWindow.inWholeMilliseconds
+        val old = heard.entries.iterator()
+        while (old.hasNext() && old.next().value < since) old.remove()
+        recent.value = heard.size
+    }
+
     private val lastArrival = MutableStateFlow<Instant?>(null)
 
     /** When a new report from another phone was last stored, for the mesh status (FR-3.2). */
@@ -246,6 +273,8 @@ class Relay(
                     mutex.withLock {
                         links.clear()
                         inRange.value = 0
+                        heard.clear()
+                        recent.value = 0
                     }
                 }
             }
@@ -275,9 +304,11 @@ class Relay(
     /** Drops expired frames now; [run] also does it every [RelayConfig.sweepEvery]. */
     suspend fun sweep() {
         mutex.withLock {
-            val minute = clock().wireMinute()
+            val now = clock()
+            val minute = now.wireMinute()
             store.sweep(minute)
             publishHeld(minute)
+            forgetHeard(now.toEpochMilliseconds())
         }
     }
 
@@ -288,6 +319,7 @@ class Relay(
                 val summary =
                     mutex.withLock {
                         links.getOrPut(event.peer) { Link(clock().toEpochMilliseconds(), config) }
+                        heardFrom(event.peer, clock().toEpochMilliseconds())
                         inRange.value = links.size
                         summaryFrame(clock().wireMinute())
                     }
@@ -320,6 +352,7 @@ class Relay(
         val millis = now.toEpochMilliseconds()
         val minute = now.wireMinute()
         stats = stats.copy(received = stats.received + 1)
+        heardFrom(from, millis)
         val link = links.getOrPut(from) { Link(millis, config) }
         inRange.value = links.size
         // The link's own budget first, so a flooder spends its budget, not everyone's.

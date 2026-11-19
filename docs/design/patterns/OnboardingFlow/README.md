@@ -10,7 +10,7 @@
    - Doesn't: anyone nearby with a radio receiver can tell your phone runs Echo; public reports and their confirmations can be fake; your group can read what's sent to it and pass it on; a phone taken unlocked can be read until wiped.
    - **I understand** (no skip) and **Read everything**, which opens [What Echo protects](../../screens/WhatEchoProtects/README.md) with the full list.
 3. **Get a map before you go:** the two paths of [Get a map](../GetAMap/README.md), or **Skip for now**.
-4. **Two things to know:** discreet mode and panic wipe, and a note that the mesh starts off. **Open the map**.
+4. **Before you go:** the mesh starts off; reports expire; walking with the mesh on carries reports across gaps to the people you meet (carry-and-deliver, extended spec FR-16.3); discreet mode; panic wipe. **Open the map**.
 
 ## Rules
 

@@ -96,12 +96,22 @@ sealed interface MeshState {
     /** The transport failed to start for a reason it did not name. */
     data object Failed : MeshState
 
-    /** On since [since]: [nearby] phones in range, the last report from another phone at [lastReport]. */
+    /**
+     * On since [since]: [nearby] phones in range, the last report from another phone at [lastReport],
+     * and [recentPeers] distinct phones heard in the last few minutes (FR-16.1).
+     */
     data class On(
         val since: Instant,
         val nearby: Int,
         val lastReport: Instant?,
-    ) : MeshState
+        val recentPeers: Int = 0,
+    ) : MeshState {
+        /**
+         * Too few phones heard lately to trust an empty map (FR-16.1): fewer than [MeshNode.LOW_DENSITY_PEERS]
+         * in the window. Not while still looking, before the first [MeshNode.SEARCHING] has passed.
+         */
+        fun lowDensity(now: Instant): Boolean = now - since >= MeshNode.SEARCHING && recentPeers < MeshNode.LOW_DENSITY_PEERS
+    }
 }
 
 /** A report waiting out its grace period before it is signed and sent (FR-4.7). */
@@ -154,8 +164,8 @@ class MeshNode(
         if (relay == null) {
             power.asStateFlow()
         } else {
-            combine(power, relay.nearby, relay.lastReportReceived) { power, nearby, last ->
-                if (power is MeshState.On) power.copy(nearby = nearby, lastReport = last) else power
+            combine(power, relay.nearby, relay.lastReportReceived, relay.recentPeers) { power, nearby, last, recent ->
+                if (power is MeshState.On) power.copy(nearby = nearby, lastReport = last, recentPeers = recent) else power
             }.stateIn(scope, SharingStarted.Eagerly, power.value)
         }
 
@@ -475,6 +485,12 @@ class MeshNode(
 
         /** How long a mesh that has heard nobody yet says "Looking for phones" (components/MeshStatus). */
         val SEARCHING: Duration = 30.seconds
+
+        /**
+         * Fewer distinct phones than this in [RelayConfig.densityWindow] is the low-density state
+         * (FR-16.1). A first guess, tuned by the field test (WI-028, FR-16.4).
+         */
+        const val LOW_DENSITY_PEERS: Int = 3
     }
 }
 

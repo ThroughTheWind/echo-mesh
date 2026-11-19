@@ -43,6 +43,7 @@
     <string name="onboarding_know_mesh">The mesh starts off. Turn it on from the map when you\'re there.</string>
     <!-- §7 P4 -->
     <string name="onboarding_know_expiry">Every report disappears on its own after a few minutes, on every phone.</string>
+    <string name="onboarding_know_carry">Few phones around means fewer reports. Walking with the mesh on carries reports across the gaps to the people you meet.</string>
     <string name="onboarding_know_discreet">The eye button on the map makes the screen dark, dim and silent. It doesn\'t hide the app.</string>
     <string name="onboarding_know_wipe">To erase everything, tap the wipe button at the top of the map, then hold for 2 seconds.</string>
     <string name="onboarding_open_map">Open the map</string>
@@ -346,6 +347,10 @@
     <string name="discreet_off">Discreet mode off. Tap to turn on</string>
     <string name="notification_discreet_title">Echo</string>
     <string name="notification_discreet_text">Running · Tap to open</string>
+
+    <!-- Low density (F16, WI-035) -->
+    <string name="mesh_low_density">Few phones heard lately. The map may be missing reports: an empty map doesn\'t mean all clear.</string>
+    <string name="map_alone">No phones nearby. Reports can\'t reach you, so an empty map doesn\'t mean all clear.</string>
 
     <!-- Field diagnostics (F17, WI-036) -->
     <string name="diagnostics_title">Field diagnostics</string>
