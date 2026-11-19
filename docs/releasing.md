@@ -23,7 +23,7 @@ debug build on every push to `main`.
 Only the maintainer does this, once. **The key is the app's identity:** Android installs an update
 only if it is signed with the same key, and for this app a stolen key would let someone ship a
 malicious update that phones accept. Keep the keystore and its password in a password manager, a
-second copy offline, and nowhere else.
+second copy offline, and the CI copy below, and nowhere else.
 
 1. Create the keystore (needs a JDK). Pick a long password; it is asked twice, and the same one is
    used for the key.
@@ -71,8 +71,10 @@ The maintainer holds the key alone (SECURITY.md states the risk). Keep:
   app's ability to ship updates.
 - **The password** in a password manager, never next to either copy.
 - **The CI copy:** the repository secrets above, which let the release workflow sign. They are a
-  second, online copy of the key. Whether it stays, or signing moves to the maintainer's offline
-  machine, is open in WI-038.
+  second, online copy of the key, kept so releases are built and signed in one reviewed workflow
+  (Antoine, 2026-11-19; extended spec FR-19.1). Protect what can reach it: two-factor
+  authentication on the maintainer's GitHub account, and no workflow that runs on a fork's pull
+  request with access to secrets. If the account is ever compromised, treat the key as exposed.
 
 If the key is ever lost, phones cannot update: users must uninstall and install a new app. If it is
 ever exposed, say so at once in SECURITY.md and the README, stop releasing with it, and publish a

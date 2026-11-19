@@ -37,6 +37,10 @@ One maintainer holds the release signing key (extended spec FR-19.1). That is a 
 accept as ours. Watch for a release no changelog or public discussion announced, and report it
 here. Before 2.0 we revisit adding a second key holder or co-signing.
 
+The release workflow signs with a copy of the key kept in this repository's encrypted GitHub
+Actions secrets, so control of the maintainer's GitHub account is also enough to sign. The master
+copy and its backup are offline.
+
 ## Scope
 
 In scope: anything that lets someone learn who uses the app, track a phone, read or forge reports

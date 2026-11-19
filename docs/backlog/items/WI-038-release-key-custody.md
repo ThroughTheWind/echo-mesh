@@ -57,10 +57,10 @@ Phase 4 of the [roadmap](../../ROADMAP.md), from the [extended spec](../../SPEC-
 
 Open, for Antoine:
 
-- **FR-19.1 says the key is stored offline, but the release workflow signs with the key held in repository secrets**, an online copy. Either accept the CI copy (and say so in FR-19.1 and SECURITY.md), or move signing to an offline machine and have CI build only the unsigned APK that the maintainer signs and uploads.
+- ~~FR-19.1 versus the CI copy of the key~~: decided by Antoine on 2026-11-19, the CI copy stays. FR-19.1, `docs/releasing.md` and SECURITY.md now say so.
 - The key itself does not exist yet (WI-015), so the fingerprint cannot be published until then.
-- The About screen with the fingerprint as text and QR waits for the settings screen (F-005).
+- The fingerprint in Settings > About, as text and QR: the settings screen exists (WI-074); the row waits for the key.
 
-branch-merged-ok: the gate and docs merge with PR #6 while the key, its custody decision and the About screen wait.
+branch-merged-ok: the gate and docs merge with PR #6 while the key and the About fingerprint row wait.
 
 ## Review
