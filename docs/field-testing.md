@@ -40,9 +40,9 @@ data comes from files that testers export by hand, after reading them.
      phones each phone heard, to set the threshold (now under 3 in 5 minutes) and its copy;
    - **report lifetimes in use:** whether reports were still useful when they expired, from the
      testers' own judgment, in the log.
-5. If Android stops the mesh, the file counts it (`service_killed`). If the whole app was stopped
-   and reopened, its counts start again and the new file says `killed_before_session,yes`: export
-   before turning diagnostics on again if you can.
+5. If Android stops the mesh, the file counts it (`service_killed`). If Android stops Echo itself,
+   the counts so far are lost with it (they are never written down): counting starts again when
+   Echo next opens, and that file says `killed_before_session,yes`. Note the moment in your log.
 
 ## After, before leaving
 
