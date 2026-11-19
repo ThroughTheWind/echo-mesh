@@ -117,8 +117,18 @@ class GroupMeshTest {
             assertNotNull(a.groupChannel!!.invite(group.id))
             hostile.attack(this, HostilePhone.Attack.REPLAYED, 20, 5.seconds).join()
             delay(1.seconds)
-            assertEquals(listOf("Fox", "Owl"), a.groups.value.single().members)
-            assertEquals(listOf("Fox", "Owl"), c.groups.value.single().members)
+            assertEquals(
+                listOf("Fox", "Owl"),
+                a.groups.value
+                    .single()
+                    .members,
+            )
+            assertEquals(
+                listOf("Fox", "Owl"),
+                c.groups.value
+                    .single()
+                    .members,
+            )
         }
 
     @Test
