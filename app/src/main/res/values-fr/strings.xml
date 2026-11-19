@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- French (WI-037). Draft: the safety set (onboarding, What Echo protects, wipe, QR warning,
+         steering warning) needs a fluent speaker's review against threat model §7 before it ships
+         (FR-18.3). Comments are the English file's, kept so the two read side by side. -->
+    <string name="app_name">Echo</string>
+
+    <!-- Common -->
+    <string name="back">Retour</string>
+    <string name="close">Fermer</string>
+    <string name="not_now">Pas maintenant</string>
+    <string name="continue_">Continuer</string>
+
+    <!-- Onboarding (patterns/OnboardingFlow). Every safety claim cites its threat model §7 row in the
+         comment above it; scripts/gates/claims.mjs checks it (NFR-14, WI-026). -->
+    <string name="onboarding_welcome_title">Voyez ce qui se passe autour de vous, sans internet</string>
+    <!-- §7 P6 -->
+    <string name="onboarding_welcome_body">Les téléphones proches de vous partagent de courts signalements par radio : un cordon de police, un médic, une sortie ouverte. Pas de serveur, pas de compte, pas d\'internet.</string>
+    <string name="onboarding_get_started">Commencer</string>
+    <string name="onboarding_protects_title">Ce qu\'Echo protège, et ce qu\'il ne protège pas</string>
+    <string name="onboarding_protects_heading">Il protège</string>
+    <!-- §7 P1 -->
+    <string name="onboarding_protects_1">Les signalements, positions et pseudos d\'un groupe ne peuvent être lus que par les personnes qui l\'ont rejoint en personne.</string>
+    <!-- §7 P3 -->
+    <string name="onboarding_protects_2">Rien de ce que vous envoyez ne porte votre nom, votre numéro ou un identifiant fixe.</string>
+    <!-- §7 P4 -->
+    <string name="onboarding_protects_3">Echo ne garde aucun historique des endroits où vous ou d\'autres êtes passés. Les signalements disparaissent quand ils expirent.</string>
+    <!-- §7 P6 -->
+    <string name="onboarding_protects_4">Pas de serveur, pas de compte, et aucun usage d\'internet sauf le téléchargement d\'une carte que vous lancez vous-même.</string>
+    <string name="onboarding_not_heading">Il ne protège pas</string>
+    <!-- §7 N1 -->
+    <string name="onboarding_not_1">Toute personne proche équipée d\'un récepteur radio peut savoir que votre téléphone utilise Echo.</string>
+    <!-- §7 N2 -->
+    <string name="onboarding_not_2">Les signalements publics peuvent être faux, et leurs confirmations peuvent être fabriquées en masse.</string>
+    <!-- §7 N3 -->
+    <string name="onboarding_not_3">Chaque membre de votre groupe peut lire tout ce qui y est envoyé et le transmettre.</string>
+    <!-- §7 N4 -->
+    <string name="onboarding_not_4">Si votre téléphone est pris déverrouillé, la personne qui l\'a peut le lire jusqu\'à ce que vous l\'effaciez.</string>
+    <string name="onboarding_understand">J\'ai compris</string>
+    <string name="onboarding_read_everything">Tout lire</string>
+    <string name="onboarding_map_title">Prenez une carte avant de partir</string>
+    <!-- §7 N6 -->
+    <string name="onboarding_map_body">Echo affiche une carte hors ligne que vous téléchargez chez vous, sur un Wi-Fi de confiance. Le téléchargement révèle la région à votre réseau et à l\'hébergeur de la carte.</string>
+    <string name="onboarding_skip">Plus tard</string>
+    <string name="onboarding_know_title">Avant de partir</string>
+    <string name="onboarding_know_mesh">Le maillage démarre coupé. Activez-le depuis la carte une fois sur place.</string>
+    <!-- §7 P4 -->
+    <string name="onboarding_know_expiry">Chaque signalement disparaît de lui-même après quelques minutes, sur tous les téléphones.</string>
+    <string name="onboarding_know_carry">Peu de téléphones autour, c\'est moins de signalements. Marcher avec le maillage activé transporte les signalements par-delà les trous, jusqu\'aux personnes que vous croisez.</string>
+    <string name="onboarding_know_discreet">Le bouton en forme d\'œil sur la carte rend l\'écran sombre, atténué et silencieux. Il ne cache pas l\'appli.</string>
+    <string name="onboarding_know_wipe">Pour tout effacer, touchez le bouton d\'effacement en haut de la carte, puis maintenez 2 secondes.</string>
+    <string name="onboarding_open_map">Ouvrir la carte</string>
+    <string name="onboarding_step">Étape %1$d sur %2$d</string>
+
+    <!-- What Echo protects (screens/WhatEchoProtects): word for word from threat model §7, every row
+         once, with "Echo" for "the app". -->
+    <string name="protects_title">Ce qu\'Echo protège</string>
+    <string name="protects_heading">Il protège</string>
+    <!-- §7 P1 -->
+    <string name="protects_1">Les signalements, positions et pseudos d\'un groupe ne peuvent être lus que par les personnes qui l\'ont rejoint en personne.</string>
+    <!-- §7 P2 -->
+    <string name="protects_2">Un signalement de groupe indique quel membre l\'a envoyé, et personne ne peut imiter le signalement d\'un autre membre.</string>
+    <!-- §7 P3 -->
+    <string name="protects_3">Rien de ce que vous envoyez ne porte votre nom, votre numéro ou un identifiant fixe, et les signaux radio d\'Echo changent régulièrement.</string>
+    <!-- §7 P4 -->
+    <string name="protects_4">Echo ne garde aucun historique des endroits où vous ou d\'autres êtes passés. Les signalements disparaissent quand ils expirent.</string>
+    <!-- §7 P5 -->
+    <string name="protects_5">L\'effacement d\'urgence rend illisible tout ce qu\'Echo a stocké en moins de 2 secondes.</string>
+    <!-- §7 P6 -->
+    <string name="protects_6">Pas de serveur, pas de compte, et aucun usage d\'internet sauf le téléchargement d\'une carte que vous lancez vous-même.</string>
+    <string name="not_protects_heading">Il ne protège pas</string>
+    <!-- §7 N1 -->
+    <string name="not_protects_1">Toute personne proche équipée d\'un récepteur radio peut savoir que votre téléphone utilise Echo.</string>
+    <!-- §7 N2 -->
+    <string name="not_protects_2">Les signalements publics peuvent être faux, et leurs confirmations peuvent être fabriquées en masse.</string>
+    <!-- §7 N3 -->
+    <string name="not_protects_3">Chaque membre de votre groupe peut lire tout ce qui y est envoyé, voir les positions partagées et les transmettre. Si le téléphone d\'un membre est pris, considérez le groupe comme exposé et créez-en un nouveau en personne.</string>
+    <!-- §7 N4 -->
+    <string name="not_protects_4">Si votre téléphone est pris déverrouillé, la personne qui l\'a peut lire vos groupes et publier en votre nom jusqu\'à ce que vous l\'effaciez ou que votre groupe en crée un nouveau.</string>
+    <!-- §7 N5 -->
+    <string name="not_protects_5">Quelqu\'un disposant de nombreux récepteurs peut deviner à peu près d\'où un signalement a d\'abord été envoyé.</string>
+    <!-- §7 N6 -->
+    <string name="not_protects_6">Télécharger une carte révèle la région à votre réseau et à l\'hébergeur de la carte.</string>
+    <!-- §7 N7 -->
+    <string name="not_protects_7">Un signalement public qui indique où aller, ou qu\'un endroit est sûr, peut être un piège. Echo le marque comme non confirmé et masque ses confirmations publiques.</string>
+
+    <!-- Get a map (patterns/GetAMap) -->
+    <string name="get_map_title">Obtenir une carte</string>
+    <string name="get_map_download">Télécharger dans votre navigateur</string>
+    <string name="get_map_download_body">Ouvre un site de cartes gratuit dans votre navigateur. Choisissez votre région et enregistrez le fichier .map.</string>
+    <string name="get_map_open">Ouvrir un fichier de carte</string>
+    <string name="get_map_open_body">Depuis vos téléchargements, ou un fichier qu\'un autre téléphone vous a partagé.</string>
+    <string name="get_map_added">Carte ajoutée : %1$s</string>
+    <string name="get_map_refused">Ce fichier est inutilisable : %1$s</string>
+    <string name="get_map_no_browser">Aucun navigateur de ce téléphone ne peut ouvrir le site de cartes.</string>
+
+    <!-- Map (screens/MapView) -->
+    <string name="map_no_map">Pas de carte ici</string>
+    <string name="map_get_map">Obtenir une carte</string>
+    <string name="map_report">Signaler</string>
+    <string name="map_centre_on_me">Me centrer</string>
+    <string name="map_reports_near_you">Signalements autour de vous</string>
+    <string name="map_crosshair">Le signalement sera placé au centre de la carte</string>
+    <string name="map_described">Carte. %1$d signalements.</string>
+
+    <!-- Location (patterns/PermissionsInContext) -->
+    <string name="location_title">Vous afficher sur votre carte ?</string>
+    <string name="location_body">Seulement pour vous dessiner sur votre propre carte. Votre position n\'est jamais stockée, et jamais envoyée sauf si vous la partagez avec un groupe.</string>
+    <string name="location_keep_off">Ne pas m\'afficher</string>
+    <string name="location_refused">La localisation est désactivée pour Echo. Tout le reste fonctionne.</string>
+
+    <!-- Report types (spec FR-4.1) -->
+    <string name="type_police_line">Cordon de police</string>
+    <string name="type_kettle">Nasse</string>
+    <string name="type_tear_gas">Lacrymogènes</string>
+    <string name="type_arrests">Interpellations</string>
+    <string name="type_medic">Médic</string>
+    <string name="type_water_supplies">Eau et ravitaillement</string>
+    <string name="type_exit_open">Sortie ouverte</string>
+    <string name="type_street_closed">Rue fermée</string>
+    <string name="type_all_clear">Voie libre</string>
+
+    <!-- Drop a report (patterns/ReportPicker) -->
+    <string name="picker_title">Qu\'y a-t-il ici ?</string>
+    <string name="picker_audience_everyone">Tout le monde à proximité</string>
+    <string name="picker_unverified">N\'importe qui peut en envoyer, et ils peuvent être faux.</string>
+    <string name="picker_lasts">Dure %1$d min</string>
+    <string name="picker_send_everyone">Envoyer à tout le monde à proximité</string>
+    <string name="picker_send_group">Envoyer à %1$s</string>
+    <string name="picker_group_note">Signé par vous et chiffré : seul %1$s peut le lire.</string>
+    <string name="picker_audience">Qui le voit</string>
+    <string name="picker_audience_group">%1$s uniquement</string>
+    <string name="picker_change_type">Changer de type</string>
+    <string name="picker_sent_ago">Envoyé il y a %1$d s</string>
+    <string name="picker_no_map">Prenez d\'abord une carte : un signalement se place au centre de la carte, jamais à votre position.</string>
+    <string name="sending_in">%1$s : envoi dans %2$d s</string>
+    <string name="sending_in_discreet">Envoi dans %1$d s</string>
+    <string name="cancel">Annuler</string>
+    <string name="sent">Envoyé à tout le monde à proximité</string>
+
+    <!-- Report pins and rows (components/ReportPin) -->
+    <string name="source_nearby">d\'un téléphone proche, non vérifié</string>
+    <string name="source_yours">le vôtre</string>
+    <string name="source_group">de %1$s dans %2$s</string>
+    <string name="pin_described">%1$s, %2$s, %3$s</string>
+    <plurals name="pin_confirmations">
+        <item quantity="one">%1$d confirmation</item>
+        <item quantity="many">%1$d confirmations</item>
+        <item quantity="other">%1$d confirmations</item>
+    </plurals>
+    <string name="pin_probably_gone">probablement terminé</string>
+    <string name="pin_could_be_trap">non confirmé, peut-être un piège</string>
+    <string name="row_could_be_trap">Non confirmé · peut-être un piège</string>
+    <!-- §7 N7 -->
+    <string name="detail_could_be_trap">Non confirmé : peut-être un piège. N\'importe qui à proximité a pu l\'envoyer, et un faux peut mener des gens dans une nasse. Vérifiez auprès de votre groupe avant d\'y aller.</string>
+    <string name="direction_north">nord</string>
+    <string name="direction_north_east">nord-est</string>
+    <string name="direction_east">est</string>
+    <string name="direction_south_east">sud-est</string>
+    <string name="direction_south">sud</string>
+    <string name="direction_south_west">sud-ouest</string>
+    <string name="direction_west">ouest</string>
+    <string name="direction_north_west">nord-ouest</string>
+    <string name="distance_direction">Environ %1$d m %2$s</string>
+    <string name="reported_ago">signalé il y a %1$d min</string>
+    <string name="reported_now">signalé à l\'instant</string>
+    <string name="row_source_nearby">à proximité</string>
+    <string name="row_source_yours">le vôtre</string>
+    <string name="row_source_group">%1$s dans %2$s</string>
+
+    <!-- Reports near you (screens/ReportsNearYou) -->
+    <string name="reports_title">Signalements autour de vous</string>
+    <string name="reports_empty_title">Aucun signalement pour l\'instant</string>
+    <string name="reports_empty_body">Les signalements des téléphones proches apparaissent ici et sur la carte, et disparaissent quand ils expirent.</string>
+    <string name="reports_from_centre">Triés par distance depuis le centre de la carte : votre localisation est désactivée.</string>
+    <string name="reports_report_here">Signaler au centre de la carte</string>
+
+    <!-- Report detail (patterns/ReportDetail) -->
+    <string name="detail_public_title">D\'un téléphone proche.</string>
+    <string name="detail_public_body">Toute personne utilisant Echo peut en envoyer, et celui-ci peut être faux.</string>
+    <string name="detail_direct">Arrivé directement.</string>
+    <string name="detail_relayed">Relayé en %1$d sauts.</string>
+    <string name="detail_yours_title">Votre signalement.</string>
+    <string name="detail_yours_body">Envoyé à tout le monde à proximité. Le retirer le supprime de tous les téléphones qu\'il a atteints.</string>
+    <string name="detail_yours_group_body">Envoyé à %1$s uniquement. Le retirer le supprime de tous les téléphones qu\'il a atteints.</string>
+    <string name="detail_group_title">De %1$s, dans %2$s.</string>
+    <string name="detail_group_body">Signé par le téléphone de %1$s et chiffré pour votre groupe.</string>
+    <string name="detail_withdraw">Retirer le signalement</string>
+    <string name="detail_withdrawn">Signalement retiré</string>
+    <string name="vote_still_there">Toujours là</string>
+    <string name="vote_gone">Terminé</string>
+    <string name="vote_said_there">Vous avez dit toujours là</string>
+    <string name="vote_said_gone">Vous avez dit terminé</string>
+    <string name="votes_from">%1$s : %2$s</string>
+    <string name="votes_confirmed">confirmé %1$d fois</string>
+    <string name="votes_said_gone">terminé selon %1$d</string>
+    <string name="votes_nearby">À proximité</string>
+    <string name="votes_your_groups">Vos groupes</string>
+    <string name="votes_none">Pas encore de vote.</string>
+    <string name="detail_gone_public">Estompé parce que bien plus de téléphones proches ont dit que c\'est terminé. Ces votes peuvent être fabriqués, il reste donc sur la carte jusqu\'à son expiration.</string>
+    <string name="detail_gone_group">Estompé parce que quelqu\'un dans %1$s a dit que c\'est terminé et que personne dans %1$s ne l\'a confirmé depuis.</string>
+
+    <!-- Mesh (patterns/MeshOnOff, components/MeshStatus) -->
+    <string name="mesh_sheet_title">Maillage</string>
+    <string name="mesh_switch_on">Le maillage est activé</string>
+    <string name="mesh_switch_off">Le maillage est coupé</string>
+    <string name="mesh_switch_support">S\'arrête quand vous le coupez</string>
+    <string name="mesh_phones_in_range">Téléphones à portée (approximatif)</string>
+    <string name="mesh_last_report">Dernier signalement reçu</string>
+    <string name="mesh_last_report_none">Aucun pour l\'instant</string>
+    <string name="mesh_ago">il y a %1$s</string>
+    <string name="mesh_radios">Radios utilisées</string>
+    <string name="mesh_radio_short">Courte portée, faible consommation</string>
+    <string name="mesh_radio_street">Portée d\'une rue</string>
+    <string name="mesh_radio_block">Portée d\'un pâté de maisons</string>
+    <string name="mesh_radio_background">Fonctionne écran éteint</string>
+    <string name="mesh_radio_foreground">Fonctionne quand Echo est ouvert</string>
+    <string name="mesh_radio_simulated">Cette version de développement utilise une radio simulée et n\'atteint aucun autre téléphone.</string>
+    <string name="mesh_no_radio">Cette version n\'a pas encore de radio, elle ne peut donc pas joindre d\'autres téléphones.</string>
+    <string name="mesh_failed">La radio n\'a pas démarré</string>
+    <string name="mesh_failed_body">La radio n\'a pas démarré. Coupez puis réactivez le maillage ; si l\'échec persiste, redémarrez le téléphone.</string>
+    <string name="mesh_radio_off">Bluetooth désactivé</string>
+    <string name="mesh_radio_off_body">Echo communique avec les autres téléphones par Bluetooth, et il est désactivé.</string>
+    <string name="mesh_radio_off_fix">Activer le Bluetooth</string>
+    <string name="mesh_permission_needed">Autorisation requise</string>
+    <string name="mesh_permission_body">Echo a besoin de l\'autorisation Appareils à proximité pour communiquer avec les autres téléphones. Il n\'a pas besoin de votre position.</string>
+    <string name="mesh_permission_fix">Autoriser Appareils à proximité</string>
+    <string name="mesh_unsupported">Impossible ici</string>
+    <string name="mesh_unsupported_body">Le Bluetooth de ce téléphone ne peut pas faire fonctionner le maillage. Vos signalements restent affichés sur votre carte.</string>
+    <string name="mesh_stopped_body">Android a arrêté Echo alors que le maillage était activé, il a donc cessé de relayer. Réactivez le maillage, et laissez Echo fonctionner en arrière-plan pour que cela ne se reproduise pas.</string>
+    <string name="mesh_stopped_fix">Autoriser l\'arrière-plan</string>
+    <string name="nearby_title">Communiquer avec les téléphones proches ?</string>
+    <string name="nearby_body">Echo communique avec les autres téléphones par Bluetooth. Android appelle cela Appareils à proximité. Echo n\'a pas besoin de votre position pour cela.</string>
+    <string name="notifications_title">Indiquer qu\'Echo relaie ?</string>
+    <string name="notifications_body">Android affiche une notification pendant qu\'Echo relaie en arrière-plan. Elle ne montre jamais de contenu sur votre écran de verrouillage.</string>
+    <string name="notification_channel">Maillage</string>
+    <string name="notification_title">Maillage activé</string>
+    <string name="notification_searching">Recherche de téléphones · relais</string>
+    <string name="notification_nearby">%1$s à proximité · relais</string>
+    <string name="notification_turn_off">Couper</string>
+    <string name="notification_sharing_title">Vous partagez votre position avec %1$s</string>
+    <string name="notification_sharing_text">Mises à jour tant qu\'Echo est ouvert · %1$s</string>
+    <string name="notification_stops_in">s\'arrête dans %1$d h %2$02d</string>
+    <string name="notification_stops_in_minutes">s\'arrête dans %1$d min</string>
+    <string name="notification_stop_sharing">Arrêter le partage</string>
+    <string name="mesh_honesty">Toute personne proche équipée d\'un récepteur radio peut savoir que votre téléphone utilise Echo. Rien de ce qu\'il envoie ne porte votre nom, votre numéro ou un identifiant fixe.</string>
+    <string name="mesh_on_snackbar">Maillage activé</string>
+    <string name="mesh_off_snackbar">Maillage coupé. Vos signalements restent jusqu\'à leur expiration.</string>
+    <!-- Groups (WI-017, WI-022): patterns/CreateGroup, patterns/QrJoinFlow, screens/GroupRoster. -->
+    <string name="groups_title">Groupes</string>
+    <string name="groups_empty">Vous n\'êtes dans aucun groupe. Un groupe partage des signalements chiffrés que seuls ses membres peuvent lire.</string>
+    <string name="groups_create">Créer un groupe</string>
+    <string name="groups_join">Rejoindre en scannant</string>
+    <string name="groups_full">Vous êtes dans 5 groupes, le maximum autorisé par Echo. Quittez-en un d\'abord.</string>
+    <string name="groups_cant_remove">Vous ne pouvez pas retirer quelqu\'un d\'un groupe. Créez-en un nouveau et partagez-le en personne.</string>
+    <string name="groups_row">%1$d vus récemment · se termine le %2$s</string>
+    <string name="groups_row_sharing">vous partagez votre position</string>
+    <string name="groups_mesh_needed">Activez d\'abord le maillage depuis la carte. Les deux téléphones communiquent par lui.</string>
+    <string name="groups_no_radio">Cette version n\'a pas de radio, elle ne peut donc ni rejoindre un groupe ni ajouter quelqu\'un.</string>
+    <string name="create_title">Nouveau groupe</string>
+    <string name="create_name_label">Nom du groupe</string>
+    <string name="create_name_help">Affiché sur ce téléphone, et aux personnes que vous ajoutez en personne. Jamais à quelqu\'un d\'autre.</string>
+    <string name="create_lifetime">Durée</string>
+    <string name="lifetime_6h">6 h</string>
+    <string name="lifetime_24h">24 h</string>
+    <string name="lifetime_3d">3 jours</string>
+    <string name="lifetime_7d">7 jours</string>
+    <string name="create_lifetime_help">À la fin, ses clés sont supprimées de tous les téléphones. Plus court, c\'est plus sûr : moins de choses exposées si un téléphone est pris.</string>
+    <string name="nickname_label">Votre pseudo dans ce groupe</string>
+    <string name="nickname_help">Tout le groupe le voit. N\'utilisez jamais votre vrai nom.</string>
+    <string name="nickname_new">Nouveau pseudo</string>
+    <string name="nickname_too_long">Trop long. Faites court.</string>
+    <string name="create_button">Créer %1$s</string>
+    <string name="create_button_plain">Créer</string>
+    <string name="roster_ends">Se termine le %1$s</string>
+    <string name="roster_members">Membres</string>
+    <string name="roster_you">%1$s (vous)</string>
+    <string name="roster_add">Ajouter quelqu\'un en personne</string>
+    <string name="roster_leave">Quitter %1$s</string>
+    <string name="leave_title">Quitter %1$s ?</string>
+    <string name="leave_body">Ses clés sont supprimées de ce téléphone. Pour revenir, quelqu\'un devra vous montrer le code à nouveau.</string>
+    <string name="leave_confirm">Quitter</string>
+    <string name="code_title">Ajouter quelqu\'un</string>
+    <string name="code_warning">Ne montrez ceci qu\'en face à face. Quiconque le scanne peut lire les signalements de %1$s.</string>
+    <string name="code_description">Code d\'accès pour %1$s</string>
+    <string name="code_countdown">Une personne, un scan · nouveau code dans %1$s</string>
+    <string name="code_joined">%1$s a rejoint %2$s</string>
+    <string name="code_joined_check">Ce n\'est pas la personne en face de vous ? Quelqu\'un d\'autre a utilisé le code. Créez un nouveau groupe en personne et arrêtez d\'utiliser celui-ci.</string>
+    <string name="scan_title">Rejoindre un groupe</string>
+    <string name="scan_start">Scanner le code</string>
+    <string name="scan_camera_body">Echo a besoin de l\'appareil photo pour lire le code. Il ne lit que le code, ne prend aucune photo et ne garde rien.</string>
+    <string name="scan_camera_allow">Autoriser l\'appareil photo</string>
+    <string name="scan_camera_denied">L\'autorisation de l\'appareil photo est désactivée. Activez-la dans les Paramètres pour scanner un code.</string>
+    <string name="scan_open_settings">Ouvrir les Paramètres</string>
+    <string name="scan_hint">Pointez l\'appareil photo vers le code sur l\'autre téléphone.</string>
+    <string name="scan_not_echo">Ce n\'est pas un code de groupe Echo.</string>
+    <string name="joining">Connexion…</string>
+    <string name="joining_body">Gardez les deux téléphones proches. Ils communiquent directement, pas par le maillage.</string>
+    <string name="joined_title">Vous avez rejoint %1$s</string>
+    <string name="joined_body">Tout le monde dans %1$s voit que vous avez rejoint. Le groupe se termine le %2$s.</string>
+    <string name="join_failed">Pas de réponse de l\'autre téléphone. Le code a peut-être été utilisé ou a expiré, ou les téléphones sont trop éloignés. Demandez un nouveau code.</string>
+    <string name="join_full">Vous êtes déjà dans 5 groupes, le maximum autorisé par Echo. Quittez-en un d\'abord.</string>
+    <string name="join_again">Scanner à nouveau</string>
+    <string name="joined_name_help">Le nom utilisé par l\'autre téléphone. Changez-le si vous voulez : seul ce téléphone voit ce que vous choisissez.</string>
+    <string name="done">Terminé</string>
+    <string name="share_title">Partager votre position avec %1$s</string>
+    <string name="share_30_min">30 minutes</string>
+    <string name="share_1_hour">1 heure</string>
+    <string name="share_2_hours">2 heures</string>
+    <string name="share_until_off">Jusqu\'à l\'arrêt du maillage</string>
+    <!-- §7 P1, P4 -->
+    <string name="share_callout">%1$s voit où vous êtes, mis à jour environ chaque minute. Chaque mise à jour expire après quelques minutes, et rien n\'est stocké sur aucun téléphone.</string>
+    <string name="share_start">Commencer le partage</string>
+    <string name="share_needs_location">Le partage a besoin de votre position. Vous pouvez l\'autoriser dans les paramètres du téléphone.</string>
+    <string name="share_mesh_off">Activez le maillage pour partager votre position.</string>
+    <string name="sharing_bar">Vous partagez votre position avec %1$s · %2$s</string>
+    <string name="sharing_left_hours">%1$d h %2$02d restantes</string>
+    <string name="sharing_left_minutes">%1$d min restantes</string>
+    <string name="sharing_until_off">jusqu\'à l\'arrêt du maillage</string>
+    <string name="sharing_stop">Arrêter</string>
+    <string name="sharing_stopped_time">Partage de votre position avec %1$s arrêté : le temps est écoulé.</string>
+    <string name="sharing_stopped_mesh">Partage de votre position avec %1$s arrêté : le maillage est coupé.</string>
+    <string name="sharing_stopped_group">Partage de votre position avec %1$s arrêté : vous n\'en faites plus partie.</string>
+    <string name="roster_share">Partager ma position</string>
+    <string name="roster_share_on">%1$s voit où vous êtes · %2$s</string>
+    <string name="roster_share_off">Désactivé. Personne ne voit où vous êtes.</string>
+    <string name="member_sharing">Partage · vu %1$s</string>
+    <string name="age_seconds">il y a %1$d s</string>
+    <string name="age_minutes">il y a %1$d min</string>
+    <string name="marker_described">%1$s dans %2$s, vu %3$s</string>
+    <string name="member_muted">Masqué · caché sur ce téléphone</string>
+    <string name="member_mute">Masquer %1$s</string>
+    <string name="member_unmute">Ne plus masquer %1$s</string>
+    <string name="member_mute_body">Masquer cache les signalements, votes et position de %1$s sur ce téléphone uniquement. %1$s reste dans %2$s et n\'est pas prévenu.</string>
+    <string name="roster_muted_callout">Vous ne pouvez pas retirer quelqu\'un. Masquez cette personne sur votre téléphone, ou créez un nouveau groupe et partagez-le en personne.</string>
+    <string name="member_seen">Vu %1$s</string>
+    <string name="member_show_on_map">Voir sur la carte</string>
+    <string name="roster_seen_note">Les membres non vus depuis 15 min disparaissent de cette liste. Aucun historique n\'est gardé.</string>
+    <string name="joined_snackbar">%1$s a rejoint %2$s</string>
+    <string name="filter_everything">Tout</string>
+    <string name="filter_my_groups">Mes groupes</string>
+    <string name="filter_groups_only">Afficher mes groupes uniquement</string>
+    <string name="filter_show_everything">Tout afficher</string>
+    <string name="wipe_button">Tout effacer</string>
+    <string name="wipe_title">Tout effacer ?</string>
+    <!-- §7 P5 -->
+    <string name="wipe_body">Les groupes et leurs clés, tous les signalements, les réglages. Ensuite, l\'appli est comme fraîchement installée.</string>
+    <!-- §7 P5 -->
+    <string name="wipe_body_maps">Les groupes et leurs clés, tous les signalements, les réglages et les cartes. Ensuite, l\'appli est comme fraîchement installée.</string>
+    <string name="wipe_others">Les copies sur d\'autres téléphones restent. Rien n\'est envoyé pour dire que vous avez effacé.</string>
+    <string name="wipe_include_maps">Supprimer aussi les cartes</string>
+    <string name="wipe_hold">Maintenir pour effacer</string>
+    <string name="wipe_keep_holding">Continuez à maintenir · %1$.1f s</string>
+    <string name="wipe_cancel">Annuler</string>
+    <string name="tile_label">Echo discret</string>
+    <string name="discreet_on">Mode discret activé. Touchez pour le désactiver</string>
+    <string name="discreet_off">Mode discret désactivé. Touchez pour l\'activer</string>
+    <string name="notification_discreet_title">Echo</string>
+    <string name="notification_discreet_text">En cours · Touchez pour ouvrir</string>
+
+    <!-- Low density (F16, WI-035) -->
+    <string name="mesh_low_density">Peu de téléphones entendus récemment. Il peut manquer des signalements sur la carte : une carte vide ne veut pas dire voie libre.</string>
+    <string name="map_alone">Aucun téléphone à proximité. Les signalements ne peuvent pas vous parvenir, donc une carte vide ne veut pas dire voie libre.</string>
+
+    <!-- Field diagnostics (F17, WI-036) -->
+    <string name="diagnostics_title">Diagnostics de terrain</string>
+    <string name="diagnostics_switch">Compter le comportement du maillage</string>
+    <string name="diagnostics_open">Diagnostics de terrain</string>
+    <string name="diagnostics_on">Activé</string>
+    <string name="diagnostics_off">Désactivé</string>
+    <string name="diagnostics_counts">Pour les tests de terrain. Une fois activé, Echo compte chaque minute les téléphones proches, les signalements reçus et relayés, leur délai d\'arrivée, les connexions échouées, le niveau de batterie, et si Android a arrêté le maillage.</string>
+    <!-- §7 P4, P6 -->
+    <string name="diagnostics_never">Il n\'enregistre jamais une position, un signalement, une zone de carte, un groupe, un pseudo, une clé ni l\'heure. Les comptes sont en minutes depuis l\'activation.</string>
+    <!-- §7 P4, P6 -->
+    <string name="diagnostics_kept">Les comptes restent en mémoire et ne sont jamais envoyés. Ils sont oubliés quand vous désactivez ceci, quand Echo s\'arrête, ou avec l\'effacement d\'urgence. Vous pouvez les partager vous-même ci-dessous.</string>
+    <string name="diagnostics_review">Le fichier complet</string>
+    <string name="diagnostics_share">Partager ce fichier</string>
+    <string name="diagnostics_refresh">Actualiser</string>
+</resources>

@@ -50,6 +50,8 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-dev"
+            // en-XA and ar-XB in debug builds: a run in each catches truncation and hard-coded text (NFR-21).
+            isPseudoLocalesEnabled = true
         }
     }
 

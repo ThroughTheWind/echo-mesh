@@ -28,6 +28,7 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-034](items/WI-034-steering-report-warnings.md) | Warn on public steering reports and hide their public counts | feature | `claude/project-thread-67cn4e` |
 | [WI-035](items/WI-035-low-density-honesty.md) | Tell people when the mesh around them is too thin | feature | `claude/project-thread-67cn4e` |
 | [WI-036](items/WI-036-field-diagnostics.md) | Export a field diagnostics file with no positions or reports | feature | `claude/project-thread-67cn4e` |
+| [WI-037](items/WI-037-languages-en-fr-es.md) | Ship Echo in English, French and Spanish | feature | `claude/project-thread-67cn4e` |
 
 ## Review
 
@@ -52,7 +53,6 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-031](items/WI-031-accessibility-pass.md) | Accessibility pass | chore |
 | [WI-032](items/WI-032-reproducible-build.md) | Verify the build is reproducible and F-Droid ready | chore |
 | [WI-033](items/WI-033-release-1-0.md) | Final docs and cut 1.0.0 | chore |
-| [WI-037](items/WI-037-languages-en-fr-es.md) | Ship Echo in English, French and Spanish | feature |
 | [WI-038](items/WI-038-release-key-custody.md) | Publish who signs Echo and how to check it | docs |
 | [WI-039](items/WI-039-phase-5-release-1-1.md) | Phase 5 — Release 1.1: groups through the whole day | epic |
 | [WI-040](items/WI-040-accept-threat-model-1-1.md) | Review and accept the threat model's 1.1 section | docs |

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spanish (WI-037). Draft: the safety set (onboarding, What Echo protects, wipe, QR warning,
+         steering warning) needs a fluent speaker's review against threat model §7 before it ships
+         (FR-18.3). Comments are the English file's, kept so the two read side by side. -->
+    <!-- Expiry indicator (components/ExpiryIndicator): minutes, never seconds. -->
+    <string name="ds_time_left">quedan %1$d min</string>
+    <string name="ds_time_left_under_one">queda menos de 1 min</string>
+    <string name="ds_time_of_total">de %1$d</string>
+    <string name="ds_time_compact">%1$dm</string>
+    <string name="ds_time_compact_under_one">&lt;1m</string>
+    <string name="ds_time_refreshed">Las confirmaciones lo mantuvieron en el mapa, %1$d min como máximo</string>
+
+    <!-- Mesh status chip (components/MeshStatus). -->
+    <string name="ds_mesh_off">Malla apagada</string>
+    <string name="ds_mesh_turn_on">Encender</string>
+    <string name="ds_mesh_searching">Buscando teléfonos</string>
+    <string name="ds_mesh_nearby">%1$s cerca</string>
+    <string name="ds_mesh_alone">Ningún teléfono cerca</string>
+    <string name="ds_mesh_few">Pocos teléfonos · %1$s cerca</string>
+    <string name="ds_mesh_described_few">Pocos teléfonos oídos últimamente: al mapa le pueden faltar avisos</string>
+    <string name="ds_mesh_fix">Arreglar</string>
+    <string name="ds_mesh_stopped">Retransmisión detenida</string>
+    <string name="ds_mesh_no_radio">Esta versión no tiene radio</string>
+    <string name="ds_mesh_described_on">%1$s teléfonos cerca, último aviso %2$s</string>
+    <string name="ds_mesh_described_on_none">%1$s teléfonos cerca, aún sin avisos</string>
+    <string name="ds_age_seconds">%1$ds</string>
+    <string name="ds_age_minutes">%1$d min</string>
+    <string name="ds_age_hours">%1$d h</string>
+</resources>

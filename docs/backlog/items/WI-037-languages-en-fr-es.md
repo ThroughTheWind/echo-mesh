@@ -2,10 +2,10 @@
 id: WI-037
 title: Ship Echo in English, French and Spanish
 type: feature
-status: planned
-branch:
+status: in_progress
+branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-17
+updated: 2026-11-19
 related: [F18, US-25, FR-18.1, FR-18.2, FR-18.3, FR-18.4, FR-18.5, NFR-21, AC-29]
 epic: WI-029
 children: []
@@ -49,5 +49,17 @@ Phase 4 of the [roadmap](../../ROADMAP.md), from the [extended spec](../../SPEC-
 - Right-to-left languages (prepared for, not shipped).
 
 ## Execution
+
+2026-11-19.
+
+- French and Spanish drafts of every string, in `values-fr/` and `values-es/` beside both English files (app and design system), in the English order with the English comments kept. Dates already come from the system's formatter, so they follow the language.
+- `scripts/gates/locales.mjs` (fast tier, with a self-test that includes a planted missing French string): every shipped language has every string, nothing extra, the same format arguments, and plurals with `one` and `other`; and no layout says left or right (FR-18.4). It found none.
+- `res/xml/locales_config.xml` and `android:localeConfig`: Android 13 and later offer Echo's own language setting. Debug builds enable the `en-XA` and `ar-XB` pseudo-locales for the truncation run.
+- `docs/translating.md`: where strings live, how to add a language, the review rule for the safety set, a glossary (maillage / malla for mesh, nasse / encapsulamiento for kettle, and so on), and a review record. AGENTS.md's English-only line now points there.
+- Deviation: no in-app language override yet, because there is no settings screen to hold it; F-005 records the missing screen, and the override is its language row. Android 13+ users have the system's per-app setting meanwhile; Android 12 users follow the phone's language.
+
+Still to do on this item, all needing people or phones: the fluent review of the safety set in French and in Spanish (FR-18.3), recorded in `docs/translating.md`; the pseudo-locale and French and Spanish runs on a phone (AC-29); the in-app override with the settings screen.
+
+branch-merged-ok: the drafts and the gate merge with PR #6 while the reviews and AC-29 wait for people and phones.
 
 ## Review

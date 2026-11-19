@@ -58,6 +58,20 @@ command = "node scripts/gates/claims.mjs"
 why     = "NFR-14: every safety sentence the app says cites its threat model §7 row, no row is invented, and the What Echo protects page shows every row (WI-026). People act on these sentences under pressure."
 
 [[gates]]
+id      = "locales-self-test"
+kind    = "command"
+tier    = "fast"
+command = "node scripts/gates/locales.mjs --self-test"
+why     = "The locales gate below passes on complete translations, which looks the same as a gate that reads nothing; its fixtures prove each failure, a planted missing French string included."
+
+[[gates]]
+id      = "locales"
+kind    = "command"
+tier    = "fast"
+command = "node scripts/gates/locales.mjs"
+why     = "NFR-21, FR-18.4: every shipped language has every string with the same format arguments, so nobody under pressure meets English or a crash in the middle of their language; and layout uses start and end so a right-to-left language can follow."
+
+[[gates]]
 id      = "design-tokens"
 kind    = "command"
 tier    = "fast"
