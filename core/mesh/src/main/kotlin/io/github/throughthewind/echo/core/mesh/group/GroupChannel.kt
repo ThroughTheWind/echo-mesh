@@ -54,6 +54,17 @@ data class GroupInfo(
     val myNickname: String,
     /** Nicknames of the members this phone knows of, itself included (FR-8.7). */
     val members: List<String>,
+    /** The same members with what the roster needs to mute one (FR-9.4). */
+    val roster: List<MemberInfo> = emptyList(),
+)
+
+/** A member as the roster shows them: never their key, only its id to mute them by. */
+data class MemberInfo(
+    val id: Bytes,
+    val nickname: String,
+    val isMe: Boolean,
+    /** Hidden on this phone only (FR-9.4). */
+    val muted: Boolean,
 )
 
 /** A group report this phone could open (FR-9.1): who in which group said it. */
@@ -299,6 +310,24 @@ class GroupChannel(
         return relay.publish(frame) is Validation.Opaque
     }
 
+    /**
+     * Mutes or unmutes the member [member] of the group [id] on this phone only (FR-9.4): their
+     * reports, votes and position are hidden at once (AC-24), and still relayed, so the rest of the
+     * mesh is not affected. Kept with the group. False for yourself or someone not on the roster.
+     */
+    suspend fun mute(
+        id: Bytes,
+        member: Bytes,
+        muted: Boolean,
+    ): Boolean =
+        lock.withLock {
+            val group = book[id] ?: return false
+            if (!group.mute(member, muted)) return false
+            save(group)
+            publish()
+            true
+        }
+
     /** Ratchets keys, ends expired groups (FR-8.6) and drops expired reports. */
     suspend fun sweep() {
         lock.withLock {
@@ -312,7 +341,6 @@ class GroupChannel(
             // A vote outlives its report by at most the longest lifetime; then it is forgotten.
             val minute = now.wireMinute()
             groupVotes.values.removeAll { byMember -> byMember.values.all { it.minute + VOTE_MEMORY_MINUTES < minute } }
-            voteList.value = groupVotes.mapValues { it.value.values.toList() }
             latest.values.removeAll { it.expiresAt <= now || book[it.groupId] == null }
             publish()
         }
@@ -590,8 +618,8 @@ class GroupChannel(
                     val byMember = groupVotes.getOrPut(message.target) { LinkedHashMap() }
                     val previous = byMember[cast.voter]
                     if (previous == null || previous.minute <= cast.minute) byMember[cast.voter] = cast
-                    if (message.vote == Vote.CONFIRM) {
-                        // A confirmation refreshes the report's time left, capped (FR-6.3).
+                    if (message.vote == Vote.CONFIRM && !opened.group.isMuted(opened.sender.keyId)) {
+                        // A confirmation refreshes the report's time left, capped (FR-6.3); a muted member's does not.
                         val report = held[message.target]
                         if (report != null) {
                             val r = report.report
@@ -609,7 +637,6 @@ class GroupChannel(
                             relay.groupConfirmed(message.target, message.createdMinute)
                         }
                     }
-                    voteList.value = groupVotes.mapValues { it.value.values.toList() }
                 }
 
                 is GroupMessage.Withdrawal -> {
@@ -706,14 +733,22 @@ class GroupChannel(
 
     private fun publish() {
         val now = clock()
-        shown.value = held.values.filter { !it.report.isExpired(now) }
-        positionList.value = latest.values.filter { it.expiresAt > now }
+        // A muted member's reports, votes and position are hidden here, on this phone only (FR-9.4).
+        val muted = book.all.flatMap { it.muted }.toSet()
+        shown.value = held.values.filter { !it.report.isExpired(now) && !book[it.groupId].isMutedHere(authors[it.id]) }
+        positionList.value = latest.values.filter { it.expiresAt > now && it.member !in muted }
+        voteList.value =
+            groupVotes
+                .mapValues { (_, byMember) -> byMember.values.filter { it.voter !in muted } }
+                .filterValues { it.isNotEmpty() }
         publishGroups()
     }
 
     private fun publishGroups() {
         groupList.value = book.all.map { it.info() }
     }
+
+    private fun Group?.isMutedHere(keyId: Bytes?): Boolean = this != null && isMuted(keyId)
 
     private fun Group.info() =
         GroupInfo(
@@ -722,5 +757,6 @@ class GroupChannel(
             expiresAt = instantOfWireMinute(expiresMinute),
             myNickname = myNickname,
             members = roster.map { it.nickname },
+            roster = roster.map { MemberInfo(it.keyId, it.nickname, isMe = it.keyId == self.keyId, muted = isMuted(it.keyId)) },
         )
 }

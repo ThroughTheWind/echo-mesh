@@ -35,7 +35,10 @@ interface SealedRecords {
  */
 internal object GroupRecord {
     const val PREFIX = "group-"
-    private const val VERSION = 1
+
+    /** 2 adds the muted members (WI-021); a version 1 record reads as muting nobody. */
+    private const val VERSION = 2
+    private const val VERSION_WITHOUT_MUTES = 1
     private const val MAX_EPOCHS = 16
 
     fun name(id: Bytes): String = PREFIX + id.toByteArray().joinToString("") { "%02x".format(it) }
@@ -64,6 +67,9 @@ internal object GroupRecord {
             out.write(it.publicKey.toByteArray())
             text(out, it.nickname)
         }
+        val muted = group.muted
+        out.writeByte(muted.size)
+        muted.forEach { out.write(it.toByteArray()) }
         out.flush()
         return bytes.toByteArray()
     }
@@ -73,7 +79,8 @@ internal object GroupRecord {
         val keys = ArrayList<Pair<Long, ByteArray>>()
         val seed = ByteArray(MemberKey.SEED_BYTES)
         return try {
-            if (input.readUnsignedByte() != VERSION) return null
+            val version = input.readUnsignedByte()
+            if (version != VERSION && version != VERSION_WITHOUT_MUTES) return null
             val id = ByteArray(GroupInner.GROUP_ID_BYTES).also { input.readFully(it) }
             val name = text(input) ?: return null
             val expires = input.readLong()
@@ -93,6 +100,16 @@ internal object GroupRecord {
                     val key = ByteArray(Wire.PUBLIC_KEY_BYTES).also { input.readFully(it) }
                     Member(Bytes(key), text(input) ?: return null)
                 }
+            val muted =
+                if (version == VERSION_WITHOUT_MUTES) {
+                    emptyList()
+                } else {
+                    val count = input.readUnsignedByte()
+                    if (count >= rosterCount) return null
+                    List(count) { Bytes(ByteArray(GroupInner.KEY_ID_BYTES).also { input.readFully(it) }) }
+                }
+            val ids = roster.map { it.keyId }.toSet()
+            if (muted.any { it !in ids } || muted.toSet().size != muted.size) return null
             if (input.available() != 0) return null
             Group(
                 id = Bytes(id),
@@ -102,6 +119,7 @@ internal object GroupRecord {
                 me = MemberKey.fromSeed(seed),
                 myNickname = nickname,
                 roster = roster,
+                muted = muted,
             )
         } catch (_: IOException) {
             null

@@ -9,9 +9,11 @@ import org.junit.jupiter.api.Test
 import kotlin.random.Random
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.hours
 
 /** A group as it is kept between runs (FR-12.1): everything needed to go on, nothing more. */
@@ -41,6 +43,22 @@ class GroupRecordTest {
     }
 
     @Test
+    fun `a muted member stays muted across a restart, and a version 1 record mutes nobody`() {
+        val group = GroupBook().create("Crew", 24.hours, "Fox", now)!!
+        val owl = Member(Bytes(ByteArray(32) { 3 }), "Owl")
+        group.add(owl)
+        assertFalse(group.mute(group.self.keyId, true), "never yourself")
+        assertTrue(group.mute(owl.keyId, true))
+        val record = GroupRecord.encode(group)
+        assertEquals(setOf(owl.keyId), assertNotNull(GroupRecord.decode(record)).muted)
+        // A version 1 record is the same without the trailing count of muted members.
+        val v1 = record.copyOf(record.size - 1 - 8).also { it[0] = 1 }
+        assertEquals(emptySet(), assertNotNull(GroupRecord.decode(v1)).muted)
+        assertTrue(group.mute(owl.keyId, false))
+        assertEquals(emptySet(), assertNotNull(GroupRecord.decode(GroupRecord.encode(group))).muted)
+    }
+
+    @Test
     fun `a record holds only the epoch keys held now`() {
         val group = GroupBook().create("Crew", 24.hours, "Fox", now)!!
         group.epochs.advanceTo(GroupBook.epochOf(now) + 10)
@@ -55,7 +73,7 @@ class GroupRecordTest {
         assertNull(GroupRecord.decode(ByteArray(0)))
         assertNull(GroupRecord.decode(record.copyOf(record.size - 1)))
         assertNull(GroupRecord.decode(record + 0))
-        assertNull(GroupRecord.decode(record.copyOf().also { it[0] = 2 }), "unknown version")
+        assertNull(GroupRecord.decode(record.copyOf().also { it[0] = 3 }), "unknown version")
         val random = Random(1)
         repeat(2_000) {
             val damaged = record.copyOf().also { it[random.nextInt(it.size)] = random.nextInt(256).toByte() }

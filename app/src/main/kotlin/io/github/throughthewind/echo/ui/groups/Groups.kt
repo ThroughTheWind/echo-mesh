@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -17,9 +18,11 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -51,6 +54,7 @@ import io.github.throughthewind.echo.core.designsystem.theme.LocalStreetColors
 import io.github.throughthewind.echo.core.designsystem.theme.Touch
 import io.github.throughthewind.echo.core.mesh.group.GroupBook
 import io.github.throughthewind.echo.core.mesh.group.GroupInfo
+import io.github.throughthewind.echo.core.mesh.group.MemberInfo
 import io.github.throughthewind.echo.core.mesh.group.MemberPosition
 import io.github.throughthewind.echo.core.mesh.node.MeshState
 import io.github.throughthewind.echo.core.mesh.node.Sharing
@@ -90,7 +94,7 @@ private sealed interface Page {
 /**
  * The groups screens (WI-017, WI-022): the list, creating a group, a group's roster, showing a join
  * code and scanning one. Built to screens/GroupRoster, patterns/CreateGroup and patterns/QrJoinFlow;
- * position sharing and muting come with their own items.
+ * sharing your position (patterns/PositionSharing) and muting a member (FR-9.4) live on the roster.
  */
 @Composable
 fun GroupsScreen(
@@ -139,6 +143,7 @@ fun GroupsScreen(
                     positions = positions.filter { it.groupId == group.id },
                     onShare = { duration -> app.mesh.startSharing(group.id, duration?.let { Clock.System.now() + it }) },
                     onStopSharing = { app.mesh.stopSharing(group.id) },
+                    onMute = { member, muted -> channel?.mute(group.id, member, muted) },
                     onBack = toList,
                     onAdd = { page = Page.Code(group.id) },
                     onLeave = {
@@ -278,6 +283,7 @@ private fun GroupRoster(
     positions: List<MemberPosition>,
     onShare: (Duration?) -> Boolean,
     onStopSharing: () -> Unit,
+    onMute: suspend (Bytes, Boolean) -> Unit,
     onBack: () -> Unit,
     onAdd: () -> Unit,
     onLeave: suspend () -> Unit,
@@ -285,6 +291,7 @@ private fun GroupRoster(
     val scope = rememberCoroutineScope()
     var confirmLeave by remember { mutableStateOf(false) }
     var choosing by remember { mutableStateOf(false) }
+    var memberSheet by remember { mutableStateOf<Bytes?>(null) }
     val now = rememberNow()
     GroupPage(title = group.name, onBack = onBack) {
         Text(
@@ -304,35 +311,51 @@ private fun GroupRoster(
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.semantics { heading() },
         )
-        group.members.forEachIndexed { index, member ->
+        group.roster.forEachIndexed { index, member ->
+            val shared = positions.filter { it.member == member.id && now < it.expiresAt }.maxByOrNull { it.at }
             Row(
-                Modifier.fillMaxWidth().heightIn(min = Touch.comfort),
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = Touch.comfort)
+                    .clickable(enabled = !member.isMe) { memberSheet = member.id },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(LocalSpacing.current.lg),
             ) {
-                val shared = positions.filter { it.nickname == member && now < it.expiresAt }.maxByOrNull { it.at }
-                Box(Modifier.alpha(if (shared != null && now - shared.at > STALE_AFTER) STALE_ROW_ALPHA else 1f)) {
-                    Monogram(member, index)
+                val faded = member.muted || (shared != null && now - shared.at > STALE_AFTER)
+                Box(Modifier.alpha(if (faded) STALE_ROW_ALPHA else 1f)) {
+                    Monogram(member.nickname, index)
                 }
                 Column {
                     Text(
-                        if (member == group.myNickname) stringResource(R.string.roster_you, member) else member,
+                        if (member.isMe) stringResource(R.string.roster_you, member.nickname) else member.nickname,
                         style = MaterialTheme.typography.bodyLarge,
                     )
-                    if (shared != null) {
-                        Text(
-                            stringResource(R.string.member_sharing, seenAgo(shared.at, now)),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    val state =
+                        when {
+                            member.muted -> stringResource(R.string.member_muted)
+                            shared != null -> stringResource(R.string.member_sharing, seenAgo(shared.at, now))
+                            else -> null
+                        }
+                    if (state != null) {
+                        Text(state, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
         }
+        // Once anyone is muted, say what muting cannot do (screens/GroupRoster).
+        if (group.roster.any { it.muted }) Callout(stringResource(R.string.roster_muted_callout), warning = true)
         if (!meshOn) Text(stringResource(R.string.groups_mesh_needed), style = MaterialTheme.typography.bodyMedium)
         PrimaryButton(stringResource(R.string.roster_add), onAdd, enabled = meshOn)
         SecondaryButton(stringResource(R.string.roster_leave, group.name), { confirmLeave = true })
         IconLine(DS.drawable.ic_info, MaterialTheme.colorScheme.onSurfaceVariant, stringResource(R.string.groups_cant_remove))
+    }
+    group.roster.firstOrNull { it.id == memberSheet }?.let { member ->
+        MemberSheet(
+            member = member,
+            groupName = group.name,
+            onMute = { muted -> scope.launch { onMute(member.id, muted) } },
+            onDismiss = { memberSheet = null },
+        )
     }
     if (choosing) {
         ShareSheet(
@@ -363,6 +386,48 @@ private fun GroupRoster(
 }
 
 private const val STALE_ROW_ALPHA = 0.5f
+
+/**
+ * A member's sheet (patterns/MuteLeaveAndGroupEnd): Mute hides their reports, votes and position on
+ * this phone only (FR-9.4); they stay in the group and are not told.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MemberSheet(
+    member: MemberInfo,
+    groupName: String,
+    onMute: (Boolean) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val spacing = LocalSpacing.current
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            Modifier
+                .padding(horizontal = spacing.xxl)
+                .navigationBarsPadding()
+                .padding(bottom = spacing.xxl),
+            verticalArrangement = Arrangement.spacedBy(spacing.lg),
+        ) {
+            Text(member.nickname, style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+            if (member.muted) {
+                Text(stringResource(R.string.member_muted), style = MaterialTheme.typography.bodyLarge)
+                PrimaryButton(stringResource(R.string.member_unmute, member.nickname), {
+                    onMute(false)
+                    onDismiss()
+                })
+            } else {
+                Text(
+                    stringResource(R.string.member_mute_body, member.nickname, groupName),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                SecondaryButton(stringResource(R.string.member_mute, member.nickname), {
+                    onMute(true)
+                    onDismiss()
+                })
+            }
+        }
+    }
+}
 
 /**
  * "Share my position" (screens/GroupRoster): off by default every time (FR-10.1). Turning it on asks

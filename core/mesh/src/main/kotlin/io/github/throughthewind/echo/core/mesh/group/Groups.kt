@@ -38,8 +38,12 @@ class Group internal constructor(
     internal val me: MemberKey,
     val myNickname: String,
     roster: Collection<Member>,
+    muted: Collection<Bytes> = emptyList(),
 ) {
     private val members = LinkedHashMap<Bytes, Member>().apply { roster.forEach { put(it.keyId, it) } }
+
+    /** Members muted on this phone only, by key id (FR-9.4): kept with the group, gone with it. */
+    private val silenced = LinkedHashSet<Bytes>().apply { addAll(muted.filter { it in members }) }
 
     /**
      * The local name, shown on this phone (FR-8.1). A joiner receives the inviter's name inside the
@@ -59,6 +63,21 @@ class Group internal constructor(
     val roster: List<Member> get() = members.values.toList()
 
     fun member(keyId: Bytes): Member? = members[keyId]
+
+    /** Key ids of the members muted on this phone. */
+    val muted: Set<Bytes> get() = silenced.toSet()
+
+    fun isMuted(keyId: Bytes?): Boolean = keyId != null && keyId in silenced
+
+    /** Mutes or unmutes a roster member on this phone; never this phone itself. False if it cannot. */
+    internal fun mute(
+        keyId: Bytes,
+        muted: Boolean,
+    ): Boolean {
+        if (keyId !in members || keyId == self.keyId) return false
+        if (muted) silenced += keyId else silenced -= keyId
+        return true
+    }
 
     internal fun add(member: Member): Boolean {
         if (members.size >= MAX_MEMBERS && member.keyId !in members) return false
