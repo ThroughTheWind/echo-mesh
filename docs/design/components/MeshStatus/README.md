@@ -23,6 +23,7 @@ The count is the number of distinct rotating IDs heard in the last 60 s, which o
 - A switch row "Mesh is on · Relaying in the background · stops when you turn it off" (FR-3.3).
 - Facts: phones in range (approximate), last report received, whether relaying is active.
 - **Radios in use**, by capability name ("Short range, low power · Works with the screen off"). The MVP has one transport; a second would add a row. Never "BLE" in the UI: the only radio name shown is the Android setting the user must switch on ("Turn on Bluetooth").
+- A row "Field diagnostics · On / Off" opening [Field diagnostics](../../screens/FieldDiagnostics/README.md) (extended spec F17). Off by default; it sits here because it counts the mesh. When a settings page exists, it moves there.
 - Honesty callout (threat model §7): "Anyone nearby with a radio receiver can tell your phone is running Echo. Nothing it sends carries your name, number or a fixed ID."
 
 ## Accessibility

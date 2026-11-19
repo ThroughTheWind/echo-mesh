@@ -124,6 +124,7 @@ fun MapScreen(
     onPickerOpened: () -> Unit,
     onOpenList: () -> Unit,
     onOpenProtects: () -> Unit,
+    onOpenDiagnostics: () -> Unit,
     onOpenGroups: () -> Unit,
     groupsOnly: Boolean,
     onGroupsOnly: (Boolean) -> Unit,
@@ -139,6 +140,7 @@ fun MapScreen(
     val sharing by mesh.sharing.collectAsStateWithLifecycle()
     val positions by mesh.positions.collectAsStateWithLifecycle()
     val sharingStopped by mesh.sharingStopped.collectAsStateWithLifecycle()
+    val diagnosticsOn by mesh.diagnosticsOn.collectAsStateWithLifecycle()
     val settings by app.settings.settings.collectAsStateWithLifecycle()
     val now = rememberNow(if (pending != null) 250.milliseconds else 1000.milliseconds)
     val camera = rememberMapCamera()
@@ -486,6 +488,11 @@ fun MapScreen(
             onToggle = ::toggleMesh,
             onFix = ::fix,
             onDismiss = { showMeshSheet = false },
+            diagnosticsOn = diagnosticsOn,
+            onOpenDiagnostics = {
+                showMeshSheet = false
+                onOpenDiagnostics()
+            },
         )
     }
 

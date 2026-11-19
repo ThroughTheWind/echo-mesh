@@ -2,6 +2,7 @@ package io.github.throughthewind.echo.adapters.ble
 
 import io.github.throughthewind.echo.core.mesh.BandwidthClass
 import io.github.throughthewind.echo.core.mesh.FrameTooLargeException
+import io.github.throughthewind.echo.core.mesh.LinkFailure
 import io.github.throughthewind.echo.core.mesh.MeshTransport
 import io.github.throughthewind.echo.core.mesh.PeerHandle
 import io.github.throughthewind.echo.core.mesh.RangeClass
@@ -167,6 +168,7 @@ class BleTransport(
                 } catch (_: SecurityException) {
                     false
                 }
+            if (!started) channel.trySend(TransportEvent.LinkFailed(LinkFailure.SESSION_START))
             if (started) {
                 val share = 1.0 - config.rotateJitter * random.nextDouble()
                 delay(config.rotateEvery * share)
@@ -237,6 +239,7 @@ class BleTransport(
                 null
             }
         if (hello == null) {
+            channel.trySend(TransportEvent.LinkFailed(LinkFailure.HELLO))
             link.close()
             return
         }
@@ -270,6 +273,7 @@ class BleTransport(
             throw e
         } catch (_: IOException) {
             // Out of range or refused: the next advertisement heard tries again.
+            channel.trySend(TransportEvent.LinkFailed(LinkFailure.CONNECT))
         } catch (_: SecurityException) {
             // A permission withdrawn while on: the next session start finds it.
         } finally {
@@ -322,6 +326,7 @@ class BleTransport(
             throw e
         } catch (_: IOException) {
             // A bad length or a broken channel: the link goes, the phone stays on the mesh.
+            channel.trySend(TransportEvent.LinkFailed(LinkFailure.LINK_BROKEN))
         }
         drop(peer)
     }

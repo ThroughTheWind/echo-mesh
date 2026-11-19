@@ -1,6 +1,7 @@
 package io.github.throughthewind.echo.ui.map
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -141,6 +142,8 @@ fun MeshSheet(
     onToggle: (Boolean) -> Unit,
     onFix: (MeshProblem) -> Unit,
     onDismiss: () -> Unit,
+    diagnosticsOn: Boolean = false,
+    onOpenDiagnostics: (() -> Unit)? = null,
 ) {
     val spacing = LocalSpacing.current
     ModalBottomSheet(onDismissRequest = onDismiss) {
@@ -204,6 +207,27 @@ fun MeshSheet(
                 }
                 if (simulatedRadio) {
                     Text(stringResource(R.string.mesh_radio_simulated), style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+            if (onOpenDiagnostics != null) {
+                // Field diagnostics (F17): off by default, opened from here, where the mesh is.
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = Touch.min)
+                        .clickable(role = Role.Button, onClick = onOpenDiagnostics),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        stringResource(R.string.diagnostics_open),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text(
+                        stringResource(if (diagnosticsOn) R.string.diagnostics_on else R.string.diagnostics_off),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
             Surface(color = MaterialTheme.colorScheme.surfaceContainerHigh, shape = MaterialTheme.shapes.medium) {

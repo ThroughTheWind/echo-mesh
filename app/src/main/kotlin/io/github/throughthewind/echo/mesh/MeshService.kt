@@ -80,6 +80,10 @@ class MeshService : Service() {
     override fun onDestroy() {
         watching?.cancel()
         watching = null
+        // Stopped while the mesh is meant on and still running: Android ended the service, not the
+        // user (meshOff forgets "meant on" first). Field diagnostics count it (FR-17.1).
+        val app = application as App
+        if (app.settings.settings.value.meshMeantOn && app.mesh.state.value is MeshState.On) app.mesh.serviceKilled()
         super.onDestroy()
     }
 

@@ -346,4 +346,19 @@
     <string name="discreet_off">Discreet mode off. Tap to turn on</string>
     <string name="notification_discreet_title">Echo</string>
     <string name="notification_discreet_text">Running · Tap to open</string>
+
+    <!-- Field diagnostics (F17, WI-036) -->
+    <string name="diagnostics_title">Field diagnostics</string>
+    <string name="diagnostics_switch">Count how the mesh behaves</string>
+    <string name="diagnostics_open">Field diagnostics</string>
+    <string name="diagnostics_on">On</string>
+    <string name="diagnostics_off">Off</string>
+    <string name="diagnostics_counts">For field tests. While on, Echo counts phones nearby each minute, reports received and passed on, how long reports took to arrive, failed connections, the battery level, and whether Android stopped the mesh.</string>
+    <!-- §7 P4, P6 -->
+    <string name="diagnostics_never">It never records a position, a report, a map area, a group, a nickname, a key, or the time of day. Counts are in minutes since you turned this on.</string>
+    <!-- §7 P4, P6 -->
+    <string name="diagnostics_kept">The counts stay in memory and are never sent. They\'re forgotten when you turn this off, when Echo stops running, or with the panic wipe. You can share them yourself below.</string>
+    <string name="diagnostics_review">The whole file</string>
+    <string name="diagnostics_share">Share this file</string>
+    <string name="diagnostics_refresh">Refresh</string>
 </resources>

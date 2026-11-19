@@ -50,5 +50,14 @@
                 android:name="android.service.quicksettings.TOGGLEABLE_TILE"
                 android:value="true" />
         </service>
+        <!--
+          The field diagnostics file, handed to the app picked in the share sheet from memory,
+          never from storage (FR-17.3, FR-17.4). Not exported: readable only through the grant.
+        -->
+        <provider
+            android:name=".mesh.DiagnosticsProvider"
+            android:authorities="${applicationId}.diagnostics"
+            android:exported="false"
+            android:grantUriPermissions="true" />
     </application>
 </manifest>

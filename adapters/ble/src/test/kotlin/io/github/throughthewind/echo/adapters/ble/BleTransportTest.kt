@@ -1,5 +1,6 @@
 package io.github.throughthewind.echo.adapters.ble
 
+import io.github.throughthewind.echo.core.mesh.LinkFailure
 import io.github.throughthewind.echo.core.mesh.PeerHandle
 import io.github.throughthewind.echo.core.mesh.TransportEvent
 import io.github.throughthewind.echo.core.mesh.TransportUnavailableException
@@ -79,6 +80,8 @@ class BleTransportTest {
             hostile.writeRaw(Advertisement.tokenBytes(7))
             val peer = a.nextSeen()
             hostile.writeRaw(byteArrayOf(0xFF.toByte(), 0xFF.toByte()))
+            // Field diagnostics count the broken link by its kind, never by the phone (FR-17.1).
+            assertEquals(TransportEvent.LinkFailed(LinkFailure.LINK_BROKEN), a.next())
             assertEquals(TransportEvent.PeerLost(peer), a.next())
 
             // Still on the mesh: an honest phone gets through afterwards.

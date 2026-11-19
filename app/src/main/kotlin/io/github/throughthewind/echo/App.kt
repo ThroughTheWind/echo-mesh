@@ -3,6 +3,7 @@ package io.github.throughthewind.echo
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
+import android.os.BatteryManager
 import io.github.throughthewind.echo.core.crypto.Randomness
 import io.github.throughthewind.echo.core.crypto.keystore.KeystoreSealingKey
 import io.github.throughthewind.echo.core.data.SealedFiles
@@ -10,13 +11,19 @@ import io.github.throughthewind.echo.core.data.SettingsStore
 import io.github.throughthewind.echo.core.map.MapLibrary
 import io.github.throughthewind.echo.core.map.MapSharing
 import io.github.throughthewind.echo.core.mesh.MeshTransport
+import io.github.throughthewind.echo.core.mesh.diagnostics.FieldDiagnostics
 import io.github.throughthewind.echo.core.mesh.group.SealedRecords
 import io.github.throughthewind.echo.core.mesh.node.MeshNode
+import io.github.throughthewind.echo.mesh.DiagnosticsProvider
 import io.github.throughthewind.echo.mesh.DiscreetTile
 import io.github.throughthewind.echo.mesh.MeshService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 
@@ -68,6 +75,47 @@ class App : Application() {
     /** True when the only radio is simulated and reaches no other phone. */
     val simulatedRadio: Boolean get() = registration.simulated
 
+    private var batteryReader: Job? = null
+
+    override fun onCreate() {
+        super.onCreate()
+        // Diagnostics left on count again from this launch. The mesh still meant on at launch
+        // means the process was killed with it running (FR-3.3a, FR-17.1).
+        scope.launch(Dispatchers.IO) {
+            val kept = settings.settings.value
+            if (kept.diagnostics) startDiagnostics(killedBefore = kept.meshMeantOn)
+        }
+    }
+
+    /**
+     * Turns field diagnostics on or off (FR-17.1, FR-17.4). Off forgets every count at once; only
+     * the switch is kept. The counts are never written anywhere until the user shares them.
+     */
+    suspend fun setDiagnostics(on: Boolean) {
+        withContext(Dispatchers.IO) { settings.update { it.copy(diagnostics = on) } }
+        if (on) {
+            startDiagnostics(killedBefore = false)
+        } else {
+            batteryReader?.cancel()
+            batteryReader = null
+            mesh.stopDiagnostics()
+            DiagnosticsProvider.forget()
+        }
+    }
+
+    private fun startDiagnostics(killedBefore: Boolean) {
+        mesh.startDiagnostics(killedBefore)
+        batteryReader?.cancel()
+        batteryReader =
+            scope.launch {
+                val battery = getSystemService(BatteryManager::class.java)
+                while (isActive) {
+                    battery?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)?.takeIf { it in 0..100 }?.let(mesh::batteryLevel)
+                    delay(FieldDiagnostics.BATTERY_EVERY)
+                }
+            }
+    }
+
     /**
      * Turns the mesh on from a user's tap with the app visible, and with it the foreground service
      * that keeps it relaying in a pocket (FR-3.3). Remembers that it is meant to be on, so a stop
@@ -82,9 +130,10 @@ class App : Application() {
 
     /** Stops every radio use and the service, and forgets that the mesh was meant to be on (FR-3.1). */
     suspend fun meshOff() {
+        // Forgotten first, so the service stopping here is not counted as killed (FR-17.1).
+        withContext(Dispatchers.IO) { settings.update { it.copy(meshMeantOn = false) } }
         MeshService.stop(this)
         mesh.turnOff()
-        withContext(Dispatchers.IO) { settings.update { it.copy(meshMeantOn = false) } }
     }
 
     /**
@@ -104,6 +153,8 @@ class App : Application() {
      */
     suspend fun wipe(includeMaps: Boolean) {
         withContext(Dispatchers.IO) { sealed.destroy() }
+        batteryReader?.cancel()
+        DiagnosticsProvider.forget()
         MeshService.stop(this)
         mesh.wipe()
         withContext(Dispatchers.IO) {

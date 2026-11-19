@@ -13,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.throughthewind.echo.App
 import io.github.throughthewind.echo.core.model.GeoPoint
+import io.github.throughthewind.echo.ui.diagnostics.DiagnosticsScreen
 import io.github.throughthewind.echo.ui.groups.GroupsScreen
 import io.github.throughthewind.echo.ui.groups.ShareOwnPosition
 import io.github.throughthewind.echo.ui.map.MapScreen
@@ -28,7 +29,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 /** The top-level screens. No navigation library: a few screens fit in a `when`. */
-private enum class Screen { Map, Reports, Protects, Groups }
+private enum class Screen { Map, Reports, Protects, Groups, Diagnostics }
 
 /**
  * The app's screens. First launch, and the first launch after a panic wipe, show onboarding before
@@ -73,6 +74,7 @@ private fun Screens(
                 onPickerOpened = { pickOnMap = false },
                 onOpenList = { screen = Screen.Reports },
                 onOpenProtects = { screen = Screen.Protects },
+                onOpenDiagnostics = { screen = Screen.Diagnostics },
                 onOpenGroups = { screen = Screen.Groups },
                 groupsOnly = groupsOnly,
                 onGroupsOnly = { groupsOnly = it },
@@ -97,6 +99,10 @@ private fun Screens(
 
         Screen.Protects -> {
             WhatEchoProtects(onBack = { screen = Screen.Map })
+        }
+
+        Screen.Diagnostics -> {
+            DiagnosticsScreen(app, onBack = { screen = Screen.Map })
         }
 
         Screen.Groups -> {

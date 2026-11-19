@@ -3,10 +3,12 @@ package io.github.throughthewind.echo.core.mesh.relay
 import io.github.throughthewind.echo.core.mesh.MeshTransport
 import io.github.throughthewind.echo.core.mesh.PeerHandle
 import io.github.throughthewind.echo.core.mesh.TransportEvent
+import io.github.throughthewind.echo.core.mesh.diagnostics.FieldDiagnostics
 import io.github.throughthewind.echo.core.mesh.report.ClockCheck
 import io.github.throughthewind.echo.core.mesh.report.FrameRejection
 import io.github.throughthewind.echo.core.mesh.report.FrameValidator
 import io.github.throughthewind.echo.core.mesh.report.Validation
+import io.github.throughthewind.echo.core.mesh.report.instantOfWireMinute
 import io.github.throughthewind.echo.core.mesh.report.wireMinute
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.mesh.wire.DecodeResult
@@ -179,6 +181,10 @@ class Relay(
 
     suspend fun stats(): Stats = mutex.withLock { stats }
 
+    /** Field diagnostics, when the user turned them on (FR-17.1); counts only, in memory. */
+    @Volatile
+    var diagnostics: FieldDiagnostics? = null
+
     private val groupArrivals = MutableSharedFlow<HeldFrame>(extraBufferCapacity = 64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     /**
@@ -278,6 +284,7 @@ class Relay(
     private suspend fun handle(event: TransportEvent) {
         when (event) {
             is TransportEvent.PeerSeen -> {
+                diagnostics?.peer(event.peer, clock())
                 val summary =
                     mutex.withLock {
                         links.getOrPut(event.peer) { Link(clock().toEpochMilliseconds(), config) }
@@ -295,7 +302,12 @@ class Relay(
             }
 
             is TransportEvent.FrameReceived -> {
+                diagnostics?.peer(event.from, clock())
                 transmit(mutex.withLock { received(event.from, event.frame) })
+            }
+
+            is TransportEvent.LinkFailed -> {
+                diagnostics?.failed(event.kind, clock())
             }
         }
     }
@@ -348,11 +360,16 @@ class Relay(
 
             is Validation.Valid -> {
                 clockCheck.observe(validation.frame.createdMinute, minute)
-                if (validation.frame is PublicReportFrame) lastArrival.value = now
+                if (validation.frame is PublicReportFrame) {
+                    lastArrival.value = now
+                    diagnostics?.received(now, instantOfWireMinute(validation.frame.createdMinute))
+                }
                 accept(HeldFrame(validation.id, validation.frame, validation.received, from), minute)
             }
 
             is Validation.Opaque -> {
+                // A group frame: members and others relay it alike, and its creation time is sealed.
+                diagnostics?.received(now, null)
                 accept(HeldFrame(validation, from, minute), minute)
             }
         }
@@ -372,6 +389,7 @@ class Relay(
         val onward = onward(held) ?: return emptyList()
         val targets = links.keys.filter { it != link }
         stats = stats.copy(forwarded = stats.forwarded + targets.size)
+        if (link != null) diagnostics?.relayed(clock(), targets.size)
         return targets.map { it to onward }
     }
 
@@ -404,6 +422,7 @@ class Relay(
             out += from to onward
         }
         stats = stats.copy(answered = stats.answered + out.size)
+        diagnostics?.relayed(clock(), out.size)
         return out
     }
 

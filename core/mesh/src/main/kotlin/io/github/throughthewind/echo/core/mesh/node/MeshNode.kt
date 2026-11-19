@@ -2,6 +2,7 @@ package io.github.throughthewind.echo.core.mesh.node
 
 import io.github.throughthewind.echo.core.mesh.MeshTransport
 import io.github.throughthewind.echo.core.mesh.TransportUnavailableException
+import io.github.throughthewind.echo.core.mesh.diagnostics.FieldDiagnostics
 import io.github.throughthewind.echo.core.mesh.group.GroupChannel
 import io.github.throughthewind.echo.core.mesh.group.GroupInfo
 import io.github.throughthewind.echo.core.mesh.group.MemberPosition
@@ -206,6 +207,46 @@ class MeshNode(
     /** The report in its grace period, if any. */
     val pending: StateFlow<PendingReport?> = waiting.asStateFlow()
 
+    @Volatile
+    private var fieldDiagnostics: FieldDiagnostics? = null
+    private val counting = MutableStateFlow(false)
+
+    /** Whether field diagnostics are counting (FR-17.1). Off by default. */
+    val diagnosticsOn: StateFlow<Boolean> = counting.asStateFlow()
+
+    /**
+     * Starts counting field diagnostics in memory, from now (FR-17.1). [killedBefore]: the app
+     * found the mesh still meant on at launch, so the process was killed before this session.
+     */
+    fun startDiagnostics(killedBefore: Boolean = false) {
+        if (fieldDiagnostics != null) return
+        val started = FieldDiagnostics(clock())
+        if (killedBefore) started.killedBeforeStart()
+        relay?.diagnostics = started
+        fieldDiagnostics = started
+        counting.value = true
+    }
+
+    /** Stops counting and forgets every count (FR-17.4). */
+    fun stopDiagnostics() {
+        relay?.diagnostics = null
+        fieldDiagnostics = null
+        counting.value = false
+    }
+
+    /** The export file as the user sees it before sharing (FR-17.3), or null when diagnostics are off. */
+    fun diagnosticsExport(): String? = fieldDiagnostics?.export(clock())
+
+    /** The battery level, for diagnostics; ignored when they are off. */
+    fun batteryLevel(percent: Int) {
+        fieldDiagnostics?.battery(percent, clock())
+    }
+
+    /** The mesh stopped without the user turning it off (FR-3.3a), for diagnostics; ignored when they are off. */
+    fun serviceKilled() {
+        fieldDiagnostics?.serviceKilled(clock())
+    }
+
     init {
         // Reports expire with the mesh off too.
         if (relay != null) {
@@ -396,10 +437,12 @@ class MeshNode(
 
     /**
      * The panic wipe's part here (FR-11.2): the radio stops without a word on the air (FR-11.4),
-     * sharing stops, the pending report is dropped unsent, and group keys are destroyed in memory.
+     * sharing stops, the pending report is dropped unsent, field diagnostics are forgotten (FR-17.4),
+     * and group keys are destroyed in memory.
      * The app restarts the process afterwards, which takes the rest of memory with it.
      */
     suspend fun wipe() {
+        stopDiagnostics()
         cancelPending()
         synchronized(shareJobs) { shareJobs.values.forEach { it.cancel() } }
         synchronized(shareJobs) { shareJobs.clear() }

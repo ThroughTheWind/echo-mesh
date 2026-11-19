@@ -30,6 +30,11 @@ data class Settings(
     val notificationsAsked: Boolean = false,
     /** Discreet mode (FR-13.1): darkest theme, dimmed, silent, a neutral notification. Not a disguise (FR-13.2). */
     val discreet: Boolean = false,
+    /**
+     * Field diagnostics are on (FR-17.1). Only the switch is kept: the counts live in memory and
+     * start again at each launch (FR-17.4).
+     */
+    val diagnostics: Boolean = false,
 )
 
 /** [Settings], sealed in one file of a [SealedFiles], with the current value as a flow. */
