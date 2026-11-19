@@ -59,15 +59,15 @@ Non-members cannot open a group frame, so the relay holds and forwards it by mes
 minutes after first seeing it, under the same rate limits as everything else.
 
 **Join frame**, new kind `0x06`, 240 bytes, never relayed (any hop budget but 0 is refused, like
-the summary): `version ‖ 0x06 ‖ 0 ‖ session 8 ‖ step 1 ‖ Noise message 227`. The session is 8 random
+the summary): `version ‖ 0x06 ‖ 0 ‖ session 8 ‖ step 1 ‖ Noise message 228`. The session is 8 random
 bytes the joiner picks for this one join, so the two phones can tell their messages apart on a busy
 link; it lives for one join and is never reused.
 
-- Step 1, joiner to member: Noise message 1 (`e`, then 179 bytes of encrypted payload: joiner's
+- Step 1, joiner to member: Noise message 1 (`e`, then 180 bytes of encrypted payload: joiner's
   member key 32 ‖ nickname length 1 ‖ nickname 32, zero-padded).
-- Step 2, member to joiner: Noise message 2 (`e`, then 179 bytes: group id 16 ‖ name length 1 ‖ name
+- Step 2, member to joiner: Noise message 2 (`e`, then 180 bytes: group id 16 ‖ name length 1 ‖ name
   32 ‖ expiry minute u32 ‖ epoch u32 ‖ epoch key 32 ‖ roster size 1, zero-padded).
-- Steps 3 and on: Noise transport messages of 211 bytes of plaintext each, holding up to 3 roster
+- Steps 3 and on: Noise transport messages of 212 bytes of plaintext each, holding up to 3 roster
   entries (`member key 32 ‖ nickname length 1 ‖ nickname 32`), until the roster size is reached.
   A roster holds at most 48 members, so at most 16 roster steps.
 
