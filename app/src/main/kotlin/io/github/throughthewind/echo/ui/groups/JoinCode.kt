@@ -244,9 +244,17 @@ internal fun ScanToJoin(
             }
 
             is ScanStep.Joined -> {
+                var name by remember(current.group.id) { mutableStateOf(current.group.name) }
                 Text(stringResource(R.string.joined_title, current.group.name), style = MaterialTheme.typography.titleLarge)
                 Callout(stringResource(R.string.joined_body, current.group.name, ends(current.group.expiresAt)))
-                PrimaryButton(stringResource(R.string.done), { onJoined(current.group.id) })
+                // The inviter's name for the group is a default; this phone may call it anything (FR-8.1).
+                BoundedField(name, { name = it }, stringResource(R.string.create_name_label), stringResource(R.string.joined_name_help))
+                PrimaryButton(stringResource(R.string.done), {
+                    scope.launch {
+                        if (name.trim() != current.group.name) channel.rename(current.group.id, name.trim())
+                        onJoined(current.group.id)
+                    }
+                }, enabled = Nicknames.fits(name))
             }
 
             ScanStep.Failed -> {

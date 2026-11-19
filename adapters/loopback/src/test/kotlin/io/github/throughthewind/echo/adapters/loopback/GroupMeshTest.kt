@@ -72,6 +72,13 @@ class GroupMeshTest {
             assertEquals("Crew", joined.name)
             assertEquals(listOf(JoinEvent(group.id, "Crew", "Owl", throughThisPhone = true)), shown, "the code's phone sees who joined")
             assertEquals(group.id, joined.id)
+            assertTrue(c.groupChannel!!.rename(group.id, "Friends"), "a joiner may rename the group on their phone")
+            assertEquals(
+                "Friends",
+                c.groups.value
+                    .single()
+                    .name,
+            )
             assertEquals(listOf("Fox", "Owl"), joined.members)
             delay(1.seconds)
             assertEquals(

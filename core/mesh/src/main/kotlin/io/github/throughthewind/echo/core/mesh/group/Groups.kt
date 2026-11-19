@@ -31,8 +31,7 @@ data class Member(
 class Group internal constructor(
     /** Random, never on the air in clear: it is only inside signatures and the join (ADR-0009). */
     val id: Bytes,
-    /** The local name, shown on this phone (FR-8.1). Joiners receive it inside the join. */
-    val name: String,
+    name: String,
     /** Minutes since the Unix epoch, UTC, when the group and its keys end (FR-8.6). */
     val expiresMinute: Long,
     internal val epochs: GroupEpochs,
@@ -41,6 +40,13 @@ class Group internal constructor(
     roster: Collection<Member>,
 ) {
     private val members = LinkedHashMap<Bytes, Member>().apply { roster.forEach { put(it.keyId, it) } }
+
+    /**
+     * The local name, shown on this phone (FR-8.1). A joiner receives the inviter's name inside the
+     * join as a default and may rename it on their phone (ADR-0009; Antoine, 2026-11-19).
+     */
+    var name: String = name
+        internal set
 
     /** This phone as a member. */
     val self: Member = Member(Bytes(me.publicKey), myNickname)

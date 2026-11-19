@@ -235,5 +235,6 @@
     <string name="join_failed">No answer from the other phone. The code may have been used or expired, or the phones may be too far apart. Ask for a new code.</string>
     <string name="join_full">You\'re already in 5 groups, the most Echo allows. Leave one first.</string>
     <string name="join_again">Scan again</string>
+    <string name="joined_name_help">The name the other phone uses. Change it if you like: only this phone sees what you pick.</string>
     <string name="done">Done</string>
 </resources>

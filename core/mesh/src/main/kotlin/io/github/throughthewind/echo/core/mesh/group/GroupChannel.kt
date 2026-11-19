@@ -264,6 +264,25 @@ class GroupChannel(
             offer
         }
 
+    /**
+     * Renames the group [id] on this phone only: nobody else sees it, and nothing is sent. False
+     * when this phone is not in the group. A name is 1 to 32 UTF-8 bytes, like a nickname.
+     */
+    suspend fun rename(
+        id: Bytes,
+        name: String,
+    ): Boolean {
+        GroupInner.nicknameBytes(name)
+        return lock.withLock {
+            val group = book[id] ?: return false
+            group.name = name
+            held.replaceAll { _, report -> if (report.groupId == id) report.copy(groupName = name) else report }
+            save(group)
+            publish()
+            true
+        }
+    }
+
     /** Takes back the QR code for [id], if one is open. */
     suspend fun cancelInvite(id: Bytes) {
         lock.withLock { invitations.remove(id)?.destroy() }
