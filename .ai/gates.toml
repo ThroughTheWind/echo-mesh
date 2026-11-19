@@ -72,6 +72,20 @@ command = "node scripts/gates/locales.mjs"
 why     = "NFR-21, FR-18.4: every shipped language has every string with the same format arguments, so nobody under pressure meets English or a crash in the middle of their language; and layout uses start and end so a right-to-left language can follow."
 
 [[gates]]
+id      = "fingerprint-self-test"
+kind    = "command"
+tier    = "fast"
+command = "node scripts/gates/fingerprint.mjs --self-test"
+why     = "The fingerprint gate passes before the first release, when there is nothing to compare; its fixtures prove it fails on a wrong, early or missing fingerprint."
+
+[[gates]]
+id      = "fingerprint"
+kind    = "command"
+tier    = "fast"
+command = "node scripts/gates/fingerprint.mjs"
+why     = "FR-19.2: people check our signing fingerprint to tell our app from a fake, so every place that shows it shows the one the release workflow checks the APK against."
+
+[[gates]]
 id      = "design-tokens"
 kind    = "command"
 tier    = "fast"

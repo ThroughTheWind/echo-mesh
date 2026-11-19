@@ -52,8 +52,31 @@ second copy offline, and nowhere else.
 
 3. Check the setup with a dry run: *Actions → Release → Run workflow* on `main`. It builds and signs
    the APK and attaches it to the run without publishing anything.
+4. **Publish the fingerprint** (extended spec FR-19.2), in one pull request: copy the signing
+   certificate's SHA-256 from the dry run's notice into `docs/signing-certificate.sha256`, and
+   between the `signing-fingerprint` markers in `README.md` and `SECURITY.md`. The `fingerprint`
+   gate fails until all three agree, and from then on the release workflow refuses an APK signed
+   with any other certificate. A tag is refused until the file exists.
 
 Never commit the keystore. `*.jks` and `*.keystore` are in `.gitignore`.
+
+### Keeping the key (FR-19.1)
+
+The maintainer holds the key alone (SECURITY.md states the risk). Keep:
+
+- **The master copy offline:** the keystore file on an encrypted USB drive (VeraCrypt, LUKS or
+  BitLocker), kept somewhere the maintainer controls and away from the phone and laptop carried to
+  protests.
+- **An encrypted offline backup** in a second place, so a lost or seized drive does not end the
+  app's ability to ship updates.
+- **The password** in a password manager, never next to either copy.
+- **The CI copy:** the repository secrets above, which let the release workflow sign. They are a
+  second, online copy of the key. Whether it stays, or signing moves to the maintainer's offline
+  machine, is open in WI-038.
+
+If the key is ever lost, phones cannot update: users must uninstall and install a new app. If it is
+ever exposed, say so at once in SECURITY.md and the README, stop releasing with it, and publish a
+new fingerprint through channels users already trust.
 
 ## Cutting a release
 

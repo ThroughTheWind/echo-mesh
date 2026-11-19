@@ -19,6 +19,24 @@ a group…), the app version and phone model, and steps or code to reproduce it.
   prefer not to be named.
 - Fixes ship as a new release on GitHub Releases. We do not quietly patch security issues.
 
+## Checking that your copy is ours
+
+The release signing certificate's SHA-256 fingerprint, the same in the README and every release note:
+
+<!-- signing-fingerprint -->
+No signed release yet. The first one publishes its fingerprint here.
+<!-- /signing-fingerprint -->
+
+To check an APK before installing it: `apksigner verify --print-certs echo.apk` (Android SDK build
+tools) prints `Signer #1 certificate SHA-256 digest`, which must match.
+
+## One person holds the key
+
+One maintainer holds the release signing key (extended spec FR-19.1). That is a known risk
+(FR-19.5): whoever coerces or compromises that person could sign a malicious update that phones
+accept as ours. Watch for a release no changelog or public discussion announced, and report it
+here. Before 2.0 we revisit adding a second key holder or co-signing.
+
 ## Scope
 
 In scope: anything that lets someone learn who uses the app, track a phone, read or forge reports

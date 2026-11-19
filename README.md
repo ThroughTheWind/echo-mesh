@@ -36,6 +36,15 @@ Each radio is an adapter behind the `MeshTransport` capability contract, so the 
 the UI never know which radio they use ([ADR-0002](docs/decisions/ADR-0002-transport-adapters.md)).
 It is a sibling of [Zapper](https://github.com/ThroughTheWind/zapper) and shares its methodology.
 
+## Checking that your copy is ours
+
+Every release is signed with one key. Android shows nothing about it, so check it yourself: the
+signing certificate's SHA-256 fingerprint below must match the one on the release page. A copy with another fingerprint is not ours, whoever gave it to you.
+
+<!-- signing-fingerprint -->
+No signed release yet. The first one publishes its fingerprint here.
+<!-- /signing-fingerprint -->
+
 ## Contributing and security
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). **Report vulnerabilities privately**, never in a public
