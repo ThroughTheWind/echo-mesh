@@ -239,7 +239,7 @@
     <string name="notification_nearby">%1$s à proximité · relais</string>
     <string name="notification_turn_off">Couper</string>
     <string name="notification_sharing_title">Vous partagez votre position avec %1$s</string>
-    <string name="notification_sharing_text">Mises à jour tant qu\'Echo est ouvert · %1$s</string>
+    <string name="notification_sharing_text">Mise à jour pour votre groupe · %1$s</string>
     <string name="notification_stops_in">s\'arrête dans %1$d h %2$02d</string>
     <string name="notification_stops_in_minutes">s\'arrête dans %1$d min</string>
     <string name="notification_stop_sharing">Arrêter le partage</string>

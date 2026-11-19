@@ -57,6 +57,7 @@ import io.github.throughthewind.echo.core.mesh.node.Sharing
 import io.github.throughthewind.echo.core.mesh.node.SharingStopped
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.model.GeoPoint
+import io.github.throughthewind.echo.mesh.MeshService
 import io.github.throughthewind.echo.ui.common.PrimaryButton
 import io.github.throughthewind.echo.ui.initials
 import kotlinx.coroutines.delay
@@ -64,7 +65,6 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 /** The durations the share sheet offers (FR-10.1); two hours is the default. Null: until the mesh is off. */
@@ -81,17 +81,16 @@ enum class ShareFor(
 /** Over this, a member's marker is drawn stale (patterns/PositionSharing). */
 val STALE_AFTER: Duration = 2.minutes
 
-/** How often the last fix is handed to the mesh again: the platform sends nothing while you stand still. */
-private val RESTAMP: Duration = 30.seconds
-
 /**
- * Hands the phone's own fix to the mesh while it shares with any group, and only while the app is on
- * screen: never background location (NFR-10). The fix stays in memory.
+ * Hands the phone's own fix to the mesh while it shares with any group and the app is on screen,
+ * when the mesh service is not already doing it with the screen off ([MeshService.locating], WI-075):
+ * with the simulated radio, or when Android refused the service. The fix stays in memory.
  */
 @Composable
 fun ShareOwnPosition(app: App) {
     val sharing by app.mesh.sharing.collectAsStateWithLifecycle()
-    val on = sharing.isNotEmpty()
+    val locating by MeshService.locating.collectAsStateWithLifecycle()
+    val on = sharing.isNotEmpty() && !locating
     val context = LocalContext.current
     val owner = LocalLifecycleOwner.current
     LaunchedEffect(on) {
@@ -106,7 +105,7 @@ fun ShareOwnPosition(app: App) {
                 }
             }
             while (true) {
-                delay(RESTAMP)
+                delay(MeshService.RESTAMP)
                 last?.let { app.mesh.updatePosition(it) }
             }
         }

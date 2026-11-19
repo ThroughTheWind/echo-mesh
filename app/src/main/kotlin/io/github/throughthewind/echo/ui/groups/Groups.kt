@@ -148,7 +148,7 @@ fun GroupsScreen(
                     meshOn = meshState is MeshState.On,
                     sharing = sharing.firstOrNull { it.groupId == group.id },
                     positions = positions.filter { it.groupId == group.id },
-                    onShare = { duration -> app.mesh.startSharing(group.id, duration?.let { Clock.System.now() + it }) },
+                    onShare = { duration -> app.startSharing(group.id, duration?.let { Clock.System.now() + it }) },
                     onStopSharing = { app.mesh.stopSharing(group.id) },
                     onMute = { member, muted -> channel?.mute(group.id, member, muted) },
                     onShowOnMap = onShowOnMap,

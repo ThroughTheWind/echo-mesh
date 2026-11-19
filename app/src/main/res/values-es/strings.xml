@@ -239,7 +239,7 @@
     <string name="notification_nearby">%1$s cerca · retransmitiendo</string>
     <string name="notification_turn_off">Apagar</string>
     <string name="notification_sharing_title">Compartes tu posición con %1$s</string>
-    <string name="notification_sharing_text">Se actualiza con Echo abierto · %1$s</string>
+    <string name="notification_sharing_text">Actualizándose para tu grupo · %1$s</string>
     <string name="notification_stops_in">termina en %1$d h %2$02d</string>
     <string name="notification_stops_in_minutes">termina en %1$d min</string>
     <string name="notification_stop_sharing">Dejar de compartir</string>

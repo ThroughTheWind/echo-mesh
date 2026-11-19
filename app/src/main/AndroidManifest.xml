@@ -10,6 +10,9 @@
     <!-- The relay foreground service (FR-3.3) and its one notification, asked in context (FR-1.2). -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <!-- While a share runs, the same service keeps the fix coming with the screen off (NFR-10,
+         WI-075). Never ACCESS_BACKGROUND_LOCATION: checkManifestPermissions forbids it. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Scanning a group's join code in person (FR-8.2), asked in context when the user taps Join. -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -35,7 +38,7 @@
         <service
             android:name=".mesh.MeshService"
             android:exported="false"
-            android:foregroundServiceType="connectedDevice" />
+            android:foregroundServiceType="connectedDevice|location" />
         <!-- The Quick Settings tile the user may add (FR-13.3): it only toggles discreet mode and
              shows on or off. Echo never adds it or prompts for it. -->
         <service

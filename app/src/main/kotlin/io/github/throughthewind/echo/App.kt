@@ -14,6 +14,7 @@ import io.github.throughthewind.echo.core.mesh.MeshTransport
 import io.github.throughthewind.echo.core.mesh.diagnostics.FieldDiagnostics
 import io.github.throughthewind.echo.core.mesh.group.SealedRecords
 import io.github.throughthewind.echo.core.mesh.node.MeshNode
+import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.mesh.DiagnosticsProvider
 import io.github.throughthewind.echo.mesh.DiscreetTile
 import io.github.throughthewind.echo.mesh.MeshService
@@ -26,6 +27,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
+import kotlin.time.Instant
 
 /**
  * The app-level container (ADR-0001: manual constructor injection). Transports come from
@@ -124,6 +126,19 @@ class App : Application() {
     suspend fun meshOn(): Boolean {
         if (!mesh.turnOn()) return false
         withContext(Dispatchers.IO) { settings.update { it.copy(meshMeantOn = true) } }
+        if (!simulatedRadio) MeshService.start(this)
+        return true
+    }
+
+    /**
+     * Starts sharing with a group, from the user's tap with Echo visible, then starts the service
+     * again so it adds the `location` type while that is allowed (WI-075, NFR-10).
+     */
+    fun startSharing(
+        id: Bytes,
+        until: Instant?,
+    ): Boolean {
+        if (!mesh.startSharing(id, until)) return false
         if (!simulatedRadio) MeshService.start(this)
         return true
     }

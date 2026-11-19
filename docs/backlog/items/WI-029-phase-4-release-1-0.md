@@ -8,7 +8,7 @@ created: 2026-11-17
 updated: 2026-11-19
 related: [NFR-8, NFR-12, NFR-16, AC-26, AC-27, AC-29, AC-30, AC-31]
 epic:
-children: [WI-030, WI-031, WI-032, WI-033, WI-034, WI-035, WI-037, WI-038, WI-074]
+children: [WI-030, WI-031, WI-032, WI-033, WI-034, WI-035, WI-037, WI-038, WI-074, WI-075]
 ---
 
 ## Proposal (rationale)

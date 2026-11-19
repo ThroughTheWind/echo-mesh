@@ -63,6 +63,9 @@ android {
 // ADR-0003: the app never asks for INTERNET. A permission is added to `allowed` only by an ADR that
 // names it, cited on the same line. Today: none.
 manifestPermissions {
+    // No internet (ADR-0003), and never background location (NFR-10): sharing uses a `location`
+    // foreground service started from a tap instead (WI-075).
+    forbidden.set(setOf("android.permission.INTERNET", "android.permission.ACCESS_BACKGROUND_LOCATION"))
     allowed.set(emptySet())
 }
 
