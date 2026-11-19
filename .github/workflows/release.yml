@@ -97,6 +97,11 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: ./gradlew :app:assembleRelease
 
+      # AC-31 and NFR-24: before anything is published, a second build of the same commit, unsigned,
+      # from a separate copy, must contain exactly the files the signed APK does (WI-032).
+      - name: Rebuild independently and compare
+        run: scripts/reproducible.sh --against app/build/outputs/apk/release/app-release.apk "$GITHUB_SHA"
+
       - name: Verify the APK and write the release notes
         env:
           VERSION: ${{ steps.version.outputs.version }}

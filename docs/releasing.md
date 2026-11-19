@@ -109,3 +109,20 @@ or asks for a forbidden permission.
 
 If the workflow failed **before publishing**, fix it on `main`, delete the tag and push it again on
 the fixed commit. If a release went out broken, do not move or reuse its tag: release `X.Y.Z+1`.
+
+## Checking a release is the source it names
+
+Echo's build is reproducible (AC-31, NFR-24, extended spec FR-19.4): two builds of the same commit
+contain the same files, so anyone can check a published APK against the tag.
+
+1. Install a JDK 21 and the Android SDK, and clone this repository.
+2. Download the release's `echo-X.Y.Z.apk` and check its `.sha256`.
+3. Run `scripts/reproducible.sh --against echo-X.Y.Z.apk vX.Y.Z`. It builds the tag in a separate
+   copy, unsigned, and compares every file inside the two APKs, the signature files apart. It ends
+   with "Reproducible" or lists what differs.
+
+CI runs the same script on every change, building twice from two copies at different paths, time
+zones and locales, and the release workflow runs it against the signed APK before publishing.
+`docs/fdroid/` holds the draft F-Droid metadata for after 1.0; the store text lives in
+`fastlane/metadata/android/`.
+

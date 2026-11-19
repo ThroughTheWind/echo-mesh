@@ -26,7 +26,8 @@ trap 'rm -rf "$work"; git -C "$repo" worktree prune' EXIT
 build() {
   local dir="$1" tz="$2" lang="$3"
   git -C "$repo" worktree add --quiet --detach "$dir" "$commit"
-  (cd "$dir" && TZ="$tz" LC_ALL="$lang" LANG="$lang" ./gradlew --quiet --no-daemon --no-build-cache \
+  # Never the release key: the comparison is between unsigned contents.
+  (cd "$dir" && env -u RELEASE_KEYSTORE_FILE TZ="$tz" LC_ALL="$lang" LANG="$lang" ./gradlew --quiet --no-daemon --no-build-cache \
     --no-configuration-cache :app:assembleRelease >&2)
   local apks=("$dir"/app/build/outputs/apk/release/*-unsigned.apk)
   if [[ ! -f "${apks[0]}" ]]; then
