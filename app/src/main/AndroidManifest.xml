@@ -35,5 +35,20 @@
             android:name=".mesh.MeshService"
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
+        <!-- The Quick Settings tile the user may add (FR-13.3): it only toggles discreet mode and
+             shows on or off. Echo never adds it or prompts for it. -->
+        <service
+            android:name=".mesh.DiscreetTile"
+            android:exported="true"
+            android:icon="@drawable/ic_neutral"
+            android:label="@string/tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service>
     </application>
 </manifest>

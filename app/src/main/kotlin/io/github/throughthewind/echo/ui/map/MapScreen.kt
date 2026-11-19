@@ -358,6 +358,13 @@ fun MapScreen(
                 MapIconButton(DS.drawable.ic_group, stringResource(R.string.groups_title), onOpenGroups)
                 Box(Modifier.size(LocalSpacing.current.md))
                 MapIconButton(DS.drawable.ic_shield, stringResource(R.string.protects_title), onOpenProtects)
+                // Discreet mode: one tap, no confirm, the same button turns it off (FR-13.1).
+                Box(Modifier.size(LocalSpacing.current.md))
+                MapIconButton(
+                    if (settings.discreet) DS.drawable.ic_visibility_off else DS.drawable.ic_visibility,
+                    stringResource(if (settings.discreet) R.string.discreet_on else R.string.discreet_off),
+                    { scope.launch { app.setDiscreet(!settings.discreet) } },
+                )
                 LocalPanicWipe.current?.let { wipe ->
                     Box(Modifier.size(LocalSpacing.current.md))
                     MapIconButton(DS.drawable.ic_delete_forever, stringResource(R.string.wipe_button), wipe)

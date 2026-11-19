@@ -151,6 +151,7 @@ private fun ThingsToKnow(onDone: () -> Unit) {
     Title(stringResource(R.string.onboarding_know_title))
     IconLine(DS.drawable.ic_sensors_off, muted, stringResource(R.string.onboarding_know_mesh))
     IconLine(DS.drawable.ic_timer, muted, stringResource(R.string.onboarding_know_expiry))
+    IconLine(DS.drawable.ic_visibility_off, muted, stringResource(R.string.onboarding_know_discreet))
     IconLine(DS.drawable.ic_delete_forever, muted, stringResource(R.string.onboarding_know_wipe))
     PrimaryButton(stringResource(R.string.onboarding_open_map), onDone)
 }

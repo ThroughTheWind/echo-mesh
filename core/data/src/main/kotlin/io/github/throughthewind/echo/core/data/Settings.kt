@@ -28,6 +28,8 @@ data class Settings(
     val nearbyAsked: Boolean = false,
     /** Android's Notifications dialog was shown once (FR-1.2). */
     val notificationsAsked: Boolean = false,
+    /** Discreet mode (FR-13.1): darkest theme, dimmed, silent, a neutral notification. Not a disguise (FR-13.2). */
+    val discreet: Boolean = false,
 )
 
 /** [Settings], sealed in one file of a [SealedFiles], with the current value as a flow. */

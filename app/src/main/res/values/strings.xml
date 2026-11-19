@@ -29,11 +29,10 @@
     <string name="onboarding_map_title">Get a map before you go</string>
     <string name="onboarding_map_body">Echo draws an offline map you download at home, on Wi-Fi you trust. Downloading reveals the region to your network and the map host.</string>
     <string name="onboarding_skip">Skip for now</string>
-    <!-- Discreet mode joins this step when it ships (WI-025): the app never points at a control
-         it does not have yet. -->
     <string name="onboarding_know_title">Before you go</string>
     <string name="onboarding_know_mesh">The mesh starts off. Turn it on from the map when you\'re there.</string>
     <string name="onboarding_know_expiry">Every report disappears on its own after a few minutes, on every phone.</string>
+    <string name="onboarding_know_discreet">The eye button on the map makes the screen dark, dim and silent. It doesn\'t hide the app.</string>
     <string name="onboarding_know_wipe">To erase everything, tap the wipe button at the top of the map, then hold for 2 seconds.</string>
     <string name="onboarding_open_map">Open the map</string>
     <string name="onboarding_step">Step %1$d of %2$d</string>
@@ -315,4 +314,9 @@
     <string name="wipe_hold">Hold to wipe</string>
     <string name="wipe_keep_holding">Keep holding · %1$.1f s</string>
     <string name="wipe_cancel">Cancel</string>
+    <string name="tile_label">Echo discreet</string>
+    <string name="discreet_on">Discreet mode on. Tap to turn off</string>
+    <string name="discreet_off">Discreet mode off. Tap to turn on</string>
+    <string name="notification_discreet_title">Echo</string>
+    <string name="notification_discreet_text">Running · Tap to open</string>
 </resources>

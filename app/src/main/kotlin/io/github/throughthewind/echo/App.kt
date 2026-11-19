@@ -12,6 +12,7 @@ import io.github.throughthewind.echo.core.map.MapSharing
 import io.github.throughthewind.echo.core.mesh.MeshTransport
 import io.github.throughthewind.echo.core.mesh.group.SealedRecords
 import io.github.throughthewind.echo.core.mesh.node.MeshNode
+import io.github.throughthewind.echo.mesh.DiscreetTile
 import io.github.throughthewind.echo.mesh.MeshService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -84,6 +85,15 @@ class App : Application() {
         MeshService.stop(this)
         mesh.turnOff()
         withContext(Dispatchers.IO) { settings.update { it.copy(meshMeantOn = false) } }
+    }
+
+    /**
+     * Turns discreet mode on or off (FR-13.1), from the map's eye button or the Quick Settings tile.
+     * The tile and the mesh notification follow at once.
+     */
+    suspend fun setDiscreet(on: Boolean) {
+        withContext(Dispatchers.IO) { settings.update { it.copy(discreet = on) } }
+        DiscreetTile.refresh(this)
     }
 
     /**

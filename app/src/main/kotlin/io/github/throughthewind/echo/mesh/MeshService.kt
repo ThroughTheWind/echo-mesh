@@ -93,7 +93,12 @@ class MeshService : Service() {
                     delay(UPDATE_EVERY)
                 }
             }
-        combine(app.mesh.state.map { (it as? MeshState.On)?.nearby }, app.mesh.sharing, tick) { nearby, sharing, _ -> nearby to sharing }
+        combine(
+            app.mesh.state.map { (it as? MeshState.On)?.nearby },
+            app.mesh.sharing,
+            app.settings.settings.map { it.discreet },
+            tick,
+        ) { nearby, sharing, discreet, _ -> Triple(nearby, sharing, discreet) }
             .distinctUntilChanged { a, b -> a == b && b.second.isEmpty() }
             .conflate()
             .collect { (nearby, sharing) ->
@@ -122,6 +127,44 @@ class MeshService : Service() {
      * position with Crew", "Updates while Echo is open · stops in 1 h 42", with Stop sharing.
      */
     private fun notification(
+        state: MeshState,
+        sharing: List<Sharing>,
+    ) = if ((application as App)
+            .settings.settings.value.discreet
+    ) {
+        neutralNotification()
+    } else {
+        meshNotification(state, sharing)
+    }
+
+    /**
+     * Discreet mode's notification (FR-13.1, patterns/DiscreetMode): "Running · Tap to open" with a
+     * plain dot, nothing about the mesh, groups or sharing. Turn off stays.
+     */
+    private fun neutralNotification() =
+        NotificationCompat
+            .Builder(this, CHANNEL)
+            .setSmallIcon(R.drawable.ic_neutral)
+            .setContentTitle(getString(R.string.notification_discreet_title))
+            .setContentText(getString(R.string.notification_discreet_text))
+            .setOngoing(true)
+            .setSilent(true)
+            .setOnlyAlertOnce(true)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setVisibility(NotificationCompat.VISIBILITY_SECRET)
+            .setContentIntent(PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE))
+            .addAction(0, getString(R.string.notification_turn_off), turnOffIntent())
+            .build()
+
+    private fun turnOffIntent() =
+        PendingIntent.getService(
+            this,
+            1,
+            Intent(this, MeshService::class.java).setAction(ACTION_TURN_OFF),
+            PendingIntent.FLAG_IMMUTABLE,
+        )
+
+    private fun meshNotification(
         state: MeshState,
         sharing: List<Sharing>,
     ) = NotificationCompat
