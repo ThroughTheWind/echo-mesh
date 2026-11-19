@@ -23,10 +23,14 @@ import io.github.throughthewind.echo.core.model.ReportType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -59,6 +63,15 @@ data class GroupReport(
     val report: Report,
     /** Hops it may still travel from this phone. */
     val hopsLeft: Int,
+)
+
+/** Someone joined one of this phone's groups (FR-8.2): every join is visible to the group. */
+data class JoinEvent(
+    val groupId: Bytes,
+    val groupName: String,
+    val nickname: String,
+    /** True on the phone whose code was used: it shows the "not the person in front of you?" guidance. */
+    val throughThisPhone: Boolean,
 )
 
 /**
@@ -94,6 +107,11 @@ class GroupChannel(
     private val shown = MutableStateFlow<List<GroupReport>>(emptyList())
 
     val groups: StateFlow<List<GroupInfo>> = groupList.asStateFlow()
+
+    private val joinEvents = MutableSharedFlow<JoinEvent>(extraBufferCapacity = 16, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    /** Joins as this phone learns of them, through its own code or a member-added frame. */
+    val joins: SharedFlow<JoinEvent> = joinEvents.asSharedFlow()
 
     /** Live, not withdrawn group reports from every group this phone is in. */
     val reports: StateFlow<List<GroupReport>> = shown.asStateFlow()
@@ -397,6 +415,7 @@ class GroupChannel(
                         }
                 group.add(joiner)
                 save(group)
+                joinEvents.tryEmit(JoinEvent(group.id, group.name, joiner.nickname, throughThisPhone = true))
                 val added = GroupMessage.MemberAdded(joiner.publicKey, joiner.nickname, minute, Wire.MAX_LIFETIME_MINUTES)
                 publishGroups()
                 steps to book.seal(group, added, minute, hopBudget)
@@ -471,7 +490,9 @@ class GroupChannel(
                 }
 
                 is GroupMessage.MemberAdded -> {
-                    Unit
+                    if (book.all.sumOf { it.roster.size } > members) {
+                        joinEvents.tryEmit(JoinEvent(opened.group.id, opened.group.name, message.nickname, throughThisPhone = false))
+                    }
                 }
             }
             publish()
@@ -509,8 +530,8 @@ class GroupChannel(
     }
 
     companion object {
-        /** How long a QR code stays usable if nobody scans it. */
-        val INVITATION_LIFETIME: Duration = 10.minutes
+        /** How long a QR code stays usable if nobody scans it (design: QrJoinFlow, "new code in 1:48"). */
+        val INVITATION_LIFETIME: Duration = 2.minutes
 
         /** How long a newcomer waits for the whole join before scanning again. */
         val JOIN_TIMEOUT: Duration = 30.seconds

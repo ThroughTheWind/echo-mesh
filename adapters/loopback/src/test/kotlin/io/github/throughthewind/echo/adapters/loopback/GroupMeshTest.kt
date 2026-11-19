@@ -1,5 +1,6 @@
 package io.github.throughthewind.echo.adapters.loopback
 
+import io.github.throughthewind.echo.core.mesh.group.JoinEvent
 import io.github.throughthewind.echo.core.mesh.group.JoinOffer
 import io.github.throughthewind.echo.core.mesh.group.SealedRecords
 import io.github.throughthewind.echo.core.mesh.node.MeshNode
@@ -11,6 +12,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
@@ -59,6 +61,8 @@ class GroupMeshTest {
             mesh.network.link(mesh.phones[0], mesh.phones[2])
             delay(1.seconds)
             val group = assertNotNull(a.groupChannel!!.create("Crew", "Fox"))
+            val shown = mutableListOf<JoinEvent>()
+            backgroundScope.launch { a.groupChannel!!.joins.collect { shown += it } }
             val offer = assertNotNull(a.groupChannel!!.invite(group.id))
             val code = offer.encode()
             assertTrue(code.startsWith("echo-join:1:"))
@@ -66,6 +70,7 @@ class GroupMeshTest {
 
             val joined = assertNotNull(c.groupChannel!!.join(JoinOffer.decode(code)!!, "Owl"))
             assertEquals("Crew", joined.name)
+            assertEquals(listOf(JoinEvent(group.id, "Crew", "Owl", throughThisPhone = true)), shown, "the code's phone sees who joined")
             assertEquals(group.id, joined.id)
             assertEquals(listOf("Fox", "Owl"), joined.members)
             delay(1.seconds)
@@ -168,6 +173,8 @@ class GroupMeshTest {
             )
 
             // D joins through A while C is out of range; C learns of D through B (FR-8.2).
+            val toldC = mutableListOf<JoinEvent>()
+            backgroundScope.launch { c.groupChannel!!.joins.collect { toldC += it } }
             mesh.network.link(pa, pd)
             delay(1.seconds)
             val late = async { d.groupChannel!!.join(a.groupChannel!!.invite(group.id)!!, "Jay") }
@@ -179,6 +186,7 @@ class GroupMeshTest {
                     .single()
                     .members,
             )
+            assertEquals(listOf(JoinEvent(group.id, "Crew", "Jay", throughThisPhone = false)), toldC, "every member sees the join")
             assertTrue(d.send(ReportType.KETTLE, here, group = group.id))
             delay(8.seconds)
             assertEquals(
