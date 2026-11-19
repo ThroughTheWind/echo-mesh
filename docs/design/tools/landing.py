@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """The landing page: build it from its claim register, and refuse a page that says more than the project.
 
-  python3 tools/landing.py build    # landing.source.json -> landing/index.html (claims, stage), landing/theme.css
-  python3 tools/landing.py check    # exit 1 if the page overclaims, is stale, or reaches another site
+  python3 tools/landing.py build            # landing.source.json -> landing/index.html, landing/theme.css
+  python3 tools/landing.py check            # exit 1 if the page overclaims, is stale, or reaches another site
+  python3 tools/landing.py check --deploy   # also exit 1 unless the launch release is out: run before publishing
 
-Standard library only, like tokens.py check. Every claim on the page gets its label from the backlog
-(a work item's status and its epic's release), its wording from the threat model's honest-copy list
-(through screens/WhatEchoProtects), and its kind from the spec, a gate or a file. Nobody types
-"Planned for 0.2.0": it is computed, so it cannot drift.
+Standard library only, like tokens.py check. The page is published with Echo's launch release (1.0)
+and not before. Until then it is a preview: built as if every item of the launch release were done,
+under a ribbon that says so, and `check --deploy` refuses it. From the launch on, every label is
+computed from the real backlog. Either way nobody types "Planned for 1.1": each chip comes from a
+work item's status and its epic's release, protection lines come word for word from the threat
+model's honest copy (through screens/WhatEchoProtects), and other kinds cite the spec, a gate or a file.
 """
 
 import html
-import json
 import re
 import sys
 from pathlib import Path
@@ -32,19 +34,27 @@ THREAT_MODEL = REPO / "docs" / "threat-model.md"
 SPEC = REPO / "docs" / "SPEC.md"
 BACKLOG = REPO / "docs" / "backlog"
 GATES = REPO / ".ai" / "gates.toml"
+CATALOG = REPO / "gradle" / "libs.versions.toml"
 ICONS = DESIGN / "assets" / "icons.svg"
 SPRITE = ["i-check_circle", "i-warning", "i-block", "i-schedule", "i-sync", "i-lock", "i-map", "i-radar",
           "i-add_location_alt", "i-hourglass_bottom", "i-group", "i-medical_services", "i-door_open",
           "i-local_police", "i-fence", "i-foggy", "i-water_drop", "i-shield", "i-key", "i-info", "i-download"]
+# Android release for each API level the catalog's minSdk may name.
+ANDROID = {"26": "8", "27": "8.1", "28": "9", "29": "10", "30": "11", "31": "12", "32": "12L", "33": "13",
+           "34": "14", "35": "15", "36": "16", "37": "17"}
 
-LABELS = {"built": "In the code", "dev": "In development", "design-gate": "Checked by the build",
+LABELS = {"available": "Available", "dev": "In development", "design-gate": "Checked by the build",
           "design-file": "By design", "limit": "Known limit", "never": "Not planned"}
-ICON_FOR = {"built": "i-check_circle", "dev": "i-sync", "planned": "i-schedule", "design": "i-shield",
+ICON_FOR = {"available": "i-check_circle", "dev": "i-sync", "planned": "i-schedule", "design": "i-shield",
             "limit": "i-warning", "never": "i-block"}
 
 
 class Fail(Exception):
     pass
+
+
+def vkey(v):
+    return [int(x) for x in v.split(".")]
 
 
 # ------------------------------------------------------------------ sources of truth
@@ -61,7 +71,7 @@ def work_items():
 
 
 def release_of(wi, items):
-    """The release an item ships in, read from its epic's title ("…: ship 0.2.0", "… Release 1.0")."""
+    """The release an item ships in, read from its epic's title ("…: ship 0.2.0", "… Release 1.1")."""
     epic = items.get(items[wi]["epic"]) if items[wi]["epic"] else None
     m = re.search(r"(?:ship|Release) (\d+\.\d+(?:\.\d+)?)", epic["title"] if epic else "")
     if not m:
@@ -98,17 +108,52 @@ def gate_ids():
     return set(re.findall(r'^id\s*=\s*"([^"]+)"', GATES.read_text(), re.M))
 
 
-def stage_now(src, items):
-    """The furthest stage whose gating item is done. The page may not claim a later one, or an earlier one."""
-    reached = [s for s in src["stages"] if not s["after"] or items.get(s["after"], {}).get("status") == "done"]
-    return reached[-1]
+def min_android():
+    m = re.search(r'^minSdk\s*=\s*"(\d+)"', CATALOG.read_text(), re.M)
+    if not m or m.group(1) not in ANDROID:
+        raise Fail("gradle/libs.versions.toml has no minSdk this tool can name (update ANDROID in landing.py)")
+    return ANDROID[m.group(1)]
+
+
+# ------------------------------------------------------------------ the page's moment: preview or live
+
+
+def moment(src, items):
+    """Live once the launch release's cut item is done; until then a preview of the launch.
+
+    In a preview, every item of a release up to the launch counts as done: the page shows the day it
+    is published, and the ribbon and `check --deploy` keep it from being mistaken for today."""
+    launch = src["launch"]
+    for r in src["releases"]:
+        if r["item"] not in items:
+            raise Fail(f"release {r['version']}: {r['item']} is not a work item")
+    if launch["item"] not in items:
+        raise Fail(f"launch: {launch['item']} is not a work item")
+    live = items[launch["item"]]["status"] == "done"
+    out = {wi: dict(it) for wi, it in items.items()}
+    if not live:
+        for wi, it in out.items():
+            if it["epic"] and it["status"] != "done":
+                try:
+                    if vkey(release_of(wi, items)) <= vkey(launch["version"]):
+                        it["status"] = "done"
+                except Fail:
+                    pass
+    if live:
+        released = max((r["version"] for r in src["releases"] if out[r["item"]]["status"] == "done"), key=vkey)
+    else:
+        released = launch["version"]
+    return {"live": live, "items": out, "released": released}
 
 
 # ------------------------------------------------------------------ resolve every claim
 
 
 def resolve(src):
-    items, copy, specs, oos, gates = work_items(), honest_copy(), spec_ids(), out_of_scope_rows(), gate_ids()
+    real = work_items()
+    m = moment(src, real)
+    items, released = m["items"], m["released"]
+    copy, specs, oos, gates = honest_copy(), spec_ids(), out_of_scope_rows(), gate_ids()
     out = {}
     for c in src["claims"]:
         cid, kind = c["id"], c["kind"]
@@ -132,15 +177,17 @@ def resolve(src):
             for w in wis:
                 if w not in items:
                     raise Fail(f"claim {cid}: {w} is not a work item")
+            target = max((release_of(w, items) for w in wis), key=vkey)
             pending = [w for w in wis if items[w]["status"] != "done"]
-            if not pending:
-                state, label = "built", LABELS["built"]
+            if not pending and released and vkey(target) <= vkey(released):
+                state, label = "available", LABELS["available"]
+            elif not pending:
+                state, label = "dev", f"Coming in {target}"
             elif all(items[w]["status"] in ("in_progress", "review") for w in pending):
                 state, label = "dev", LABELS["dev"]
             else:
-                later = [w for w in pending if items[w]["status"] not in ("in_progress", "review")]
-                target = max((release_of(w, items) for w in later), key=lambda v: [int(x) for x in v.split(".")])
-                state, label = "planned", f"Planned for {target}"
+                later = max((release_of(w, items) for w in pending), key=vkey)
+                state, label = "planned", f"Planned for {later}"
         elif kind == "design":
             if c.get("gate"):
                 if c["gate"] not in gates:
@@ -163,7 +210,7 @@ def resolve(src):
         else:
             raise Fail(f"claim {cid}: unknown kind {kind}")
         out[cid] = {"text": text, "state": state, "label": label}
-    return out, stage_now(src, items)
+    return out, m
 
 
 # ------------------------------------------------------------------ render
@@ -178,9 +225,9 @@ def render_claim(r):
             f'<span class="l-chip l-chip--{r["state"]}">{html.escape(r["label"])}</span>')
 
 
-def render_cta(stage):
+def render_cta(src):
     return "".join(f'<a class="l-btn l-btn--{b["style"]}" href="{html.escape(b["href"])}">{html.escape(b["label"])}</a>'
-                   for b in stage["cta"])
+                   for b in src["cta"])
 
 
 def render_sprite():
@@ -203,12 +250,12 @@ def fill(page, attr, key, inner):
 
 
 def render_page(src, page):
-    claims, stage = resolve(src)
-    if src["stage"] != stage["id"]:
-        raise Fail(f"landing.source.json says stage '{src['stage']}', the backlog says '{stage['id']}' "
-                   f"(the stage follows the item that gates it: {stage['after'] or 'none'})")
-    page = fill(page, "data-stage", "banner", html.escape(stage["banner"]))
-    page = fill(page, "data-stage", "cta", render_cta(stage))
+    claims, m = resolve(src)
+    preview = "" if m["live"] else html.escape(src["preview_note"].format(launch=src["launch"]["version"]))
+    page = fill(page, "data-landing", "preview", preview)
+    page = fill(page, "data-landing", "release",
+                html.escape(f"Echo {m['released']} · Android {min_android()} and later · Free and open source"))
+    page = fill(page, "data-landing", "cta", render_cta(src))
     on_page = set(re.findall(r'data-claim="([^"]+)"', page))
     if on_page - set(claims):
         raise Fail(f"index.html shows claims the register doesn't have: {sorted(on_page - set(claims))}")
@@ -251,25 +298,35 @@ def visible_text(page):
 
 
 def check():
+    deploy = "--deploy" in sys.argv
     failures = []
     src = T.load(SOURCE)
     page = PAGE.read_text()
+    m = {"live": False}
     try:
         if render_page(src, page) != page:
             failures.append("index.html is stale or hand-edited where the build writes (run tools/landing.py build)")
-        claims, _ = resolve(src)
+        claims, m = resolve(src)
     except Fail as e:
         failures.append(str(e))
         claims = {}
     if not THEME_CSS.exists() or THEME_CSS.read_text() != render_theme_css():
         failures.append("theme.css is stale or hand-edited (run tools/landing.py build)")
+    if deploy and not m["live"]:
+        failures.append(f"not deployable: the page launches with Echo {src['launch']['version']}, and "
+                        f"{src['launch']['item']} (its release) is not done. Until then it is a preview.")
 
-    # Short facts outside the lists (hero, meta) may only repeat what is already true today.
+    # Short facts outside the lists (hero) and lists headed as available may only hold what is.
     for fid in re.findall(r'data-fact="([^"]+)"', page):
         if fid not in claims:
             failures.append(f"index.html states fact '{fid}', which is not a claim in the register")
-        elif claims[fid]["state"] not in ("built", "design"):
+        elif claims[fid]["state"] not in ("available", "design"):
             failures.append(f"index.html states '{fid}' as a fact, but it is '{claims[fid]['label']}'")
+    for block in re.findall(r'<(?:ul|ol)\b[^>]*data-expect="available"[^>]*>(.*?)</(?:ul|ol)>', page, re.S):
+        for cid in re.findall(r'data-claim="([^"]+)"', block):
+            if cid in claims and claims[cid]["state"] not in ("available", "design"):
+                failures.append(f"'{cid}' sits in a list of what Echo does, but it is '{claims[cid]['label']}': "
+                                "move it to what's next, or fix its work items")
 
     # Honest words: the page's visible text and every claim.
     words = [w.lower() for w in src["banned"]["words"]]
@@ -295,11 +352,11 @@ def check():
             failures.append(f"{css.name} loads something from another site")
     # Component rules from the design system: no literal colours, no palette tones, nothing below 13px.
     lcss = LANDING_CSS.read_text()
-    for m in re.finditer(r"#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(|--ref-", lcss):
-        failures.append(f"landing.css uses {m.group(0)}: components use semantic roles, never a hex value or a palette tone")
-    for m in re.finditer(r"font-size:\s*(\d+)px", lcss):
-        if int(m.group(1)) < 13:
-            failures.append(f"landing.css sets font-size {m.group(1)}px: nothing below 13px")
+    for mm in re.finditer(r"#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(|--ref-", lcss):
+        failures.append(f"landing.css uses {mm.group(0)}: components use semantic roles, never a hex value or a palette tone")
+    for mm in re.finditer(r"font-size:\s*(\d+)px", lcss):
+        if int(mm.group(1)) < 13:
+            failures.append(f"landing.css sets font-size {mm.group(1)}px: nothing below 13px")
 
     # Contrast: the page's text pairs, at the app's minimum.
     tv = T.theme_values(T.load(T.TOKENS))
@@ -318,7 +375,8 @@ def check():
     states = {}
     for r in claims.values():
         states[r["label"]] = states.get(r["label"], 0) + 1
-    print(f"ok: {len(claims)} claims resolve (" + ", ".join(f"{v} {k.lower()}" for k, v in sorted(states.items()))
+    mode = "live" if m["live"] else f"preview of {src['launch']['version']}, not deployable yet"
+    print(f"ok ({mode}): {len(claims)} claims resolve (" + ", ".join(f"{v} {k.lower()}" for k, v in sorted(states.items()))
           + f"), {n} contrast pairs, page fresh, no outside requests, no absolutes")
 
 

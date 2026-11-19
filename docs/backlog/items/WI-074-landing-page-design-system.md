@@ -26,6 +26,7 @@ Echo needs a public page that tells protesters, organisers and human-rights grou
 - A landing design system that adds no colour or font to the app's: semantic roles from `tokens.css`, the app's type scale, the app's report pins and map style.
 - A positioning and messaging direction: audiences, message layers, words, stage-driven CTAs, objections.
 - Every feature or protection line on the page carries a status computed from the backlog, and protection lines use the app's wording of threat model §7.
+- The page is deployed with Echo 1.0 and not before (Antoine, 2026-11-19): it speaks as the 1.0 release, and publishing it before 1.0 is refused mechanically.
 - The page loads nothing from another site and runs no script.
 - A reference page built only from the system.
 
@@ -41,13 +42,16 @@ Echo needs a public page that tells protesters, organisers and human-rights grou
 
 ### Acceptance criteria / tests
 
-- `python3 -B docs/design/tools/landing.py check` passes, and fails on a planted banned word, an outside image, a wrong stage and a fact stated before it's built.
+- `python3 -B docs/design/tools/landing.py check` passes, and fails on a planted banned word, an outside image, a fact stated before it's released, and a post-1.0 claim moved into the list of what Echo does.
+- `check --deploy` fails until WI-033 is done.
 - `python3 -B docs/design/tools/tokens.py check` and `node .ai/rungs.mjs check` pass.
 - The reference page renders in dark and light with no network request.
 
+- Launch: `landing.source.json` → `launch` (1.0, WI-033). Before it is done the page is a preview, computed as if every item up to 1.0 were done, under a generated ribbon, and `check --deploy` fails. After it, the real backlog drives every chip and the release line follows `releases`.
+
 ### Out of scope
 
-- Hosting, domain and deployment of the page (open question in `landing/README.md`); French and Spanish copy (WI-037); bundling Roboto Flex for the web. Nothing deferred to a new item yet.
+- Hosting, domain and the deploy workflow of the page (which must run `check --deploy`) (open question in `landing/README.md`); French and Spanish copy (WI-037); bundling Roboto Flex for the web. Nothing deferred to a new item yet.
 
 ## Execution
 
@@ -55,5 +59,6 @@ Branch `claude/project-thread-tga93b` (the session's assigned branch, in place o
 
 ## Review
 
-- `landing.py check`: passes. Planted failures, each reported: stage set to `1.0` (backlog says `pre-alpha`), `data-fact="wipe"` (Planned for 0.3.0), "anonymous" in the hero, an `<img>` from another site.
+- `landing.py check`: passes. Planted failures, each reported: `data-fact="wipe"` while it was Planned for 0.3.0, "anonymous" in the hero, an `<img>` from another site, and (after the 1.0 rework) `next-lock` (Planned for 1.1) moved into "What it does".
+- `landing.py check --deploy`: fails today with "not deployable: … WI-033 (its release) is not done".
 - Rendered with Playwright at 1280px (dark and light) and 390px (dark): no request left `file:`.

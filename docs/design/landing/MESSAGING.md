@@ -7,8 +7,9 @@ The landing page has one job: in five seconds, a stranger understands what Echo 
 
 ## 1. The situation the page is written for
 
-- **Echo is pre-alpha.** There is no release, groups, wipe and discreet mode are planned, and the independent security review hasn't happened. A page that reads like a finished product could put someone on the street with a tool that isn't ready. That is the worst outcome the page can cause, so the stage is the first thing on it, and it is computed (section 6).
-- **The readers who matter most right now aren't marchers.** Until 1.0, the people who will act on the page are digital-security trainers, human-rights organisations, organisers and contributors. Marchers adopt the tools their trainers and organisers recommend. So the page leads with the marcher's value (that is what makes anyone get it in five seconds) and then serves the sceptic, in depth.
+- **The page goes live with Echo 1.0, and not before** (Antoine, 2026-11-19). By then Echo has had its independent security review (WI-030), groups, wipe and discreet mode are in, and the release key is published (WI-038). So the page speaks as a released product: "Get Echo" is the main action and the chips say "Available". Until then it exists as a preview, under a ribbon that says so, and `tools/landing.py check --deploy` refuses to publish it (section 6).
+- **The page must still never run ahead of the release.** Nobody types "Available": a chip says it only when the release the feature ships in is out. Anything after 1.0 sits in "What's next", labelled with its release, never in "What it does". The check fails if it moves.
+- **Marchers and trainers arrive together.** At launch, marchers can act on the page directly, and digital-security trainers and human-rights organisations decide whether to recommend Echo. Marchers often adopt what their trainers recommend. So the page leads with the marcher's value (that is what makes anyone get it in five seconds) and then serves the sceptic, in depth.
 - **Its readers are suspicious, and should be.** This audience has seen apps advertised as "secure" and "anonymous" get broken in public. Every absolute word costs trust. A clear list of what Echo *doesn't* protect earns more of it than any promise.
 - **Visiting the page can itself be a risk signal.** The page is built like the app: no script, no trackers, nothing loaded from another site, no referrer sent (README §6).
 
@@ -16,11 +17,11 @@ The landing page has one job: in five seconds, a stranger understands what Echo 
 
 | Audience | What they need to see | What they do next | Where on the page |
 |---|---|---|---|
-| **Trainers and human-rights groups** (gatekeepers) | The limits, the threat model, the build gates, the review status, who's behind it | Read the threat model; follow the project; tell us what their people need | Protects / doesn't, "Don't take our word for it", FAQ |
-| **Organisers, affinity groups, medics** | Groups, positions, being findable then gone, and when each lands | Watch the status chips; test with their group | How it works, status chips, Who it's for |
-| **People marching** (the product's primary persona) | What it is, that it works without signal, that it isn't ready yet | Come back when the banner changes | Hero, banner, legend |
+| **People marching** (the product's primary persona) | What it is, that it works without signal, how to get ready | Get Echo and the map at home | Hero, how it works, legend, FAQ |
+| **Trainers and human-rights groups** (gatekeepers) | The limits, the threat model, the review, the signing key, the build gates | Read the threat model; recommend Echo or tell us what's missing | Protects / doesn't, "Don't take our word for it", FAQ |
+| **Organisers, affinity groups, medics** | Groups joined in person, positions, being findable then gone, and what's next for groups | Join in person and try a report together before the day | How it works, What's next, Who it's for |
 | **Developers, reviewers, translators** | Stack, openness, how to start | Contributing guide, SECURITY.md | Who it's for, footer |
-| **Journalists and the curious** | A one-line explanation and an honest status | Quote the one-liner and the banner | Hero, banner |
+| **Journalists and the curious** | A one-line explanation and what it doesn't do | Quote the one-liner and the limits | Hero, protects / doesn't |
 
 ## 3. Positioning
 
@@ -36,10 +37,10 @@ The landing page has one job: in five seconds, a stranger understands what Echo 
 |---|---|---|---|
 | 1. What | 5 s | See what's happening around you. No internet needed. | Hero title |
 | 2. How | 15 s | Phones nearby pass short-lived reports over Bluetooth, on an offline map, and they expire. | Hero lead, facts row, map illustration |
-| 3. Is it ready | 5 s, but first | Pre-alpha: not ready to rely on at a protest. | Stage banner (computed) |
-| 4. How far along | 1 min | Each feature with its status: in the code, in development, planned for 0.x. | Claim chips (computed) |
+| 3. What release | 5 s | Echo 1.0, the Android versions it runs on, free and open source. | Release line above the title (computed) |
+| 4. What it does today, and next | 1 min | Each feature with its status: available, or planned for 1.1 or 2.0. | Claim chips (computed), What's next |
 | 5. Can I trust it | 5 min | What it protects and what it doesn't, word for word from the app and the threat model; what the build refuses; what Echo won't do. | Protects / doesn't, Check it, Won't do |
-| 6. Next step | — | Depends on the stage (section 6). | CTA (computed) |
+| 6. Next step | — | Get Echo, next to Read what it protects. | CTA |
 
 ### Hero title: recommended and alternatives
 
@@ -60,24 +61,25 @@ The app's [content and voice](../foundations/ContentAndVoice/README.md) rules ap
 | "can be read only by people who joined the group in person" | private, encrypted (as a selling word), secure | Say who can read it, not an adjective. The precise sentence is the threat model's. |
 | "nothing you send carries your name, number or a fixed ID" | anonymous, untraceable, invisible | The first line of the doesn't-protect list says Echo is detectable. |
 | "planned for 0.2.0", "in development" | coming soon, now with | Dates and features slip; a computed label doesn't. |
-| "isn't ready to rely on at a protest" | beta, early access | Says the consequence, not the jargon. |
+| "how to get ready for a protest" | battle-tested, protest-proven | Echo has a review behind it, not a war record. |
 | "nearby phones confirmed" | verified | A public count proves nothing (FR-6.5). |
 | "help and exits" | safe, safe zone, safe route | No place is safe, and Echo won't suggest routes (spec §3.2). |
 | "don't take our word for it" | trusted by, military-grade, audited (before WI-030 is done) | Earned claims only. |
 
 `tools/landing.py check` refuses the banned words in the page's visible text (`landing.source.json` → `banned`). The list is deliberately strict; a word comes off it only with a reason in this file.
 
-## 6. Stage, CTA and banner
+## 6. Launch, preview and deploy
 
-The page has three stages. The current one is **computed from the backlog**, not chosen: a stage is reached only when the item that gates it is `done`, and the check fails if `landing.source.json` names any other stage.
+`landing.source.json` → `launch` names the release the page goes live with (1.0) and the item that cuts it (WI-033). The check reads the backlog:
 
-| Stage | Reached when | Banner | Primary CTA | Secondary |
+| Moment | When | Chips are computed as if | Ribbon | `check --deploy` |
 |---|---|---|---|---|
-| `pre-alpha` | Always | Pre-alpha. There is no release yet, and Echo isn't ready to rely on at a protest. | Read what it protects | Follow the code |
-| `test-builds` | WI-015 (cut 0.1.0) is done | Test builds only. Echo hasn't had its independent security review, so don't rely on it at a protest yet. | Read what it protects | Get a test build |
-| `1.0` | WI-033 (cut 1.0.0, after the WI-030 review) is done | Echo 1.0 has had an independent security review. Read what it protects before you rely on it. | Get Echo | Read what it protects |
+| Preview | WI-033 isn't done | every item of a release up to 1.0 were done | "Preview: this is the page Echo will publish with 1.0…" | Fails |
+| Live | WI-033 is done | nothing: the real backlog | None | Passes |
 
-Before 1.0, the page never says "Download", "Install" or "Get Echo" as its primary action. Even at 1.0, "Read what it protects" stays next to the download.
+The preview is what the page will say on launch day, so it can be reviewed now. Its ribbon is generated and can't be removed by hand, and whoever adds the deploy workflow makes it run `python3 -B docs/design/tools/landing.py check --deploy` first. After the launch, the release line follows the latest release in `releases` (1.1, 2.0) and later features move from "Planned" to "Available" on their own.
+
+The CTA is the same in both: "Get Echo" (GitHub releases) and, next to it with equal size, "Read what it protects".
 
 ## 7. Claim labels
 
@@ -85,26 +87,27 @@ Every feature or protection line on the page carries a chip. The chip is compute
 
 | Chip | Means | Computed from |
 |---|---|---|
-| In the code | Every item it ships with is `done` on `main` | Item status |
+| Available | Every item it ships with is `done`, and the release they ship in is out | Item status, epic title, `releases` |
+| Coming in 1.1 | Done on `main`, not released yet | Item status, epic title |
 | In development | What's left is `in_progress` or `review` | Item status |
-| Planned for 0.2.0 | What's left is later; the version is the release named by the item's epic | Item status, epic title |
+| Planned for 1.1 | What's left is later; the version is the release named by the item's epic | Item status, epic title |
 | Checked by the build | A gate fails the build if it stops being true | `.ai/gates.toml` |
 | By design | Fixed by a file in the repo (the licence) | The file |
 | Known limit | A line of the threat model's "does not protect" | WhatEchoProtects |
 | Not planned | A row of the spec's out-of-scope table | SPEC.md §3.2 |
 
-"In the code" is not "released": the banner says what's released. Protection lines take their words from [What Echo protects](../screens/WhatEchoProtects/README.md), the app's own wording of threat model §7, so the page and the app can't drift apart.
+Lists of what Echo does carry `data-expect="available"`: a claim in them that isn't Available or a design claim fails the check, so a feature can't slip into the present tense. Protection lines take their words from [What Echo protects](../screens/WhatEchoProtects/README.md), the app's own wording of threat model §7, so the page and the app can't drift apart.
 
 ## 8. Objections the page must answer
 
 | Objection | Answer, in the page's words | Source |
 |---|---|---|
-| Can I use it now? | Not until the banner says it has had its security review. | Stage |
+| How do I get ready? | At home: install, get the map, read both lists, join your group in person and try a report. | Spec F2, F8 |
 | Can the police tell I'm using it? | Yes, with a receiver nearby. | TM §7, doesn't protect 1 |
 | Does it hide who I am? | Designed so that nothing you send carries your name, number or a fixed ID; that's not the same as impossible to find. | TM §7, protects 3 and doesn't 5 |
 | Can a report be fake? | Yes. Treat a public report as a tip, not a fact. | TM §7, doesn't 2 |
 | Why not Signal or Briar? | Use them for messages; Echo is a shared map of short-lived reports. | Spec §3.2 |
-| Is this the real app? | Only from this project's releases (later F-Droid); signing is published before 1.0. | WI-038 |
+| Is this the real app? | Only from this project's releases, each saying who signed it and how to check. | WI-038 |
 | Does this page track me? | No script, no cookies, nothing from other sites; the host sees your IP. | README §6 |
 
 ## 9. Imagery

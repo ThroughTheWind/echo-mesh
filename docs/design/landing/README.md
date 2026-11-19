@@ -9,15 +9,16 @@ Open [`index.html`](index.html) in a browser for the reference page. It is a wor
 
 | File | What | Edited by |
 |---|---|---|
-| [`MESSAGING.md`](MESSAGING.md) | Positioning, audiences, message layers, words, stages, objections | Hand |
-| `landing.source.json` | Stage, claim register, contrast pairs, banned words | Hand |
+| [`MESSAGING.md`](MESSAGING.md) | Positioning, audiences, message layers, words, launch and preview, objections | Hand |
+| `landing.source.json` | Launch release, releases, CTA, claim register, contrast pairs, banned words | Hand |
 | `landing.css` | Web tokens (`--l-*`) and components | Hand, checked |
 | `theme.css` | The app's sun theme under `prefers-color-scheme: light` | `tools/landing.py build` |
-| `index.html` | Reference page | Hand, except what `build` writes: claims, stage banner and CTA, icon sprite |
+| `index.html` | Reference page | Hand, except what `build` writes: claims, release line, CTA, preview ribbon, icon sprite |
 
 ```bash
-python3 tools/landing.py build    # from docs/design/: write claims, stage and sprite into index.html, and theme.css
-python3 tools/landing.py check    # the landing-page gate (fast tier)
+python3 tools/landing.py build            # from docs/design/: write claims, release line, ribbon and sprite into index.html, and theme.css
+python3 tools/landing.py check            # the landing-page gate (fast tier)
+python3 tools/landing.py check --deploy   # before publishing: also fails until the launch release (1.0) is out
 ```
 
 ## 1. Principles
@@ -25,7 +26,9 @@ python3 tools/landing.py check    # the landing-page gate (fast tier)
 The app's six [principles](../foundations/Principles/README.md) hold. The page adds five, in priority order:
 
 1. **Understood in five seconds, trusted in five minutes.** The hero says what Echo is and the one structural difference. Everything a sceptic needs is further down, never hidden behind a click or a script.
-2. **Every promise wears its status.** A feature or protection line on the page is a claim from the register, with a computed chip: In the code, In development, Planned for 0.x, Checked by the build, Known limit, Not planned. The stage banner is computed too. Nobody types a status.
+2. **Every promise wears its status.** A feature or protection line on the page is a claim from the register, with a computed chip: Available, Coming in 1.x, In development, Planned for 1.x, Checked by the build, Known limit, Not planned. The release line and the preview ribbon are computed too. Nobody types a status.
+
+The page is published with Echo 1.0 and not before. Until then it is a preview of launch day ([MESSAGING.md](MESSAGING.md) §6).
 3. **The limits get the same size as the strengths.** "It protects" and "It doesn't protect" are two equal cards, side by side, same type, same weight. Green check and amber warning, never a red cross (as in the app).
 4. **The site behaves like the app.** No script, no cookies, no form, nothing loaded from another site, no referrer. Fonts, icons and CSS are served with the page.
 5. **Calm.** No photos of crowds or faces, no alarm colours outside a report pin, no countdowns, no motion beyond a smooth scroll that `prefers-reduced-motion` turns off.
@@ -53,7 +56,7 @@ The page has no theme switch, because a switch needs a script; it follows the re
 | Body text / secondary text | `on-surface` / `on-surface-variant` |
 | Accent: eyebrow, primary button, links on the page, focus | `primary`, `secondary` (focus ring, as in the app) |
 | Links on cards | `on-surface`, underlined (`primary` falls under 7:1 on cards in sun) |
-| Stage banner | Callout warn: `blocked-container` / `on-blocked-container` |
+| Preview ribbon (before the launch only) | `inverse-surface` / `inverse-on-surface` |
 | Report pins and the map | `hazard`, `blocked`, `safe`, `map-*`, exactly as in the app |
 
 Every text pair the page uses is listed in `landing.source.json` → `contrast` and must reach **7:1 in dark and sun**, the app's own bar.
@@ -95,15 +98,16 @@ Breakpoints: 720px (two columns, display sizes) and 960px (hero split, paired ca
 
 | Component | Built from | Rules |
 |---|---|---|
-| **Stage banner** | Callout (warn) | Always first, above the header. Text is the computed stage's; never dismissable. Links to the "Can I use it now?" answer. |
+| **Preview ribbon** | Snackbar colours | Above the header, only while the page is a preview. Generated; empty and hidden once the launch release is out. |
+| **Release line** | — | The eyebrow above the hero title: "Echo 1.0 · Android 12 and later · Free and open source", from the latest release and the catalog's minSdk. |
 | **Header** | Top app bar | Wordmark with the radar glyph, four anchors. No hamburger: anchors wrap. |
-| **Hero** | — | Eyebrow, display title, lead, stage CTA, facts row, map illustration. |
-| **Facts row** | — | Short facts with a check. Each item carries `data-fact` naming a claim that is In the code or Checked by the build; anything else fails the check. |
+| **Hero** | — | Release line, display title, lead, CTA, facts row, map illustration. |
+| **Facts row** | — | Short facts with a check. Each item carries `data-fact` naming a claim that is Available or a design claim; anything else fails the check. |
 | **Button** | Button | Primary (filled `primary`) and outlined. 64px tall, `radius-lg`. Sentence case, the verb of what happens. |
 | **Map illustration** | Map style, Report pin, Expiry indicator, Mesh status | App map tokens, app pin shapes with expiry rings, dotted hops between phones. Labelled "Illustration"; one `role="img"` with a description, everything inside `aria-hidden`. |
 | **Step card** | Card | Number in `glance-numeral` + `primary`, title, one or two sentences. Three in a row when wide. |
 | **Claim row** | List item | Icon, text, status chip. Written by the build from the register; never hand-edit inside `data-claim`. |
-| **Status chip** | Chip | One colour per state: In the code `safe-container`; In development `primary-container`; Planned `surface-container-highest`; Checked by the build / By design `secondary-container`; Known limit `blocked-container`; Not planned outlined. |
+| **Status chip** | Chip | One colour per state: Available `safe-container`; In development and Coming in `primary-container`; Planned `surface-container-highest`; Checked by the build / By design `secondary-container`; Known limit `blocked-container`; Not planned outlined. |
 | **Protects / doesn't pair** | Card | Two equal cards; the doesn't card is never smaller, lower contrast or collapsed. |
 | **Pin legend** | Report pin | One tile per family, with shape named in words ("A diamond"). |
 | **Audience card** | Card | Title, one sentence, one link. No status claims in prose: point to the chips. |
@@ -112,17 +116,18 @@ Breakpoints: 720px (two columns, display sizes) and 960px (hero split, paired ca
 
 ## 4. Page anatomy
 
-1. Stage banner
+1. Preview ribbon (before the launch only)
 2. Header
 3. Hero
 4. How it works: three steps, then "What it does" claims
 5. Read at arm's length: pin legend
 6. What Echo protects, and what it doesn't
-7. Don't take our word for it: build-checked claims, threat model, decisions, private reporting
-8. What Echo won't do
-9. Who it's for
-10. Questions
-11. Footer
+7. Don't take our word for it: the review, release signing, build-checked claims, threat model, private reporting
+8. What's next: features after this release
+9. What Echo won't do
+10. Who it's for
+11. Questions
+12. Footer
 
 The order follows the message layers in [MESSAGING.md](MESSAGING.md) §4. Sections alternate `surface` and `surface-container-low`.
 
@@ -153,7 +158,7 @@ Not checkable here, and stated on the page instead: whoever hosts the page sees 
 
 `protects` and `limit` take their words from [What Echo protects](../screens/WhatEchoProtects/README.md), the app's wording of threat model §7; the check also refuses that page if its rows stop matching §7's count. To change a protection sentence, change the threat model, then that page; the landing page follows on the next build.
 
-The check fails when: a cited item, spec id, gate, file or row doesn't exist; a register claim isn't on the page or the page shows one that isn't registered; the page is stale against the backlog (an item moved and nobody rebuilt); the stage isn't the one the backlog has reached; a fact is stated that isn't true yet; a banned absolute appears.
+The check fails when: a cited item, spec id, gate, file or row doesn't exist; a register claim isn't on the page or the page shows one that isn't registered; the page is stale against the backlog (an item moved and nobody rebuilt); a fact, or a claim in a list marked `data-expect="available"`, isn't Available yet; a banned absolute appears.
 
 ## 8. Open questions
 

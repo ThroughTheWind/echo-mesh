@@ -1,59 +1,36 @@
 {
-  "note": "Hand-edited. The landing page's stage, claims, contrast pairs and banned words. tools/landing.py build writes them into index.html; tools/landing.py check refuses a page that says more than this file, and this file saying more than the backlog, the threat model or the spec.",
-  "stages": [
+  "note": "Hand-edited. The landing page's launch, call to action, claims, contrast pairs and banned words. The page is published with the launch release and not before; tools/landing.py build writes the claims, release line and preview ribbon into index.html, and check refuses a page that says more than the backlog, the threat model or the spec. check --deploy also refuses it before the launch.",
+  "launch": {
+    "version": "1.0",
+    "item": "WI-033"
+  },
+  "releases": [
     {
-      "id": "pre-alpha",
-      "after": null,
-      "banner": "Pre-alpha. There is no release yet, and Echo isn't ready to rely on at a protest.",
-      "cta": [
-        {
-          "label": "Read what it protects",
-          "href": "#protects",
-          "style": "primary"
-        },
-        {
-          "label": "Follow the code",
-          "href": "https://github.com/ThroughTheWind/echo-mesh",
-          "style": "outlined"
-        }
-      ]
+      "version": "1.0",
+      "item": "WI-033"
     },
     {
-      "id": "test-builds",
-      "after": "WI-015",
-      "banner": "Test builds only. Echo hasn't had its independent security review, so don't rely on it at a protest yet.",
-      "cta": [
-        {
-          "label": "Read what it protects",
-          "href": "#protects",
-          "style": "primary"
-        },
-        {
-          "label": "Get a test build",
-          "href": "https://github.com/ThroughTheWind/echo-mesh/releases",
-          "style": "outlined"
-        }
-      ]
+      "version": "1.1",
+      "item": "WI-051"
     },
     {
-      "id": "1.0",
-      "after": "WI-033",
-      "banner": "Echo 1.0 has had an independent security review. Read what it protects before you rely on it.",
-      "cta": [
-        {
-          "label": "Get Echo",
-          "href": "https://github.com/ThroughTheWind/echo-mesh/releases",
-          "style": "primary"
-        },
-        {
-          "label": "Read what it protects",
-          "href": "#protects",
-          "style": "outlined"
-        }
-      ]
+      "version": "2.0",
+      "item": "WI-067"
     }
   ],
-  "stage": "pre-alpha",
+  "preview_note": "Preview: this is the page Echo will publish with {launch}. It assumes {launch} has shipped, and it can't be deployed until it has.",
+  "cta": [
+    {
+      "label": "Get Echo",
+      "href": "https://github.com/ThroughTheWind/echo-mesh/releases",
+      "style": "primary"
+    },
+    {
+      "label": "Read what it protects",
+      "href": "#protects",
+      "style": "outlined"
+    }
+  ],
   "claims": [
     {
       "id": "drop",
@@ -196,6 +173,63 @@
       "kind": "design",
       "file": "LICENSE",
       "text": "Free and open source under GPL-3.0: anyone can read the code and build it."
+    },
+    {
+      "id": "signing",
+      "kind": "feature",
+      "ships_with": [
+        "WI-038"
+      ],
+      "text": "Who signs Echo, and how to check that a download is really theirs, is published."
+    },
+    {
+      "id": "next-rally",
+      "kind": "feature",
+      "ships_with": [
+        "WI-042"
+      ],
+      "text": "One rally point per group, so you know where to meet if you get split up."
+    },
+    {
+      "id": "next-checkins",
+      "kind": "feature",
+      "ships_with": [
+        "WI-044"
+      ],
+      "text": "Group check-ins that show who hasn't checked in."
+    },
+    {
+      "id": "next-jail-card",
+      "kind": "feature",
+      "ships_with": [
+        "WI-045"
+      ],
+      "text": "A jail-support card on your phone, with the numbers to call."
+    },
+    {
+      "id": "next-lock",
+      "kind": "feature",
+      "ships_with": [
+        "WI-046",
+        "WI-047"
+      ],
+      "text": "An app lock with an attempt limit, and a duress PIN that wipes Echo."
+    },
+    {
+      "id": "next-briar",
+      "kind": "feature",
+      "ships_with": [
+        "WI-050"
+      ],
+      "text": "A handoff to Briar when you need to talk, not just pin."
+    },
+    {
+      "id": "next-share",
+      "kind": "feature",
+      "ships_with": [
+        "WI-065"
+      ],
+      "text": "Pass Echo itself from phone to phone, with a check that it's the real app."
     },
     {
       "id": "limit-detectable",
@@ -341,6 +375,10 @@
       [
         "primary",
         "surface-container-low"
+      ],
+      [
+        "inverse-on-surface",
+        "inverse-surface"
       ]
     ]
   },
