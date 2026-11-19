@@ -6,7 +6,7 @@
 The board. One row per live work item, grouped by status. Items live in
 [`items/`](items/); finished work moves to [`archive/`](archive/).
 
-<!-- NEXT-ID: WI-074 -->
+<!-- NEXT-ID: WI-075 -->
 <!-- Claim from this marker and bump it on your own branch. `node .ai/rungs.mjs check` refuses a duplicate. -->
 
 ## In progress
@@ -30,6 +30,7 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-036](items/WI-036-field-diagnostics.md) | Export a field diagnostics file with no positions or reports | feature | `claude/project-thread-67cn4e` |
 | [WI-037](items/WI-037-languages-en-fr-es.md) | Ship Echo in English, French and Spanish | feature | `claude/project-thread-67cn4e` |
 | [WI-038](items/WI-038-release-key-custody.md) | Publish who signs Echo and how to check it | docs | `claude/project-thread-67cn4e` |
+| [WI-074](items/WI-074-settings-screen.md) | Build the settings screen as designed | feature | `claude/project-thread-67cn4e` |
 
 ## Review
 

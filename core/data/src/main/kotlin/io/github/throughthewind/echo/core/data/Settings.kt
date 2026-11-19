@@ -35,6 +35,12 @@ data class Settings(
      * start again at each launch (FR-17.4).
      */
     val diagnostics: Boolean = false,
+    /** Settings > Display > Theme: `Auto`, `Dark` or `Sun`, the design system's `ThemePref` by name. */
+    val theme: String = "Auto",
+    /** Settings > Display > Large pins. Discreet mode overrides it. */
+    val largePins: Boolean = false,
+    /** Settings > Feedback > Haptics: `Off`, `Light` or `Strong`, the design system's `HapticsLevel` by name. */
+    val haptics: String = "Light",
 )
 
 /** [Settings], sealed in one file of a [SealedFiles], with the current value as a flow. */

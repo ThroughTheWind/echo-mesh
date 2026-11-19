@@ -34,6 +34,20 @@ class SealedFilesTest {
     }
 
     @Test
+    fun `display and feedback choices survive a restart, and an older settings file still opens`() {
+        val key = Sealers.ephemeral()
+        val files = SealedFiles(dir, key)
+        SettingsStore(files).update { it.copy(theme = "Sun", largePins = true, haptics = "Strong") }
+        val again = SettingsStore(SealedFiles(dir, key)).settings.value
+        assertEquals(Triple("Sun", true, "Strong"), Triple(again.theme, again.largePins, again.haptics))
+
+        // A file written before these fields existed opens with their defaults.
+        files.write("settings", """{"onboardingDone":true,"discreet":true}""".encodeToByteArray())
+        val old = SettingsStore(files).settings.value
+        assertEquals(Settings(onboardingDone = true, discreet = true), old)
+    }
+
+    @Test
     fun `destroying the key makes every file unreadable, then deletes them`() {
         val key = Sealers.ephemeral()
         val files = SealedFiles(dir, key)

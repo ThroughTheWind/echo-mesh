@@ -7,7 +7,7 @@ The home screen: the offline map with reports, your position, group members who 
 ## Anatomy
 
 - **Map:** full-bleed, styled with `map-land`, `map-building`, `map-road-minor/major`, `map-road-casing` (sunlight only), `map-water`, `map-park`, `map-label`. Street labels at `label-small` minimum. Muted on purpose so pins carry the colour.
-- **Top bar** (64dp, no background): MeshStatus chip left; discreet toggle and panic wipe right, as filled icon buttons (64dp).
+- **Top bar** (64dp, no background): MeshStatus chip left; groups, settings, discreet toggle and panic wipe right, as filled icon buttons (64dp). What Echo protects is under Settings > Privacy (FR-1.3).
 - **Position-sharing bar** (when sharing, SPEC FR-10.4): `primary-container`, under the top bar: "Sharing your position with **Crew** · 1 h 42 left · Stop". Stop is one tap, no confirm.
 - **Pins:** ReportPin, sorted so hazards draw above safe pins and group above public. Overlapping pins cluster into a count bubble below zoom 16; tapping it zooms in.
 - **You:** `primary` 22dp dot with a 4dp `surface` ring and a 2dp `primary` ring; a heading cone when the compass is reliable. Shown on your own screen only; never sent unless you share.

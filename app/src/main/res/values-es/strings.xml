@@ -376,4 +376,47 @@
     <string name="diagnostics_review">El archivo completo</string>
     <string name="diagnostics_share">Compartir este archivo</string>
     <string name="diagnostics_refresh">Actualizar</string>
+
+    <!-- Settings (WI-074) -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_mesh_section">Malla</string>
+    <string name="settings_background">Seguir en segundo plano</string>
+    <string name="settings_background_on">Permitido: Android deja que Echo retransmita con la pantalla apagada</string>
+    <string name="settings_background_off">No permitido: Android puede detener Echo con la pantalla apagada. Toca para cambiarlo</string>
+    <string name="settings_on">Activado</string>
+    <string name="settings_off">Desactivado</string>
+    <string name="settings_groups_section">Grupos y mapas</string>
+    <string name="settings_groups_support">Crear, unirte o salir de un grupo</string>
+    <string name="settings_maps">Mapas</string>
+    <string name="settings_maps_support">Consigue un mapa del lugar al que vas</string>
+    <string name="settings_display_section">Pantalla</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_theme_auto">Automático, según la luz ambiente</string>
+    <string name="settings_theme_dark">Oscuro</string>
+    <string name="settings_theme_sun">Pleno sol</string>
+    <string name="settings_theme_overridden">Discreto mientras el modo discreto esté activado</string>
+    <string name="settings_discreet">Modo discreto</string>
+    <string name="settings_discreet_support">El tema más oscuro, brillo bajo, sin vibración, notificación neutra</string>
+    <string name="settings_large_pins">Marcadores grandes</string>
+    <string name="settings_large_pins_support">Marcadores más grandes, más fáciles de ver y tocar</string>
+    <string name="settings_overridden">Desactivado mientras el modo discreto esté activado</string>
+    <string name="settings_privacy_section">Privacidad</string>
+    <string name="settings_feedback_section">Respuesta</string>
+    <string name="settings_haptics">Vibración</string>
+    <string name="settings_haptics_off">Desactivada</string>
+    <string name="settings_haptics_light">Suave</string>
+    <string name="settings_haptics_strong">Fuerte</string>
+    <string name="settings_language_section">Idioma</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_language_support">%1$s. Abre el ajuste de idioma de Android para Echo</string>
+    <string name="settings_language_follows">%1$s, el idioma del teléfono. Cámbialo en los ajustes de Android</string>
+    <string name="settings_wipe_section">Borrado de emergencia</string>
+    <string name="settings_about_section">Acerca de</string>
+    <string name="settings_version">Versión</string>
+    <string name="settings_licence">Licencia</string>
+    <string name="settings_licence_value">GPL-3.0: software libre, sin anuncios, sin rastreo y sin servidores</string>
+    <string name="settings_source">Código fuente</string>
+    <string name="settings_security">¿Encontraste un problema de seguridad?</string>
+    <string name="settings_security_value">Infórmalo en privado: pestaña Security de la página del código fuente, luego Report a vulnerability. Nunca en una incidencia pública.</string>
+    <string name="settings_open">Ajustes</string>
 </resources>

@@ -124,8 +124,10 @@ fun MapScreen(
     maps: MapsState,
     openPicker: Boolean,
     onPickerOpened: () -> Unit,
+    meshOnRequested: Boolean,
+    onMeshOnHandled: () -> Unit,
     onOpenList: () -> Unit,
-    onOpenProtects: () -> Unit,
+    onOpenSettings: () -> Unit,
     onOpenDiagnostics: () -> Unit,
     onOpenGroups: () -> Unit,
     groupsOnly: Boolean,
@@ -278,6 +280,14 @@ fun MapScreen(
 
     fun toggleMesh(on: Boolean) = if (on) turnMeshOn() else switchMesh(false)
 
+    // The mesh switch in Settings: the same first-time sheets, shown here on the map.
+    LaunchedEffect(meshOnRequested) {
+        if (meshOnRequested) {
+            onMeshOnHandled()
+            turnMeshOn()
+        }
+    }
+
     val nearbyLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { turnMeshOn() }
     val notificationsLauncher =
@@ -361,7 +371,7 @@ fun MapScreen(
                 Box(Modifier.weight(1f))
                 MapIconButton(DS.drawable.ic_group, stringResource(R.string.groups_title), onOpenGroups)
                 Box(Modifier.size(LocalSpacing.current.md))
-                MapIconButton(DS.drawable.ic_shield, stringResource(R.string.protects_title), onOpenProtects)
+                MapIconButton(DS.drawable.ic_settings, stringResource(R.string.settings_open), onOpenSettings)
                 // Discreet mode: one tap, no confirm, the same button turns it off (FR-13.1).
                 Box(Modifier.size(LocalSpacing.current.md))
                 MapIconButton(
@@ -778,7 +788,7 @@ private fun PermissionSheet(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GetMapSheet(
+internal fun GetMapSheet(
     maps: MapsState,
     onResult: (String) -> Unit,
     onDismiss: () -> Unit,

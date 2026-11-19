@@ -14,6 +14,16 @@ The single settings screen (SPEC "Settings screen (summary)", FR-1.3, FR-2.6), o
 6. **Panic wipe:** one row in `error`, opening the same hold sheet as the map.
 7. **About:** version, licence, source link, security contact (as text, per SECURITY.md), open-source licences.
 
+Reached from the gear on the map's top bar. Screens it opens (groups, What Echo protects, field diagnostics) return to Settings on Back.
+
+### As built (WI-074)
+
+- **Mesh** also holds the Field diagnostics row ([Field diagnostics](../FieldDiagnostics/README.md)). Turning the mesh on returns to the map, which shows the permission sheets in context first ([Permissions in context](../../patterns/PermissionsInContext/README.md)); turning it off happens here.
+- **Maps** opens the get-a-map sheet until the [Maps screen](../MapsScreen/README.md) exists.
+- **Language** sits between Feedback and Panic wipe: on Android 13 and later it opens Android's language setting for Echo (extended spec FR-18.1); before 13 it says Echo follows the phone's language.
+- Not yet shown, because the features don't exist: default position-sharing duration, nearby hazard buzz, open-source licences. "Also delete maps" stays in the wipe sheet.
+- The source link is text, not a link: nothing in Echo opens the network.
+
 ## Rules
 
 - Every setting applies immediately; there's no Save.

@@ -372,4 +372,47 @@
     <string name="diagnostics_review">The whole file</string>
     <string name="diagnostics_share">Share this file</string>
     <string name="diagnostics_refresh">Refresh</string>
+
+    <!-- Settings (WI-074) -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_mesh_section">Mesh</string>
+    <string name="settings_background">Keep running in the background</string>
+    <string name="settings_background_on">Allowed: Android lets Echo keep relaying with the screen off</string>
+    <string name="settings_background_off">Not allowed: Android may stop Echo with the screen off. Tap to change</string>
+    <string name="settings_on">On</string>
+    <string name="settings_off">Off</string>
+    <string name="settings_groups_section">Groups and maps</string>
+    <string name="settings_groups_support">Create, join or leave a group</string>
+    <string name="settings_maps">Maps</string>
+    <string name="settings_maps_support">Get a map of where you are going</string>
+    <string name="settings_display_section">Display</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_auto">Auto, by the light around you</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_sun">Sunlight</string>
+    <string name="settings_theme_overridden">Discreet while discreet mode is on</string>
+    <string name="settings_discreet">Discreet mode</string>
+    <string name="settings_discreet_support">Darkest theme, dimmed, no vibration, a plain notification</string>
+    <string name="settings_large_pins">Large pins</string>
+    <string name="settings_large_pins_support">Bigger pins, easier to see and tap</string>
+    <string name="settings_overridden">Off while discreet mode is on</string>
+    <string name="settings_privacy_section">Privacy</string>
+    <string name="settings_feedback_section">Feedback</string>
+    <string name="settings_haptics">Vibration</string>
+    <string name="settings_haptics_off">Off</string>
+    <string name="settings_haptics_light">Light</string>
+    <string name="settings_haptics_strong">Strong</string>
+    <string name="settings_language_section">Language</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_support">%1$s. Opens Android\'s language setting for Echo</string>
+    <string name="settings_language_follows">%1$s, the phone\'s language. Change it in Android\'s settings</string>
+    <string name="settings_wipe_section">Panic wipe</string>
+    <string name="settings_about_section">About</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_licence">Licence</string>
+    <string name="settings_licence_value">GPL-3.0: free software, with no ads, no tracking and no servers</string>
+    <string name="settings_source">Source code</string>
+    <string name="settings_security">Found a security problem?</string>
+    <string name="settings_security_value">Report it privately: the Security tab of the source code page, then Report a vulnerability. Never in a public issue.</string>
+    <string name="settings_open">Settings</string>
 </resources>
