@@ -54,6 +54,7 @@ Phase 3 of the [roadmap](../../ROADMAP.md).
 - `scripts/gates/claims.mjs`, a fast gate with a self-test, fails when a claim string cites no row, cites a row §7 does not have, or when a row is missing from What Echo protects. It runs in `rungs check`, so in CI.
 - The residual risk of FR-3.4a, the constant service UUID, is N1 ("Anyone nearby with a radio receiver can tell your phone is running Echo"), shown in onboarding and on What Echo protects.
 - Onboarding's "Before you go" now points at the eye button and the wipe button, which shipped with WI-025 and WI-024.
+- Fixed after WI-024 shipped: What Echo protects still left out P5 (the panic wipe), because its screen lists the strings in Kotlin and the gate only read `strings.xml`. The gate now also fails when a page string is not shown by `WhatEchoProtects.kt`, with a self-test case for it, and P5 is listed.
 - Deviation: there is no settings page yet, so its copy is not written; when it exists its claims fall under the same gate by citing a row.
 
 Still to do on this item: Antoine reviews the wording (the plan's approach). The copy is faithful to §7 and short; nothing in it is new.

@@ -21,10 +21,17 @@ import io.github.throughthewind.echo.ui.common.BackBar
 import io.github.throughthewind.echo.ui.common.IconLine
 import io.github.throughthewind.echo.core.designsystem.R as DS
 
-// protects_5, the panic wipe, is listed once the wipe ships (WI-024): the page never claims a
-// protection the installed version does not have.
+// Every protects_N and not_protects_N string is listed: the claims gate (scripts/gates/claims.mjs)
+// fails when one is defined and not shown here.
 private val protects =
-    listOf(R.string.protects_1, R.string.protects_2, R.string.protects_3, R.string.protects_4, R.string.protects_6)
+    listOf(
+        R.string.protects_1,
+        R.string.protects_2,
+        R.string.protects_3,
+        R.string.protects_4,
+        R.string.protects_5,
+        R.string.protects_6,
+    )
 private val doesNot =
     listOf(
         R.string.not_protects_1,
