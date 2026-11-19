@@ -103,6 +103,7 @@ import io.github.throughthewind.echo.ui.hex
 import io.github.throughthewind.echo.ui.look
 import io.github.throughthewind.echo.ui.maps.GetMapChoices
 import io.github.throughthewind.echo.ui.rememberNow
+import io.github.throughthewind.echo.ui.wipe.LocalPanicWipe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
@@ -357,6 +358,10 @@ fun MapScreen(
                 MapIconButton(DS.drawable.ic_group, stringResource(R.string.groups_title), onOpenGroups)
                 Box(Modifier.size(LocalSpacing.current.md))
                 MapIconButton(DS.drawable.ic_shield, stringResource(R.string.protects_title), onOpenProtects)
+                LocalPanicWipe.current?.let { wipe ->
+                    Box(Modifier.size(LocalSpacing.current.md))
+                    MapIconButton(DS.drawable.ic_delete_forever, stringResource(R.string.wipe_button), wipe)
+                }
             }
             // While sharing, one bar per group with its own Stop (FR-10.4).
             SharingBars(sharing, now, onStop = mesh::stopSharing)

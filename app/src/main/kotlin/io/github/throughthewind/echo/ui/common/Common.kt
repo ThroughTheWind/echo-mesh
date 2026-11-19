@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import io.github.throughthewind.echo.R
 import io.github.throughthewind.echo.core.designsystem.theme.LocalSpacing
 import io.github.throughthewind.echo.core.designsystem.theme.Touch
+import io.github.throughthewind.echo.ui.wipe.LocalPanicWipe
 import io.github.throughthewind.echo.core.designsystem.R as DS
 
 /** The filled primary button of a step or sheet, at the comfortable touch size. */
@@ -72,11 +73,24 @@ fun BackBar(
     title: String,
     onBack: () -> Unit,
 ) {
+    val wipe = LocalPanicWipe.current
     TopAppBar(
         title = { Text(title, style = MaterialTheme.typography.titleLarge) },
         navigationIcon = {
             IconButton(onClick = onBack, modifier = Modifier.size(Touch.min)) {
                 Icon(painterResource(DS.drawable.ic_arrow_back), contentDescription = stringResource(R.string.back))
+            }
+        },
+        // The panic wipe, two actions away from every screen (FR-11.1).
+        actions = {
+            if (wipe != null) {
+                IconButton(onClick = wipe, modifier = Modifier.size(Touch.min)) {
+                    Icon(
+                        painterResource(DS.drawable.ic_delete_forever),
+                        contentDescription = stringResource(R.string.wipe_button),
+                        tint = MaterialTheme.colorScheme.error,
+                    )
+                }
             }
         },
     )

@@ -1,6 +1,8 @@
 package io.github.throughthewind.echo
 
+import android.app.Activity
 import android.app.Application
+import android.content.Intent
 import io.github.throughthewind.echo.core.crypto.Randomness
 import io.github.throughthewind.echo.core.crypto.keystore.KeystoreSealingKey
 import io.github.throughthewind.echo.core.data.SealedFiles
@@ -82,6 +84,38 @@ class App : Application() {
         MeshService.stop(this)
         mesh.turnOff()
         withContext(Dispatchers.IO) { settings.update { it.copy(meshMeantOn = false) } }
+    }
+
+    /**
+     * The panic wipe (FR-11.2, threat model §5.6): the sealing key is destroyed first, so everything
+     * kept is unreadable at once; then the files go, the mesh stops without a word on the air
+     * (FR-11.4), and group keys in memory are destroyed. Maps go too when [includeMaps].
+     * [restartFresh] then starts a new process, so nothing in memory survives either (FR-11.3).
+     */
+    suspend fun wipe(includeMaps: Boolean) {
+        withContext(Dispatchers.IO) { sealed.destroy() }
+        MeshService.stop(this)
+        mesh.wipe()
+        withContext(Dispatchers.IO) {
+            val mapsDirectory = MapSharing.directory(this@App)
+            if (includeMaps) maps.deleteAll()
+            filesDir
+                .listFiles()
+                .orEmpty()
+                .filter { includeMaps || it != mapsDirectory }
+                .forEach { it.deleteRecursively() }
+            cacheDir.listFiles().orEmpty().forEach { it.deleteRecursively() }
+            noBackupFilesDir.listFiles().orEmpty().forEach { it.deleteRecursively() }
+        }
+    }
+
+    /** Opens the app again as a fresh install would, in a new process: onboarding first (FR-11.3). */
+    fun restartFresh(activity: Activity) {
+        activity.startActivity(
+            Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK),
+        )
+        activity.finishAffinity()
+        Runtime.getRuntime().exit(0)
     }
 
     private companion object {

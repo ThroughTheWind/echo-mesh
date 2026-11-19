@@ -2,10 +2,10 @@
 id: WI-023
 title: Phase 3 — Safety and street use: ship 0.3.0
 type: epic
-status: planned
-branch:
+status: in_progress
+branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-17
+updated: 2026-11-19
 related: [AC-17, AC-18, AC-19, AC-28, NFR-1, NFR-9, NFR-14]
 epic:
 children: [WI-024, WI-025, WI-026, WI-027, WI-028, WI-036]

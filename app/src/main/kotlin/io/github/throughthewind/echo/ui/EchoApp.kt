@@ -19,6 +19,8 @@ import io.github.throughthewind.echo.ui.map.MapScreen
 import io.github.throughthewind.echo.ui.onboarding.Onboarding
 import io.github.throughthewind.echo.ui.protects.WhatEchoProtects
 import io.github.throughthewind.echo.ui.reports.ReportsNearYou
+import io.github.throughthewind.echo.ui.wipe.LocalPanicWipe
+import io.github.throughthewind.echo.ui.wipe.PanicWipeSheet
 import kotlinx.coroutines.delay
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -42,7 +44,9 @@ fun EchoApp(app: App) {
     }
     val groups by app.mesh.groups.collectAsStateWithLifecycle()
     ShareOwnPosition(app)
-    CompositionLocalProvider(LocalGroups provides groups) { Screens(app, maps) }
+    var wiping by rememberSaveable { mutableStateOf(false) }
+    CompositionLocalProvider(LocalGroups provides groups, LocalPanicWipe provides { wiping = true }) { Screens(app, maps) }
+    if (wiping) PanicWipeSheet(app, onDismiss = { wiping = false })
 }
 
 @Composable

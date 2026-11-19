@@ -334,6 +334,26 @@ class GroupChannel(
             true
         }
 
+    /**
+     * The panic wipe's part here (FR-11.2): destroys every group's keys in memory and forgets
+     * everything read from the groups. Writes nothing: the sealed store is already gone.
+     */
+    suspend fun wipe() {
+        lock.withLock {
+            invitations.values.forEach { it.destroy() }
+            invitations.clear()
+            book.all.map { it.id }.forEach { book.leave(it) }
+            held.clear()
+            authors.clear()
+            groupVotes.clear()
+            withdrawals.clear()
+            latest.clear()
+            seen.clear()
+            savedEpochs.clear()
+            publish()
+        }
+    }
+
     /** Ratchets keys, ends expired groups (FR-8.6) and drops expired reports. */
     suspend fun sweep() {
         lock.withLock {

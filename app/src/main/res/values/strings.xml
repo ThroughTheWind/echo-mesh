@@ -29,11 +29,12 @@
     <string name="onboarding_map_title">Get a map before you go</string>
     <string name="onboarding_map_body">Echo draws an offline map you download at home, on Wi-Fi you trust. Downloading reveals the region to your network and the map host.</string>
     <string name="onboarding_skip">Skip for now</string>
-    <!-- Discreet mode and panic wipe join this step when they ship (WI-025, WI-024): the app never
-         points at a control it does not have yet. -->
+    <!-- Discreet mode joins this step when it ships (WI-025): the app never points at a control
+         it does not have yet. -->
     <string name="onboarding_know_title">Before you go</string>
     <string name="onboarding_know_mesh">The mesh starts off. Turn it on from the map when you\'re there.</string>
     <string name="onboarding_know_expiry">Every report disappears on its own after a few minutes, on every phone.</string>
+    <string name="onboarding_know_wipe">To erase everything, tap the wipe button at the top of the map, then hold for 2 seconds.</string>
     <string name="onboarding_open_map">Open the map</string>
     <string name="onboarding_step">Step %1$d of %2$d</string>
 
@@ -305,4 +306,13 @@
     <string name="filter_my_groups">My groups</string>
     <string name="filter_groups_only">Show my groups only</string>
     <string name="filter_show_everything">Show everything</string>
+    <string name="wipe_button">Wipe everything</string>
+    <string name="wipe_title">Wipe everything?</string>
+    <string name="wipe_body">Groups and their keys, all reports, settings. It looks like a fresh install afterwards.</string>
+    <string name="wipe_body_maps">Groups and their keys, all reports, settings and maps. It looks like a fresh install afterwards.</string>
+    <string name="wipe_others">Copies on other phones stay. Nothing is sent to say you wiped.</string>
+    <string name="wipe_include_maps">Also delete maps</string>
+    <string name="wipe_hold">Hold to wipe</string>
+    <string name="wipe_keep_holding">Keep holding · %1$.1f s</string>
+    <string name="wipe_cancel">Cancel</string>
 </resources>

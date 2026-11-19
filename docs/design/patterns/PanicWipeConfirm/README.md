@@ -13,7 +13,7 @@ Erase everything in one deliberate move: tap the wipe button, then hold for 2 se
 ## Sheet copy
 
 - Title: "Wipe everything?" (`headline-small`).
-- "Groups and their keys, all reports, settings. It looks like a fresh install afterwards." When Settings > Privacy > "Include maps" is on, add "and maps".
+- "Groups and their keys, all reports, settings. It looks like a fresh install afterwards." An "Also delete maps" checkbox, off by default, adds "and maps" (until a Settings screen holds the choice, WI-024).
 - "Copies on other phones stay. Nothing is sent to say you wiped." (FR-11.4)
 - **Cancel** text button under the hold button.
 

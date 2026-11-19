@@ -394,6 +394,24 @@ class MeshNode(
         stoppedSharing.value = SharingStopped(sharing.groupName, why)
     }
 
+    /**
+     * The panic wipe's part here (FR-11.2): the radio stops without a word on the air (FR-11.4),
+     * sharing stops, the pending report is dropped unsent, and group keys are destroyed in memory.
+     * The app restarts the process afterwards, which takes the rest of memory with it.
+     */
+    suspend fun wipe() {
+        cancelPending()
+        synchronized(shareJobs) { shareJobs.values.forEach { it.cancel() } }
+        synchronized(shareJobs) { shareJobs.clear() }
+        sharingNow.value = emptyList()
+        stoppedSharing.value = null
+        ownFix.value = null
+        turnOff()
+        groupChannel?.wipe()
+        myVotes.value = emptyMap()
+        ownIds.value = emptySet()
+    }
+
     /** Withdraws one of this phone's reports everywhere it spread (FR-4.5). False if it cannot. */
     suspend fun withdraw(id: Bytes): Boolean {
         val relay = relay ?: return false
