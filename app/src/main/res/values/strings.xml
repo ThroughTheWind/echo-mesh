@@ -96,6 +96,10 @@
     <string name="picker_unverified">Anyone can send these, and they can be fake.</string>
     <string name="picker_lasts">Lasts %1$d min</string>
     <string name="picker_send_everyone">Send to everyone nearby</string>
+    <string name="picker_send_group">Send to %1$s</string>
+    <string name="picker_group_note">Signed by you and encrypted: only %1$s can read it.</string>
+    <string name="picker_audience">Who sees it</string>
+    <string name="picker_audience_group">%1$s only</string>
     <string name="picker_change_type">Change type</string>
     <string name="picker_sent_ago">Sent %1$d s ago</string>
     <string name="picker_no_map">Get a map first: a report goes at the map centre, never at your position.</string>
@@ -107,6 +111,7 @@
     <!-- Report pins and rows (components/ReportPin) -->
     <string name="source_nearby">from a phone nearby, unverified</string>
     <string name="source_yours">yours</string>
+    <string name="source_group">from %1$s in %2$s</string>
     <string name="pin_described">%1$s, %2$s, %3$s</string>
     <string name="direction_north">north</string>
     <string name="direction_north_east">north-east</string>
@@ -121,6 +126,7 @@
     <string name="reported_now">reported just now</string>
     <string name="row_source_nearby">nearby</string>
     <string name="row_source_yours">yours</string>
+    <string name="row_source_group">%1$s in %2$s</string>
 
     <!-- Reports near you (screens/ReportsNearYou) -->
     <string name="reports_title">Reports near you</string>
@@ -136,6 +142,9 @@
     <string name="detail_relayed">Relayed %1$d hops.</string>
     <string name="detail_yours_title">Your report.</string>
     <string name="detail_yours_body">Sent to everyone nearby. Withdrawing removes it from every phone it reached.</string>
+    <string name="detail_yours_group_body">Sent to %1$s only. Withdrawing removes it from every phone it reached.</string>
+    <string name="detail_group_title">From %1$s, in %2$s.</string>
+    <string name="detail_group_body">Signed by %1$s\'s phone and encrypted to your group.</string>
     <string name="detail_withdraw">Withdraw report</string>
     <string name="detail_withdrawn">Report withdrawn</string>
     <string name="detail_votes_later">Still there and Gone votes arrive with a later version.</string>

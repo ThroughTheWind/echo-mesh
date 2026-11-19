@@ -84,16 +84,20 @@ import io.github.throughthewind.echo.core.map.OwnPosition
 import io.github.throughthewind.echo.core.map.rememberMapCamera
 import io.github.throughthewind.echo.core.mesh.node.MeshState
 import io.github.throughthewind.echo.core.mesh.node.ShownReport
+import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.model.GeoPoint
 import io.github.throughthewind.echo.core.model.ReportType
+import io.github.throughthewind.echo.ui.LocalGroups
 import io.github.throughthewind.echo.ui.MapsState
 import io.github.throughthewind.echo.ui.common.PrimaryButton
 import io.github.throughthewind.echo.ui.common.SecondaryButton
 import io.github.throughthewind.echo.ui.describe
 import io.github.throughthewind.echo.ui.family
+import io.github.throughthewind.echo.ui.hex
 import io.github.throughthewind.echo.ui.look
 import io.github.throughthewind.echo.ui.maps.GetMapChoices
 import io.github.throughthewind.echo.ui.rememberNow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
@@ -135,6 +139,14 @@ fun MapScreen(
     }.collectAsStateWithLifecycle(null)
 
     var picking by rememberSaveable { mutableStateOf(false) }
+    // Who a report goes to: null is everyone nearby. Defaults to the last choice (FR-4.3).
+    val groups = LocalGroups.current
+    var audience by remember { mutableStateOf<Bytes?>(null) }
+    LaunchedEffect(picking) {
+        if (picking) {
+            audience = if (settings.lastAudienceIsPublic) null else groups.firstOrNull { it.id.hex() == settings.lastAudienceGroup }?.id
+        }
+    }
     var chosen by rememberSaveable { mutableStateOf<ReportType?>(null) }
     var detailFor by remember { mutableStateOf<ShownReport?>(null) }
     var showMeshSheet by rememberSaveable { mutableStateOf(false) }
@@ -350,15 +362,22 @@ fun MapScreen(
                 onSend = { type ->
                     val above = constraints.maxHeight - pickerHeight
                     val at = camera.fromScreen(Offset(constraints.maxWidth / 2f, above / 2f))
-                    if (at != null && mesh.send(type, at)) {
+                    val to = audience
+                    if (at != null && mesh.send(type, at, group = to)) {
                         picking = false
                         chosen = null
+                        scope.launch(Dispatchers.IO) {
+                            app.settings.update { it.copy(lastAudienceIsPublic = to == null, lastAudienceGroup = to?.hex()) }
+                        }
                     }
                 },
                 onClose = {
                     picking = false
                     chosen = null
                 },
+                groups = groups,
+                audience = audience,
+                onAudience = { audience = it },
                 modifier =
                     Modifier
                         .align(Alignment.BottomCenter)

@@ -56,7 +56,11 @@ Phase 2 of the [roadmap](../../ROADMAP.md).
 - The relay checks a group frame's layout, holds it by message id for 185 minutes and relays it like any other frame (FR-5.4); `GroupChannel` opens the ones for this phone's groups, attributes each to a roster member, honours withdrawals only from the sender, and attributes frames that arrived before their sender's member-added once it comes. `MeshNode` shows group reports with their group and sender, and sends to a group through the same grace period and per-type rate limit as public reports.
 - Tests: `GroupBookTest` (AC-14 and AC-16 at the codec level, signatures bound to group and epoch, five groups at most, keys ratchet hourly); `GroupMeshTest` on loopback: a group report crosses a phone outside the group, which relays it and shows nothing (AC-14), arrives attributed to its sender (AC-13 in code), and is withdrawn everywhere; a newcomer added while another member is out of range is learned through the relay. `GroupFuzzTest` covers the inner decoder.
 
-Still to do on this item: the verified style on the map and in the list (FR-9.2, with the WI-022 screens and the design pattern), the audience choice on the send button (FR-4.3), and AC-13 and AC-14 on phones.
+In the app (2026-11-19):
+- The picker chooses the audience: everyone nearby, unverified, or one group, signed and encrypted. It defaults to the last choice, kept by group id in the sealed settings and never by name (FR-4.3), and the send button names the audience.
+- Group reports are drawn in the verified style everywhere, on the map, in the list and in the detail (FR-9.2). The pin is solid in the group's colour with its monogram, TalkBack reads "from Sage in Crew", and the detail shows a lock with "From Sage, in Crew. Signed by Sage's phone and encrypted to your group."
+
+Still to do on this item: the My groups filter (FR-9.3, with the WI-022 screens), and AC-13 and AC-14 on phones.
 
 branch-merged-ok: the core half merges with PR #6 while the verified style and the phone checks stay open on this item.
 

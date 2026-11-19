@@ -152,7 +152,13 @@ private fun ReportRow(
     now: Instant,
     onClick: () -> Unit,
 ) {
-    val source = stringResource(if (shown.mine) R.string.row_source_yours else R.string.row_source_nearby)
+    val tag = shown.group
+    val source =
+        when {
+            shown.mine -> stringResource(R.string.row_source_yours)
+            tag != null -> stringResource(R.string.row_source_group, tag.sender, tag.groupName)
+            else -> stringResource(R.string.row_source_nearby)
+        }
     val where = from?.let { distanceFrom(it, shown.report.position) }
     ListItem(
         leadingContent = { ReportPin(shown.look(now), contentDescription = shown.describe(now), onClick = onClick) },

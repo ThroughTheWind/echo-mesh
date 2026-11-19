@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,8 +37,10 @@ import io.github.throughthewind.echo.core.designsystem.theme.LocalGlanceType
 import io.github.throughthewind.echo.core.designsystem.theme.LocalSpacing
 import io.github.throughthewind.echo.core.designsystem.theme.LocalStreetColors
 import io.github.throughthewind.echo.core.designsystem.theme.Touch
+import io.github.throughthewind.echo.core.mesh.group.GroupInfo
 import io.github.throughthewind.echo.core.mesh.node.MeshNode
 import io.github.throughthewind.echo.core.mesh.report.ReportAuthor
+import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.model.ReportType
 import io.github.throughthewind.echo.ui.common.PrimaryButton
 import io.github.throughthewind.echo.ui.common.SecondaryButton
@@ -51,8 +56,8 @@ private const val COLUMNS = 3
 /**
  * Drop a report (patterns/ReportPicker): a 3 × 3 grid of types, then one hero button naming the
  * audience. Not a modal sheet: the map above stays pannable, and the report goes at the crosshair,
- * never at the user's position (FR-4.2). There is no text field anywhere (FR-4.4). Everyone nearby
- * is the only audience until groups arrive (WI-022).
+ * never at the user's position (FR-4.2). There is no text field anywhere (FR-4.4). With groups, the
+ * audience is chosen here: everyone nearby, unverified, or one group, signed and encrypted (FR-4.3).
  */
 @Composable
 fun ReportPicker(
@@ -63,6 +68,9 @@ fun ReportPicker(
     onSend: (ReportType) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
+    groups: List<GroupInfo> = emptyList(),
+    audience: Bytes? = null,
+    onAudience: (Bytes?) -> Unit = {},
 ) {
     val spacing = LocalSpacing.current
     Surface(
@@ -106,19 +114,67 @@ fun ReportPicker(
                     stringResource(R.string.picker_lasts, chosen.defaultLifetime.inWholeMinutes.toInt()),
                     style = MaterialTheme.typography.bodyLarge,
                 )
+                if (groups.isNotEmpty()) {
+                    Text(
+                        stringResource(R.string.picker_audience),
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.semantics { heading() },
+                    )
+                    Column(Modifier.selectableGroup()) {
+                        AudienceRow(stringResource(R.string.picker_audience_everyone), audience == null) { onAudience(null) }
+                        groups.forEach { group ->
+                            AudienceRow(stringResource(R.string.picker_audience_group, group.name), audience == group.id) {
+                                onAudience(group.id)
+                            }
+                        }
+                    }
+                }
+                val group = groups.firstOrNull { it.id == audience }
                 Text(
-                    stringResource(R.string.picker_unverified),
+                    if (group ==
+                        null
+                    ) {
+                        stringResource(R.string.picker_unverified)
+                    } else {
+                        stringResource(R.string.picker_group_note, group.name)
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 PrimaryButton(
-                    stringResource(R.string.picker_send_everyone),
+                    if (group ==
+                        null
+                    ) {
+                        stringResource(R.string.picker_send_everyone)
+                    } else {
+                        stringResource(R.string.picker_send_group, group.name)
+                    },
                     onClick = { onSend(chosen) },
                     modifier = Modifier.heightIn(min = Touch.hero),
                 )
                 SecondaryButton(stringResource(R.string.picker_change_type), onClick = { onChoose(null) })
             }
         }
+    }
+}
+
+/** One audience, as a radio row at the minimum touch size. */
+@Composable
+private fun AudienceRow(
+    label: String,
+    selected: Boolean,
+    onSelect: () -> Unit,
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .heightIn(min = Touch.min)
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onSelect),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(LocalSpacing.current.md),
+    ) {
+        RadioButton(selected = selected, onClick = null)
+        Text(label, style = MaterialTheme.typography.bodyLarge)
     }
 }
 

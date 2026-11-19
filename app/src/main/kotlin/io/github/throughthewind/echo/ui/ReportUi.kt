@@ -3,6 +3,7 @@ package io.github.throughthewind.echo.ui
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.res.stringResource
 import io.github.throughthewind.echo.R
 import io.github.throughthewind.echo.core.designsystem.component.Expiry
@@ -10,7 +11,9 @@ import io.github.throughthewind.echo.core.designsystem.component.PinFamily
 import io.github.throughthewind.echo.core.designsystem.component.PinLook
 import io.github.throughthewind.echo.core.designsystem.component.PinSource
 import io.github.throughthewind.echo.core.designsystem.component.timeLeftLabel
+import io.github.throughthewind.echo.core.mesh.group.GroupInfo
 import io.github.throughthewind.echo.core.mesh.node.ShownReport
+import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.model.Compass
 import io.github.throughthewind.echo.core.model.Geo
 import io.github.throughthewind.echo.core.model.GeoPoint
@@ -62,25 +65,52 @@ val ReportType.label: Int
 val pickerOrder: List<ReportType> =
     ReportType.entries.sortedBy { it.family.ordinal }
 
-/** What a held report's pin looks like now. Every report is public until groups arrive (WI-022). */
-fun ShownReport.look(now: Instant): PinLook =
-    PinLook(
+/** The groups this phone is in, in order: a group's colour is its place in this list (FR-9.2). */
+val LocalGroups = staticCompositionLocalOf { emptyList<GroupInfo>() }
+
+/** A group's colour index, stable while the phone stays in the group. */
+fun List<GroupInfo>.colourOf(id: Bytes): Int = indexOfFirst { it.id == id }.coerceAtLeast(0)
+
+/** Lower-case hex, for keeping a group's id in the sealed settings. */
+fun Bytes.hex(): String = toByteArray().joinToString("") { ((it.toInt() and 0xFF) + 0x100).toString(16).substring(1) }
+
+/** Up to two initials, for a group's or a member's monogram (components/AvatarAndBadge). */
+fun initials(name: String): String =
+    name
+        .split(' ')
+        .filter { it.isNotEmpty() }
+        .take(2)
+        .joinToString("") { it.take(1).uppercase() }
+
+/**
+ * What a held report's pin looks like now: solid with the group's colour and monogram when a member
+ * of one of this phone's groups signed it, hollow when anyone nearby could have sent it (FR-9.2).
+ */
+@Composable
+fun ShownReport.look(now: Instant): PinLook {
+    val groups = LocalGroups.current
+    val tag = group
+    return PinLook(
         family = report.type.family,
         icon = report.type.icon,
-        source = PinSource.Nearby,
+        source = if (tag == null) PinSource.Nearby else PinSource.Group(groups.colourOf(tag.groupId), initials(tag.groupName)),
         timeLeft = Expiry.fraction(report.expiresAt - now, report.lifetime),
         mine = mine,
     )
+}
 
-/** "{Type}, {source}, {N} minutes left" (components/ReportPin). */
+/** "{Type}, {source}, {N} minutes left" (components/ReportPin): "from Sage in Crew" for a group. */
 @Composable
-fun ShownReport.describe(now: Instant): String =
-    stringResource(
-        R.string.pin_described,
-        stringResource(report.type.label),
-        stringResource(if (mine) R.string.source_yours else R.string.source_nearby),
-        timeLeftLabel(report.expiresAt - now),
-    )
+fun ShownReport.describe(now: Instant): String {
+    val tag = group
+    val source =
+        when {
+            mine -> stringResource(R.string.source_yours)
+            tag != null -> stringResource(R.string.source_group, tag.sender, tag.groupName)
+            else -> stringResource(R.string.source_nearby)
+        }
+    return stringResource(R.string.pin_described, stringResource(report.type.label), source, timeLeftLabel(report.expiresAt - now))
+}
 
 @Composable
 fun Compass.word(): String =

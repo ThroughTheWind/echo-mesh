@@ -2,6 +2,7 @@ package io.github.throughthewind.echo.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -36,6 +37,15 @@ fun EchoApp(app: App) {
         Onboarding(maps = maps, onDone = { app.settings.update { it.copy(onboardingDone = true) } })
         return
     }
+    val groups by app.mesh.groups.collectAsStateWithLifecycle()
+    CompositionLocalProvider(LocalGroups provides groups) { Screens(app, maps) }
+}
+
+@Composable
+private fun Screens(
+    app: App,
+    maps: MapsState,
+) {
     var screen by rememberSaveable { mutableStateOf(Screen.Map) }
     // Opening the report picker from the list returns to the map with it open.
     var pickOnMap by rememberSaveable { mutableStateOf(false) }

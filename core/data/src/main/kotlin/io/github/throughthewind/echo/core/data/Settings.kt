@@ -17,6 +17,8 @@ data class Settings(
     val onboardingDone: Boolean = false,
     /** The last audience picked on the send button: everyone nearby, or a group (FR-4.3). */
     val lastAudienceIsPublic: Boolean = true,
+    /** The group last sent to, by its random id in hex, when [lastAudienceIsPublic] is false. Never its name. */
+    val lastAudienceGroup: String? = null,
     /**
      * The user turned the mesh on and has not turned it off. Found true with the mesh off at launch,
      * relaying stopped without the user's say (FR-3.3a). Never turns the mesh back on by itself.
