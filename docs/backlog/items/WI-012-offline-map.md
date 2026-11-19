@@ -2,10 +2,10 @@
 id: WI-012
 title: Show an offline map: renderer wrapper, import, browser download and sharing
 type: feature
-status: in_progress
+status: review
 branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-18
+updated: 2026-11-19
 related: [FR-2.1, FR-2.2, FR-2.3, FR-2.4, FR-2.5, FR-2.6, AC-2, AC-3]
 epic: WI-006
 children: []
@@ -61,3 +61,5 @@ Phase 1 of the [roadmap](../../ROADMAP.md).
 - **Still to do here, with the phones:** AC-2 (renders in flight mode), AC-3 (a shared file renders the same on another phone), and the OPPO Find X3 Pro measurement. The street render theme built from the design tokens (ADR-0006) comes with the map screen in WI-013, where pins and the discreet theme need it.
 
 ## Review
+
+Merged to `main` in PR #5 on 2026-11-19, at Antoine's request ("Accept and merge the prs"). Open, with the phones: AC-2, AC-3 and the OPPO Find X3 Pro measurement.

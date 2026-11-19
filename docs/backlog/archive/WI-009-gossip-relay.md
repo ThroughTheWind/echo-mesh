@@ -2,10 +2,10 @@
 id: WI-009
 title: Relay reports by gossip with de-duplication, hop budget, rate limits and expiry
 type: feature
-status: review
+status: done
 branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-18
+updated: 2026-11-19
 related: [FR-5.1, FR-5.2, FR-5.3, FR-7.1, NFR-1, NFR-3, AC-6, AC-9, AC-11, ADR-0008]
 epic: WI-006
 children: []
@@ -73,3 +73,5 @@ Phase 1 of the [roadmap](../../ROADMAP.md).
 - The flooding run costs about 45 s of CPU locally, nearly all of it Ed25519 checks of the fakes across the crowd; the others take under 2 s.
 
 ## Review
+
+Merged to `main` in PR #5 on 2026-11-19, at Antoine's request ("Accept and merge the prs"). Every acceptance criterion is met as the Execution section records.

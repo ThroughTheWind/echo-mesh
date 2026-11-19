@@ -5,7 +5,7 @@ type: feature
 status: review
 branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-18
+updated: 2026-11-19
 related: [FR-12.1, FR-12.2, FR-12.3, FR-12.4, NFR-5, AC-18]
 epic: WI-006
 children: []
@@ -57,3 +57,5 @@ Phase 1 of the [roadmap](../../ROADMAP.md).
 - Deleting one file (FR-12.4) unlinks it but does not erase flash; only destroying the key is a real erase. Expired group keys (Phase 2) are deleted per file; the threat model already counts on the crypto-erase for a wipe.
 
 ## Review
+
+Merged to `main` in PR #5 on 2026-11-19, at Antoine's request ("Accept and merge the prs"). Open: AC-18's file-level look at a debug build's storage, which needs a reference phone.

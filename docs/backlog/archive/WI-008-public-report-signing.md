@@ -2,10 +2,10 @@
 id: WI-008
 title: Sign, encode and validate public reports
 type: feature
-status: review
+status: done
 branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-18
+updated: 2026-11-19
 related: [FR-4.1, FR-4.4, FR-4.5, FR-4.6, FR-5.2, FR-7.3, AC-10, ADR-0004]
 epic: WI-006
 children: []
@@ -62,3 +62,5 @@ Phase 1 of the [roadmap](../../ROADMAP.md).
 - Run locally: `:core:model`, `:core:crypto`, `:core:mesh` and `:adapters:loopback` tests (92 tests, 0 failures), the transport, crypto, compression and dependency gates, and ktlint on changed files.
 
 ## Review
+
+Merged to `main` in PR #5 on 2026-11-19, at Antoine's request ("Accept and merge the prs"). Every acceptance criterion is met as the Execution section records.

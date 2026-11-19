@@ -103,4 +103,6 @@ Second pair run on 2026-11-19, 01:35 to 02:18: the OnePlus CPH2465 (Android 14, 
 - A run off the cable: USB and a live adb session can keep a phone out of real deep sleep, so "survived Doze" above is optimistic for all three phones, the OnePlus included.
 - Spec A1 stays ⚠️ until it is done.
 
+branch-merged-ok: the findings were recorded on the Phase 1 branch, merged in PR #5; the spike itself is a run on the phones, and one run off the cable remains.
+
 ## Review

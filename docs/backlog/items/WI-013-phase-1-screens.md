@@ -2,10 +2,10 @@
 id: WI-013
 title: Build the Phase 1 screens: onboarding draft, map with pins, drop a report, mesh status
 type: feature
-status: in_progress
+status: review
 branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-18
+updated: 2026-11-19
 related: [F1, F3, F4, F5, FR-4.7, FR-5.6, FR-7.2, NFR-11, AC-1, AC-4]
 epic: WI-006
 children: []
@@ -61,3 +61,5 @@ Phase 1 of the [roadmap](../../ROADMAP.md).
 - **Still to do, with the phones:** AC-4 end to end through the UI on two reference phones, and checking the touch targets on a device (NFR-11).
 
 ## Review
+
+Merged to `main` in PR #5 on 2026-11-19, at Antoine's request ("Accept and merge the prs"). AC-4 passed through the UI on two Pixels. Open: the touch-target check on a device (NFR-11).

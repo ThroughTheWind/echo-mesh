@@ -2,7 +2,7 @@
 id: WI-011
 title: Build the BLE transport adapter and the relay foreground service
 type: feature
-status: in_progress
+status: review
 branch: claude/project-thread-67cn4e
 created: 2026-11-17
 updated: 2026-11-19
@@ -91,3 +91,5 @@ restarting a legacy advertisement changes the OS address with the token is not s
 controls; the 30-minute capture of AC-19 (WI-027) measures it.
 
 ## Review
+
+Merged to `main` in PR #5 on 2026-11-19, at Antoine's request ("Accept and merge the prs"). AC-4 passed on the Pixel 9a and Pixel 11 Pro (6 of 6 reports, about 7.5 s from tap to pin, 5 s of it the send grace). Open, with the phones: AC-5 (screen off), reconnecting across a rotation, AC-6a (three phones).
