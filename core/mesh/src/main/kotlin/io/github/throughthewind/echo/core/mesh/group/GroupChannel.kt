@@ -1,5 +1,12 @@
 package io.github.throughthewind.echo.core.mesh.group
 
+import io.github.throughthewind.echo.core.crypto.GroupEpochs
+import io.github.throughthewind.echo.core.crypto.MemberKey
+import io.github.throughthewind.echo.core.crypto.NoiseHandshake
+import io.github.throughthewind.echo.core.crypto.NoiseSession
+import io.github.throughthewind.echo.core.crypto.NoiseStaticKey
+import io.github.throughthewind.echo.core.crypto.Randomness
+import io.github.throughthewind.echo.core.mesh.PeerHandle
 import io.github.throughthewind.echo.core.mesh.relay.HeldFrame
 import io.github.throughthewind.echo.core.mesh.relay.Relay
 import io.github.throughthewind.echo.core.mesh.report.Validation
@@ -8,20 +15,27 @@ import io.github.throughthewind.echo.core.mesh.report.instantOfWireMinute
 import io.github.throughthewind.echo.core.mesh.report.wireMinute
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.mesh.wire.GroupFrame
+import io.github.throughthewind.echo.core.mesh.wire.JoinFrame
 import io.github.throughthewind.echo.core.mesh.wire.Wire
 import io.github.throughthewind.echo.core.model.GeoPoint
 import io.github.throughthewind.echo.core.model.Report
 import io.github.throughthewind.echo.core.model.ReportType
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 /** A group as the screens show it: never its keys. */
@@ -50,6 +64,7 @@ data class GroupReport(
  * This phone's groups on the mesh (WI-018): it seals the user's group messages and hands them to the
  * relay like any frame, and opens every group frame the relay stores, from the air or its own.
  * Everyone relays group frames (FR-5.4); only this layer reads them, and only for groups it is in.
+ * It also runs both sides of a join in person (FR-8.2, ADR-0009): [invite] and [join].
  */
 class GroupChannel(
     private val relay: Relay,
@@ -66,6 +81,9 @@ class GroupChannel(
     /** Withdrawals seen, target id to the key id that signed them, even before the report arrives. */
     private val withdrawals = HashMap<Bytes, Bytes>()
 
+    /** Open QR codes, at most one per group: each lets in one newcomer, then is destroyed (AC-25). */
+    private val invitations = LinkedHashMap<Bytes, Invitation>()
+
     private val groupList = MutableStateFlow<List<GroupInfo>>(emptyList())
     private val shown = MutableStateFlow<List<GroupReport>>(emptyList())
 
@@ -74,8 +92,12 @@ class GroupChannel(
     /** Live, not withdrawn group reports from every group this phone is in. */
     val reports: StateFlow<List<GroupReport>> = shown.asStateFlow()
 
-    /** Opens group frames as the relay stores them. */
-    fun run(scope: CoroutineScope): Job = scope.launch { relay.groupFrames.collect { open(it) } }
+    /** Opens group frames as the relay stores them, and answers newcomers who scanned a code. */
+    fun run(scope: CoroutineScope): Job =
+        scope.launch {
+            launch { relay.groupFrames.collect { if (open(it)) rescan() } }
+            launch { relay.joinFrames.collect { (peer, frame) -> answer(peer, frame) } }
+        }
 
     /** Creates a group (FR-8.1). Null when this phone is already in five. */
     suspend fun create(
@@ -91,6 +113,7 @@ class GroupChannel(
     suspend fun leave(id: Bytes) {
         lock.withLock {
             book.leave(id)
+            invitations.remove(id)?.destroy()
             held.values.removeAll { it.groupId == id }
             authors.keys.retainAll(held.keys)
             publish()
@@ -139,6 +162,7 @@ class GroupChannel(
         lock.withLock {
             val now = clock()
             book.sweep(now.wireMinute())
+            dropInvitations(now)
             held.values.removeAll { it.report.isExpired(now) || book[it.groupId] == null }
             authors.keys.retainAll(held.keys)
             if (withdrawals.size > MAX_WITHDRAWALS) withdrawals.clear()
@@ -146,9 +170,208 @@ class GroupChannel(
         }
     }
 
-    /** Opens what the relay already holds, for a group just created or joined. */
+    /**
+     * Opens what the relay already holds, for a group just joined, or once a member is added and
+     * their frames that arrived first can be attributed. Repeats while the roster grows.
+     */
     suspend fun rescan() {
-        relay.heldGroupFrames().forEach { open(it) }
+        do {
+            val grew = relay.heldGroupFrames().map { open(it) }.any { it }
+        } while (grew)
+    }
+
+    /**
+     * A QR code that lets one newcomer into the group [id] (FR-8.2): it holds a one-time key and
+     * token, works once within [lifetime], and replaces any earlier code for the group. Null when
+     * this phone is not in the group or the group is full.
+     */
+    suspend fun invite(
+        id: Bytes,
+        lifetime: Duration = INVITATION_LIFETIME,
+    ): JoinOffer? =
+        lock.withLock {
+            val group = book[id] ?: return null
+            if (group.roster.size >= Group.MAX_MEMBERS) return null
+            val key = NoiseStaticKey.generate()
+            val offer = JoinOffer(Bytes(key.publicKey), Bytes(Randomness.bytes(JoinOffer.TOKEN_BYTES)))
+            invitations.remove(id)?.destroy()
+            invitations[id] = Invitation(id, key, offer.psk(), clock() + lifetime)
+            offer
+        }
+
+    /** Takes back the QR code for [id], if one is open. */
+    suspend fun cancelInvite(id: Bytes) {
+        lock.withLock { invitations.remove(id)?.destroy() }
+    }
+
+    /**
+     * Joins the group behind [offer], scanned from a member's phone in direct range, as [nickname]
+     * (FR-8.2, ADR-0009). The newcomer gets the current epoch key only, never older traffic. Null
+     * when the code is used, expired or not for a phone in range, when the exchange is tampered
+     * with, or when this phone is already in five groups: the newcomer scans a fresh code.
+     */
+    suspend fun join(
+        offer: JoinOffer,
+        nickname: String,
+        timeout: Duration = JOIN_TIMEOUT,
+    ): GroupInfo? {
+        GroupInner.nicknameBytes(nickname)
+        if (lock.withLock { book.all.size >= GroupBook.MAX_GROUPS }) return null
+        val me = MemberKey.generate()
+        val self = Member(Bytes(me.publicKey), nickname)
+        val session = Bytes(Randomness.bytes(Wire.JOIN_SESSION_BYTES))
+        val handshake = NoiseHandshake.initiator(offer.responderKey.toByteArray(), offer.psk(), JoinPayloads.PROLOGUE)
+        val first = JoinFrame(session, 1, Bytes(handshake.writeMessage(JoinPayloads.request(self))))
+        val group =
+            withTimeoutOrNull(timeout) {
+                coroutineScope {
+                    val inbox = Channel<Pair<PeerHandle, JoinFrame>>(INBOX_CAPACITY)
+                    val listener =
+                        launch(start = CoroutineStart.UNDISPATCHED) {
+                            relay.joinFrames.collect { if (it.second.session == session) inbox.trySend(it) }
+                        }
+                    try {
+                        relay.sendJoin(null, first)
+                        receiveJoin(inbox, handshake, me, nickname)
+                    } finally {
+                        listener.cancel()
+                    }
+                }
+            }
+        if (group == null) {
+            me.destroy()
+            return null
+        }
+        val info =
+            lock.withLock {
+                if (!book.adopt(group)) return@withLock null
+                publishGroups()
+                group.info()
+            }
+        if (info == null) {
+            group.destroy()
+            return null
+        }
+        rescan()
+        return info
+    }
+
+    /** The newcomer's side after step 1: the welcome, then the roster from the same phone, in order. */
+    private suspend fun receiveJoin(
+        inbox: Channel<Pair<PeerHandle, JoinFrame>>,
+        handshake: NoiseHandshake,
+        me: MemberKey,
+        nickname: String,
+    ): Group? {
+        var welcome: Welcome? = null
+        var inviter: PeerHandle? = null
+        var transport: NoiseSession? = null
+        val roster = ArrayList<Member>()
+        for ((peer, frame) in inbox) {
+            val known = welcome
+            if (known == null) {
+                if (frame.step != 2) continue
+                // A failed read kills the handshake: whoever answered was not the code's phone.
+                val payload = handshake.readMessage(frame.message.toByteArray()) ?: return null
+                welcome = JoinPayloads.parseWelcome(payload)?.takeIf { plausible(it) } ?: return null
+                inviter = peer
+                transport = handshake.split()
+                continue
+            }
+            if (peer != inviter || frame.step != FIRST_ROSTER_STEP + roster.size / JoinPayloads.ENTRIES_PER_STEP) continue
+            val plain = transport!!.decrypt(frame.message.toByteArray()) ?: return null
+            val count = minOf(JoinPayloads.ENTRIES_PER_STEP, known.rosterSize - roster.size)
+            roster += JoinPayloads.parseRoster(plain, count) ?: return null
+            if (roster.size == known.rosterSize) {
+                return Group(
+                    id = known.groupId,
+                    name = known.name,
+                    expiresMinute = known.expiresMinute,
+                    epochs = GroupEpochs.fromKey(known.epoch, known.epochKey).also { known.epochKey.fill(0) },
+                    me = me,
+                    myNickname = nickname,
+                    roster = roster,
+                )
+            }
+        }
+        return null
+    }
+
+    /** A welcome whose clock and lifetime make sense on this phone; anything else is refused. */
+    private fun plausible(welcome: Welcome): Boolean {
+        val minute = clock().wireMinute()
+        return abs(welcome.epoch - GroupBook.epochOf(minute)) <= GroupEpochs.MAX_AHEAD &&
+            welcome.expiresMinute > minute &&
+            welcome.expiresMinute <= minute + GroupBook.MAX_LIFETIME.inWholeMinutes
+    }
+
+    /**
+     * The member's side: a step 1 that opens under one of this phone's codes gets the welcome and
+     * the roster, the code is destroyed, and the group is told who joined (FR-8.2). Anything else
+     * is dropped without an answer, so a stranger learns nothing.
+     */
+    private suspend fun answer(
+        peer: PeerHandle,
+        frame: JoinFrame,
+    ) {
+        if (frame.step != 1) return
+        val now = clock()
+        val minute = now.wireMinute()
+        val (replies, announcement) =
+            lock.withLock {
+                dropInvitations(now)
+                var opened: Pair<Invitation, Pair<NoiseHandshake, ByteArray>>? = null
+                for (invitation in invitations.values) {
+                    val handshake = NoiseHandshake.responder(invitation.key, invitation.psk, JoinPayloads.PROLOGUE)
+                    val payload = handshake.readMessage(frame.message.toByteArray()) ?: continue
+                    opened = invitation to (handshake to payload)
+                    break
+                }
+                val (invitation, read) = opened ?: return
+                val (handshake, payload) = read
+                // Used once, whatever happens next (AC-25).
+                invitations.remove(invitation.groupId)?.destroy()
+                val joiner = JoinPayloads.parseRequest(payload) ?: return
+                val group = book[invitation.groupId] ?: return
+                val roster = group.roster
+                if (roster.size >= Group.MAX_MEMBERS || group.member(joiner.keyId) != null) return
+                val epoch = GroupBook.epochOf(minute)
+                group.epochs.advanceTo(epoch)
+                val key = checkNotNull(group.epochs.keyFor(epoch)) { "the current epoch key is always held" }
+                val welcome = Welcome(group.id, group.name, group.expiresMinute, epoch, key, roster.size)
+                val second = handshake.writeMessage(JoinPayloads.welcome(welcome))
+                key.fill(0)
+                val session = handshake.split()
+                val steps =
+                    listOf(JoinFrame(frame.session, 2, Bytes(second))) +
+                        roster.chunked(JoinPayloads.ENTRIES_PER_STEP).mapIndexed { i, chunk ->
+                            JoinFrame(frame.session, FIRST_ROSTER_STEP + i, Bytes(session.encrypt(JoinPayloads.roster(chunk))))
+                        }
+                group.add(joiner)
+                val added = GroupMessage.MemberAdded(joiner.publicKey, joiner.nickname, minute, Wire.MAX_LIFETIME_MINUTES)
+                publishGroups()
+                steps to book.seal(group, added, minute, hopBudget)
+            }
+        replies.forEach { relay.sendJoin(peer, it) }
+        relay.publish(announcement)
+    }
+
+    private fun dropInvitations(now: Instant) {
+        invitations.values.filter { now >= it.expiresAt }.forEach { invitations.remove(it.groupId)?.destroy() }
+    }
+
+    private class Invitation(
+        val groupId: Bytes,
+        val key: NoiseStaticKey,
+        val psk: ByteArray,
+        val expiresAt: Instant,
+    ) {
+        fun destroy() {
+            key.destroy()
+            psk.fill(0)
+        }
+
+        override fun toString() = "Invitation"
     }
 
     internal suspend fun <T> withBook(action: (GroupBook) -> T): T =
@@ -158,11 +381,13 @@ class GroupChannel(
             result
         }
 
-    private suspend fun open(frame: HeldFrame) {
-        val group = frame.frame as? GroupFrame ?: return
-        lock.withLock {
-            if (frame.id in held) return
-            val opened = book.open(group) ?: return
+    /** Opens [frame] if it is for one of this phone's groups. True when it grew a roster. */
+    private suspend fun open(frame: HeldFrame): Boolean {
+        val group = frame.frame as? GroupFrame ?: return false
+        return lock.withLock {
+            if (frame.id in held) return false
+            val members = book.all.sumOf { it.roster.size }
+            val opened = book.open(group) ?: return false
             when (val message = opened.message) {
                 is GroupMessage.Report -> {
                     val report =
@@ -172,7 +397,7 @@ class GroupChannel(
                             createdAt = instantOfWireMinute(message.createdMinute),
                             lifetime = message.lifetimeMinutes.minutes,
                         )
-                    if (report.isExpired(clock()) || withdrawals[frame.id] == opened.sender.keyId) return
+                    if (report.isExpired(clock()) || withdrawals[frame.id] == opened.sender.keyId) return false
                     authors[frame.id] = opened.sender.keyId
                     held[frame.id] =
                         GroupReport(
@@ -200,12 +425,21 @@ class GroupChannel(
                 }
             }
             publish()
+            book.all.sumOf { it.roster.size } > members
         }
     }
 
-    private companion object {
+    companion object {
+        /** How long a QR code stays usable if nobody scans it. */
+        val INVITATION_LIFETIME: Duration = 10.minutes
+
+        /** How long a newcomer waits for the whole join before scanning again. */
+        val JOIN_TIMEOUT: Duration = 30.seconds
+
         /** Withdrawals remembered for reports not seen yet; bounded like everything a peer can fill. */
-        const val MAX_WITHDRAWALS = 512
+        private const val MAX_WITHDRAWALS = 512
+        private const val FIRST_ROSTER_STEP = 3
+        private const val INBOX_CAPACITY = 32
     }
 
     private fun publish() {

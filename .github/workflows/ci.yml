@@ -56,6 +56,10 @@ jobs:
       # fix, and every later test run replays it. --rerun because Gradle does not see the variable.
       - name: Fuzz the wire decoder
         run: JAZZER_FUZZ=1 ./gradlew :core:mesh:test --rerun --tests '*.WireFuzzTest'
+      # Jazzer fuzzes one target per run, so the group decoders (inner messages, join payloads, the
+      # QR text) get their own step.
+      - name: Fuzz the group decoders
+        run: JAZZER_FUZZ=1 ./gradlew :core:mesh:test --rerun --tests '*.GroupFuzzTest'
       - name: Upload fuzzing findings
         if: failure()
         uses: actions/upload-artifact@v7

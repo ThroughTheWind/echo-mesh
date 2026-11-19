@@ -2,10 +2,10 @@
 id: WI-017
 title: Create groups and join them in person by QR
 type: feature
-status: planned
-branch:
+status: in_progress
+branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-17
+updated: 2026-11-19
 related: [F8, FR-8.1, FR-8.2, FR-8.3, FR-8.5, FR-8.6, FR-12.5, AC-13, AC-25, ADR-0004]
 epic: WI-016
 children: []
@@ -48,5 +48,15 @@ Phase 2 of the [roadmap](../../ROADMAP.md).
 - Group report encryption: WI-018. Roster and join screens: WI-022.
 
 ## Execution
+
+2026-11-19, the core half, built development-first while the phones are away. The layout is [ADR-0009](../../decisions/ADR-0009-group-frames-and-join.md) (proposed).
+
+- `:core:crypto`: `NoiseHandshake` (`Noise_NKpsk0_25519_ChaChaPoly_SHA256` on Tink and the JDK), checked byte for byte against the cacophony vectors, with tests for a wrong PSK, a wrong key, a changed byte, a replayed reply and reordered transport messages. `GroupEpochs`, `GroupCipher` and `MemberKey` generate and ratchet the group keys.
+- `:core:mesh`: the join frame (kind `0x06`, 240 bytes, never relayed, fuzzed); `JoinOffer`, the QR text, base64url with one spelling; `JoinPayloads`, the fixed-size step plaintexts; `GroupChannel.invite` and `GroupChannel.join`, both sides of the join over one hop. A code answers the first valid step 1 only and is then destroyed; the member sends a member-added frame so the group sees every join; the newcomer gets the current epoch key and nothing older. Leave and expiry destroy the keys (`GroupBook`).
+- Tests: `GroupMeshTest` on loopback joins by code, refuses a second scan of the same code (AC-25 in code), refuses a tampered token without burning the real code, and shows a phone replaying an overheard join lets nobody in. `JoinPayloadsTest` and the new `GroupFuzzTest` (a CI step of its own, 39 million local runs clean) cover the decoders.
+
+Still to do on this item: keep groups across restarts, sealed through `core/data`; the QR screen with `FLAG_SECURE` and an open-source scanner in `app` (the screens themselves are WI-022, the library has to pass the dependency gate); AC-25 on two phones.
+
+branch-merged-ok: the core half merges with PR #6 while the app half and the phone check stay open on this item.
 
 ## Review

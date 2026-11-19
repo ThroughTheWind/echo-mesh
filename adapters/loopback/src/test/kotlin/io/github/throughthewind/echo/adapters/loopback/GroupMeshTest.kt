@@ -1,0 +1,188 @@
+package io.github.throughthewind.echo.adapters.loopback
+
+import io.github.throughthewind.echo.core.mesh.group.JoinOffer
+import io.github.throughthewind.echo.core.mesh.node.MeshNode
+import io.github.throughthewind.echo.core.mesh.wire.Bytes
+import io.github.throughthewind.echo.core.model.GeoPoint
+import io.github.throughthewind.echo.core.model.ReportType
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Test
+import kotlin.random.Random
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
+
+/**
+ * Groups on the mesh (WI-017, WI-018): joining in person by QR code over one hop, then group
+ * reports that cross a phone outside the group, which relays them without reading them.
+ */
+class GroupMeshTest {
+    private val here = GeoPoint(48.8675, 2.3632)
+    private val epoch = Instant.parse("2026-11-18T10:00:00Z")
+
+    private class Mesh(
+        val network: LoopbackNetwork,
+        val phones: List<LoopbackTransport>,
+        val nodes: List<MeshNode>,
+    )
+
+    /** [count] phones with nodes, none linked yet, all on. */
+    private suspend fun TestScope.mesh(count: Int): Mesh {
+        val start = testScheduler.currentTime
+        val network = LoopbackNetwork(random = Random(7), scope = backgroundScope, clock = { testScheduler.currentTime - start })
+        val clock = { epoch + (testScheduler.currentTime - start).milliseconds }
+        val phones = List(count) { network.phone() }
+        val nodes = phones.mapIndexed { i, phone -> MeshNode(phone, backgroundScope, clock, Random(10 + i)) }
+        nodes.forEach { it.turnOn() }
+        return Mesh(network, phones, nodes)
+    }
+
+    @Test
+    fun `a newcomer joins by QR code, and the code works once`() =
+        runTest {
+            val mesh = mesh(3)
+            val (a, c, d) = mesh.nodes
+            mesh.network.link(mesh.phones[0], mesh.phones[1])
+            mesh.network.link(mesh.phones[0], mesh.phones[2])
+            delay(1.seconds)
+            val group = assertNotNull(a.groupChannel!!.create("Crew", "Fox"))
+            val offer = assertNotNull(a.groupChannel!!.invite(group.id))
+            val code = offer.encode()
+            assertTrue(code.startsWith("echo-join:1:"))
+            assertEquals(offer, JoinOffer.decode(code))
+
+            val joined = assertNotNull(c.groupChannel!!.join(JoinOffer.decode(code)!!, "Owl"))
+            assertEquals("Crew", joined.name)
+            assertEquals(group.id, joined.id)
+            assertEquals(listOf("Fox", "Owl"), joined.members)
+            delay(1.seconds)
+            assertEquals(
+                listOf("Fox", "Owl"),
+                a.groups.value
+                    .single()
+                    .members,
+                "the member who showed the code knows the newcomer",
+            )
+
+            assertNull(d.groupChannel!!.join(offer, "Jay"), "a second scan of the same code fails (AC-25)")
+            assertEquals(emptyList(), d.groups.value)
+            assertEquals(
+                listOf("Fox", "Owl"),
+                a.groups.value
+                    .single()
+                    .members,
+            )
+        }
+
+    @Test
+    fun `a wrong or tampered code lets nobody in and gets no answer`() =
+        runTest {
+            val mesh = mesh(2)
+            val (a, b) = mesh.nodes
+            mesh.network.link(mesh.phones[0], mesh.phones[1])
+            delay(1.seconds)
+            val group = assertNotNull(a.groupChannel!!.create("Crew", "Fox"))
+            val offer = assertNotNull(a.groupChannel!!.invite(group.id))
+            val token = offer.token.toByteArray().also { it[0] = (it[0] + 1).toByte() }
+            assertNull(b.groupChannel!!.join(JoinOffer(offer.responderKey, Bytes(token)), "Owl"))
+            assertNull(JoinOffer.decode(offer.encode() + "A"))
+            assertNull(JoinOffer.decode(offer.encode().replace("echo-join:1:", "echo-join:2:")))
+            // The real code still works: a stranger's attempt does not burn it.
+            assertNotNull(b.groupChannel!!.join(offer, "Owl"))
+        }
+
+    @Test
+    fun `a phone that replays a join it overheard lets nobody else in`() =
+        runTest {
+            val mesh = mesh(2)
+            val (a, c) = mesh.nodes
+            val hostile = HostilePhone(mesh.network, mesh.network.phone(), Random(5))
+            mesh.network.link(mesh.phones[0], mesh.phones[1])
+            mesh.network.link(mesh.phones[0], hostile.transport)
+            mesh.network.link(mesh.phones[1], hostile.transport)
+            hostile.transport.start()
+            hostile.listen(backgroundScope)
+            delay(1.seconds)
+            val group = assertNotNull(a.groupChannel!!.create("Crew", "Fox"))
+            assertNotNull(c.groupChannel!!.join(a.groupChannel!!.invite(group.id)!!, "Owl"))
+            // A fresh code is open while the replays arrive: an old step 1 must not open it either.
+            assertNotNull(a.groupChannel!!.invite(group.id))
+            hostile.attack(this, HostilePhone.Attack.REPLAYED, 20, 5.seconds).join()
+            delay(1.seconds)
+            assertEquals(listOf("Fox", "Owl"), a.groups.value.single().members)
+            assertEquals(listOf("Fox", "Owl"), c.groups.value.single().members)
+        }
+
+    @Test
+    fun `a group report crosses a phone outside the group, which relays it unread, and is withdrawn`() =
+        runTest {
+            val mesh = mesh(4)
+            val (a, b, c, d) = mesh.nodes
+            val (pa, pb, pc, pd) = mesh.phones
+            // C joins A in person, then they walk apart with B, not in the group, between them.
+            mesh.network.link(pa, pc)
+            delay(1.seconds)
+            val group = assertNotNull(a.groupChannel!!.create("Crew", "Fox"))
+            assertNotNull(c.groupChannel!!.join(a.groupChannel!!.invite(group.id)!!, "Owl"))
+            mesh.network.unlink(pa, pc)
+            mesh.network.link(pa, pb)
+            mesh.network.link(pb, pc)
+            delay(1.seconds)
+
+            assertTrue(c.send(ReportType.MEDIC, here, group = group.id))
+            delay(7.seconds)
+            val seen = a.reports.value.single()
+            assertEquals(ReportType.MEDIC, seen.report.type)
+            assertEquals("Owl", seen.group?.sender)
+            assertEquals("Crew", seen.group?.groupName)
+            assertFalse(seen.mine)
+            assertEquals(1, seen.hops, "it crossed B")
+            assertEquals(emptyList(), b.reports.value, "B relays group frames it cannot read")
+            assertTrue(
+                c.reports.value
+                    .single()
+                    .mine,
+            )
+
+            // D joins through A while C is out of range; C learns of D through B (FR-8.2).
+            mesh.network.link(pa, pd)
+            delay(1.seconds)
+            val late = async { d.groupChannel!!.join(a.groupChannel!!.invite(group.id)!!, "Jay") }
+            assertNotNull(late.await())
+            delay(3.seconds)
+            assertEquals(
+                listOf("Fox", "Owl", "Jay"),
+                c.groups.value
+                    .single()
+                    .members,
+            )
+            assertTrue(d.send(ReportType.KETTLE, here, group = group.id))
+            delay(8.seconds)
+            assertEquals(
+                "Jay",
+                c.reports.value
+                    .single { it.report.type == ReportType.KETTLE }
+                    .group
+                    ?.sender,
+            )
+            assertEquals(emptyList(), b.reports.value)
+
+            val id =
+                c.reports.value
+                    .single { it.mine }
+                    .id
+            assertTrue(c.withdraw(id))
+            delay(3.seconds)
+            assertTrue(a.reports.value.none { it.id == id }, "withdrawn everywhere the group reads it")
+            assertTrue(d.reports.value.none { it.id == id })
+            assertFalse(a.withdraw(id), "only its sender can withdraw it")
+        }
+}
