@@ -439,6 +439,7 @@ private fun MemberSheet(
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             Modifier
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = spacing.xxl)
                 .navigationBarsPadding()
                 .padding(bottom = spacing.xxl),

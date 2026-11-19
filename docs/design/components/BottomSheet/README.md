@@ -9,6 +9,7 @@
 ## Behaviour
 
 - Opens at half height (detail) or content height (picker, wipe); drag up to expand when content scrolls.
+- The content always scrolls (`verticalScroll`), even when it looks short: on a small phone or at double font size an unscrolled sheet squeezes its last rows, usually its actions, to a sliver nobody can hit. `AccessibilityTest` catches it as an action under 48 dp.
 - Modal sheets dim the map with `scrim` at `scrim-opacity` (0.50); tapping the scrim or dragging down dismisses.
 - The report picker is the exception: a light scrim, because the user positions the crosshair on the map while it's open.
 

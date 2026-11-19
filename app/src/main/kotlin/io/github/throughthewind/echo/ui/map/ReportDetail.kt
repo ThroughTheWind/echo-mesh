@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -76,6 +78,7 @@ fun ReportDetailSheet(
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             Modifier
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = spacing.xxl)
                 .navigationBarsPadding()
                 .padding(bottom = spacing.xxl),

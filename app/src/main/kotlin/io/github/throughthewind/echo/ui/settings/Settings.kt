@@ -296,6 +296,7 @@ private fun ChoiceSheet(
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             Modifier
+                .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
                 .padding(bottom = spacing.xxl)
                 .selectableGroup(),
