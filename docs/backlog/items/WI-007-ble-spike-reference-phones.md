@@ -83,10 +83,24 @@ The OnePlus Nord CE 3 Lite (Android 14) that was plugged in first was locked and
 - **Data path: L2CAP CoC**, with GATT as the fallback for a phone or a peer where a channel does not open. L2CAP was three times faster, kept one channel open through Doze, and needs no MTU dance.
 - **Advertising: legacy for discovery.** It found the peer in under 300 ms and fits the service UUID, a rotating id and the PSM. Extended advertising is on both Pixels but not every phone, so it is not required. Whether to use it opportunistically (or the Coded PHY for range) is a measurement for the field test (WI-028).
 
+### OEM battery manager: OnePlus Nord CE 3 Lite with the Pixel 9a
+
+Second pair run on 2026-11-19, 01:35 to 02:18: the OnePlus CPH2465 (Android 14, SDK 34, patch 2024-12-05, OxygenOS CPH2465_14.0.0.1330(EX01)) as server, the 9a as client. The OnePlus reports the same capabilities as the Pixels (extended and periodic advertising, 2M and Coded PHY, 1,650 bytes, offloaded filtering and batching). OxygenOS refuses `pm grant` and `settings put` over adb without a developer option, so Antoine granted the permissions by hand.
+
+| Run | GATT ok / fail | GATT median | L2CAP ok / fail | L2CAP median | Service survived |
+| --- | --- | --- | --- | --- | --- |
+| Screen on, app in front, 3 min | 3 / 0 | 107 ms | 3 / 0 | 94 ms | yes |
+| Background, screen off, unplugged and forced Doze, 15 min | 13 / 2 | 108 ms | 15 / 0 | 95 ms | yes |
+| Background, screen off, unplugged, no forced Doze, 25 min | 23 / 2 | 101 ms | 25 / 0 | 102 ms | yes |
+
+- Discovery: the OnePlus heard the 9a in 480 ms, the 9a heard the OnePlus in 1,299 ms (RSSI −75 and −78 dBm). MTU 517.
+- One L2CAP channel opened in 77 ms and carried all 43 rounds. Its round trips are about 2.5 times the two Pixels', most likely the older controller and the weaker signal.
+- OxygenOS neither killed nor restricted the foreground service: a heartbeat every 60 s for 43 minutes, no "Killing" line before the deliberate force-stop, standby bucket ACTIVE, no battery notice in `dumpsys notification`. A dialog shown only on screen would not appear there.
+- The four GATT failures are the same spike defect as above.
+
 ### Still to do here
 
-- The OPPO Find X3 Pro, or another phone with an aggressive battery manager: these two Pixels say nothing about OEM killers, the question this spike exists for.
-- A run off the cable: USB and a live adb session can keep a phone out of real deep sleep, so "survived Doze" above is optimistic.
-- Spec A1 stays ⚠️ until both are done.
+- A run off the cable: USB and a live adb session can keep a phone out of real deep sleep, so "survived Doze" above is optimistic for all three phones, the OnePlus included.
+- Spec A1 stays ⚠️ until it is done.
 
 ## Review
