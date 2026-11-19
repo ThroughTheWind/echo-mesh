@@ -1,6 +1,6 @@
 package io.github.throughthewind.echo.ui.wipe
 
-import android.app.Activity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
@@ -54,7 +53,7 @@ fun PanicWipeSheet(
     app: App,
     onDismiss: () -> Unit,
 ) {
-    val activity = LocalContext.current as? Activity
+    val activity = LocalActivity.current
     val spacing = LocalSpacing.current
     var includeMaps by remember { mutableStateOf(false) }
     ModalBottomSheet(onDismissRequest = onDismiss) {
