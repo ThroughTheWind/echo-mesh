@@ -111,7 +111,7 @@ it is a wrong value that passes review.
 | What the app must do | `docs/SPEC.md` |
 | What to build next | `docs/ROADMAP.md` and [`docs/backlog/`](docs/backlog/BACKLOG.md) |
 | Who we defend against, and how | `docs/threat-model.md` |
-| Radio transports | `docs/research/` |
+| Adding a radio transport, and radio facts per phone | [`docs/transports.md`](docs/transports.md); research in `docs/research/` |
 | How a screen looks | `docs/design/` |
 | Why a decision was made | [`docs/decisions/`](docs/decisions/README.md) |
 | Releasing, and reporting a vulnerability | [`docs/releasing.md`](docs/releasing.md), [`SECURITY.md`](SECURITY.md) |
