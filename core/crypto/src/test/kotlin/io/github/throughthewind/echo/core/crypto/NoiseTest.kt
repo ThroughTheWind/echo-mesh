@@ -50,9 +50,23 @@ class NoiseTest {
         for (v in vectors) {
             val f = v.fields
             val initiator =
-                NoiseHandshake(true, f.getValue("init_prologue"), f.getValue("psk"), null, f.getValue("init_remote_static"), f.getValue("init_ephemeral"))
+                NoiseHandshake(
+                    true,
+                    f.getValue("init_prologue"),
+                    f.getValue("psk"),
+                    null,
+                    f.getValue("init_remote_static"),
+                    f.getValue("init_ephemeral"),
+                )
             val responder =
-                NoiseHandshake(false, f.getValue("init_prologue"), f.getValue("psk"), f.getValue("resp_static"), null, f.getValue("resp_ephemeral"))
+                NoiseHandshake(
+                    false,
+                    f.getValue("init_prologue"),
+                    f.getValue("psk"),
+                    f.getValue("resp_static"),
+                    null,
+                    f.getValue("resp_ephemeral"),
+                )
 
             val (p1, c1) = v.messages[0]
             assertContentEquals(c1, initiator.writeMessage(p1))
