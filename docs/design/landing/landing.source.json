@@ -1,0 +1,373 @@
+{
+  "note": "Hand-edited. The landing page's stage, claims, contrast pairs and banned words. tools/landing.py build writes them into index.html; tools/landing.py check refuses a page that says more than this file, and this file saying more than the backlog, the threat model or the spec.",
+  "stages": [
+    {
+      "id": "pre-alpha",
+      "after": null,
+      "banner": "Pre-alpha. There is no release yet, and Echo isn't ready to rely on at a protest.",
+      "cta": [
+        {
+          "label": "Read what it protects",
+          "href": "#protects",
+          "style": "primary"
+        },
+        {
+          "label": "Follow the code",
+          "href": "https://github.com/ThroughTheWind/echo-mesh",
+          "style": "outlined"
+        }
+      ]
+    },
+    {
+      "id": "test-builds",
+      "after": "WI-015",
+      "banner": "Test builds only. Echo hasn't had its independent security review, so don't rely on it at a protest yet.",
+      "cta": [
+        {
+          "label": "Read what it protects",
+          "href": "#protects",
+          "style": "primary"
+        },
+        {
+          "label": "Get a test build",
+          "href": "https://github.com/ThroughTheWind/echo-mesh/releases",
+          "style": "outlined"
+        }
+      ]
+    },
+    {
+      "id": "1.0",
+      "after": "WI-033",
+      "banner": "Echo 1.0 has had an independent security review. Read what it protects before you rely on it.",
+      "cta": [
+        {
+          "label": "Get Echo",
+          "href": "https://github.com/ThroughTheWind/echo-mesh/releases",
+          "style": "primary"
+        },
+        {
+          "label": "Read what it protects",
+          "href": "#protects",
+          "style": "outlined"
+        }
+      ]
+    }
+  ],
+  "stage": "pre-alpha",
+  "claims": [
+    {
+      "id": "drop",
+      "kind": "feature",
+      "spec": "FR-4.2",
+      "ships_with": [
+        "WI-013"
+      ],
+      "text": "Drop a report on the map in a few taps: police line, medic, water, exit open."
+    },
+    {
+      "id": "hop",
+      "kind": "feature",
+      "spec": "FR-5.1",
+      "ships_with": [
+        "WI-009",
+        "WI-011"
+      ],
+      "text": "Reports hop from phone to phone nearby, with no server in between."
+    },
+    {
+      "id": "expire",
+      "kind": "feature",
+      "spec": "FR-7.1",
+      "ships_with": [
+        "WI-008",
+        "WI-009"
+      ],
+      "text": "Every report has a short lifetime, then every phone drops it."
+    },
+    {
+      "id": "map",
+      "kind": "feature",
+      "spec": "FR-2.1",
+      "ships_with": [
+        "WI-012"
+      ],
+      "text": "Works on an offline map of your area that you get before you go."
+    },
+    {
+      "id": "confirm",
+      "kind": "feature",
+      "spec": "FR-6.1",
+      "ships_with": [
+        "WI-019"
+      ],
+      "text": "Confirm a report is still true, or say it's gone, and see how many nearby phones agree."
+    },
+    {
+      "id": "position",
+      "kind": "feature",
+      "spec": "FR-10.1",
+      "ships_with": [
+        "WI-020"
+      ],
+      "text": "Share your position with your group only, and only while you turn it on."
+    },
+    {
+      "id": "discreet",
+      "kind": "feature",
+      "spec": "FR-13.1",
+      "ships_with": [
+        "WI-025"
+      ],
+      "text": "Discreet mode: darkest screen, no sound, no vibration, neutral notifications."
+    },
+    {
+      "id": "languages",
+      "kind": "feature",
+      "ships_with": [
+        "WI-037"
+      ],
+      "text": "In English, French and Spanish."
+    },
+    {
+      "id": "review",
+      "kind": "feature",
+      "ships_with": [
+        "WI-030"
+      ],
+      "text": "An independent security review of the protocol, the cryptography and the code."
+    },
+    {
+      "id": "group-read",
+      "kind": "feature",
+      "protects": 1,
+      "ships_with": [
+        "WI-017",
+        "WI-018"
+      ]
+    },
+    {
+      "id": "group-sender",
+      "kind": "feature",
+      "protects": 2,
+      "ships_with": [
+        "WI-018"
+      ]
+    },
+    {
+      "id": "no-fixed-id",
+      "kind": "feature",
+      "protects": 3,
+      "ships_with": [
+        "WI-011",
+        "WI-027"
+      ]
+    },
+    {
+      "id": "no-history",
+      "kind": "feature",
+      "protects": 4,
+      "ships_with": [
+        "WI-009",
+        "WI-010"
+      ]
+    },
+    {
+      "id": "wipe",
+      "kind": "feature",
+      "protects": 5,
+      "ships_with": [
+        "WI-024"
+      ]
+    },
+    {
+      "id": "no-server",
+      "kind": "design",
+      "protects": 6,
+      "gate": "privacy"
+    },
+    {
+      "id": "no-trackers",
+      "kind": "design",
+      "gate": "privacy",
+      "text": "No ads, no analytics, no crash reports and no Google Play Services."
+    },
+    {
+      "id": "open",
+      "kind": "design",
+      "file": "LICENSE",
+      "text": "Free and open source under GPL-3.0: anyone can read the code and build it."
+    },
+    {
+      "id": "limit-detectable",
+      "kind": "limit",
+      "limit": 1
+    },
+    {
+      "id": "limit-fake",
+      "kind": "limit",
+      "limit": 2
+    },
+    {
+      "id": "limit-members",
+      "kind": "limit",
+      "limit": 3
+    },
+    {
+      "id": "limit-unlocked",
+      "kind": "limit",
+      "limit": 4
+    },
+    {
+      "id": "limit-origin",
+      "kind": "limit",
+      "limit": 5
+    },
+    {
+      "id": "limit-download",
+      "kind": "limit",
+      "limit": 6
+    },
+    {
+      "id": "never-chat",
+      "kind": "never",
+      "out_of_scope": "Text chat",
+      "text": "Chat. Briar already does messaging without servers; Echo carries reports."
+    },
+    {
+      "id": "never-media",
+      "kind": "never",
+      "out_of_scope": "Photos, video, voice",
+      "text": "Photos, video or voice. They carry faces and metadata that put people at risk."
+    },
+    {
+      "id": "never-bridges",
+      "kind": "never",
+      "out_of_scope": "Internet or satellite relays, bridges to other networks",
+      "text": "Relays over the internet or satellite. A bridge is a place to watch from."
+    },
+    {
+      "id": "never-routes",
+      "kind": "never",
+      "out_of_scope": "Routing (\"safe way out\")",
+      "text": "Suggested routes out. The mesh can't know a street is clear, and a wrong route hurts people."
+    },
+    {
+      "id": "never-ios",
+      "kind": "never",
+      "out_of_scope": "iOS",
+      "text": "iPhone. Apple limits the background radio a mesh depends on."
+    }
+  ],
+  "contrast": {
+    "note": "Text pairs the landing page uses on top of the app's own. Same minimums as the app: 7:1 in dark and sun.",
+    "themes": [
+      "dark",
+      "sun"
+    ],
+    "min": 7.0,
+    "pairs": [
+      [
+        "on-surface",
+        "surface"
+      ],
+      [
+        "on-surface-variant",
+        "surface"
+      ],
+      [
+        "on-surface",
+        "surface-container-low"
+      ],
+      [
+        "on-surface-variant",
+        "surface-container-low"
+      ],
+      [
+        "on-surface",
+        "surface-container-high"
+      ],
+      [
+        "on-surface-variant",
+        "surface-container-high"
+      ],
+      [
+        "on-primary",
+        "primary"
+      ],
+      [
+        "on-primary-container",
+        "primary-container"
+      ],
+      [
+        "on-secondary-container",
+        "secondary-container"
+      ],
+      [
+        "on-safe-container",
+        "safe-container"
+      ],
+      [
+        "on-blocked-container",
+        "blocked-container"
+      ],
+      [
+        "on-hazard-container",
+        "hazard-container"
+      ],
+      [
+        "primary",
+        "surface"
+      ],
+      [
+        "map-label",
+        "map-land"
+      ],
+      [
+        "on-surface",
+        "surface-container-highest"
+      ],
+      [
+        "on-surface-variant",
+        "surface-container-lowest"
+      ],
+      [
+        "on-surface-variant",
+        "surface-container"
+      ],
+      [
+        "on-surface",
+        "surface-container-lowest"
+      ],
+      [
+        "primary",
+        "surface-container-low"
+      ]
+    ]
+  },
+  "banned": {
+    "note": "Absolutes the threat model can't back (content and voice, principle 4). Checked in the page's visible text, case-insensitive, whole words.",
+    "words": [
+      "secure",
+      "security-grade",
+      "anonymous",
+      "anonymously",
+      "anonymity",
+      "untraceable",
+      "unhackable",
+      "unbreakable",
+      "military-grade",
+      "bulletproof",
+      "guarantee",
+      "guaranteed",
+      "guarantees",
+      "safe",
+      "safely",
+      "safest",
+      "verified",
+      "private",
+      "invisible",
+      "undetectable",
+      "100%"
+    ]
+  }
+}

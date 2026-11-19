@@ -14,6 +14,7 @@ Close Phase 0 of the [roadmap](../docs/ROADMAP.md) (epic WI-001), then Phase 1 (
 
 - WI-003 (wire format, ADR-0005, fuzzing) and WI-005 (crowd simulator) are in review on the Phase 0 pull request.
 - WI-002 waits on Antoine accepting ADR-0004 (Tink is on `:core:crypto`, `TinkPrimitivesTest` passes).
+- WI-074 (landing page design system and messaging) is in review on `claude/project-thread-tga93b`.
 - WI-004 waits on a VTM drawing test on the reference phones, then Antoine accepting ADR-0006.
 
 ## Resume from

@@ -6,7 +6,7 @@
 The board. One row per live work item, grouped by status. Items live in
 [`items/`](items/); finished work moves to [`archive/`](archive/).
 
-<!-- NEXT-ID: WI-074 -->
+<!-- NEXT-ID: WI-075 -->
 <!-- Claim from this marker and bump it on your own branch. `node .ai/rungs.mjs check` refuses a duplicate. -->
 
 ## In progress
@@ -23,6 +23,7 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-011](items/WI-011-ble-transport-adapter.md) | Build the BLE transport adapter and the relay foreground service | feature | `claude/project-thread-67cn4e` |
 | [WI-012](items/WI-012-offline-map.md) | Show an offline map: renderer wrapper, import, browser download and sharing | feature | `claude/project-thread-67cn4e` |
 | [WI-013](items/WI-013-phase-1-screens.md) | Build the Phase 1 screens: onboarding draft, map with pins, drop a report, mesh status | feature | `claude/project-thread-67cn4e` |
+| [WI-074](items/WI-074-landing-page-design-system.md) | Design the landing page system and its messaging, derived from the app's tokens | docs | `claude/project-thread-tga93b` |
 
 ## Planned
 
