@@ -49,7 +49,7 @@ Phase 2 of the [roadmap](../../ROADMAP.md).
 
 ## Execution
 
-2026-11-19, the core half, built development-first while the phones are away. The layout is [ADR-0009](../../decisions/ADR-0009-group-frames-and-join.md) (proposed).
+2026-11-19, the core half, built development-first while the phones are away. The layout is [ADR-0009](../../decisions/ADR-0009-group-frames-and-join.md) (accepted 2026-11-19).
 
 - `:core:crypto`: `NoiseHandshake` (`Noise_NKpsk0_25519_ChaChaPoly_SHA256` on Tink and the JDK), checked byte for byte against the cacophony vectors, with tests for a wrong PSK, a wrong key, a changed byte, a replayed reply and reordered transport messages. `GroupEpochs`, `GroupCipher` and `MemberKey` generate and ratchet the group keys.
 - `:core:mesh`: the join frame (kind `0x06`, 240 bytes, never relayed, fuzzed); `JoinOffer`, the QR text, base64url with one spelling; `JoinPayloads`, the fixed-size step plaintexts; `GroupChannel.invite` and `GroupChannel.join`, both sides of the join over one hop. A code answers the first valid step 1 only and is then destroyed; the member sends a member-added frame so the group sees every join; the newcomer gets the current epoch key and nothing older. Leave and expiry destroy the keys (`GroupBook`).

@@ -1,7 +1,7 @@
 ---
 id: ADR-0009
 title: Lay out group frames as signed, padded inner messages, and join over a fixed-size, never-relayed join frame added to wire version 1
-status: proposed
+status: accepted
 date: 2026-11-19
 supersedes:
 superseded_by:
@@ -9,8 +9,7 @@ superseded_by:
 
 # ADR-0009 — Lay out group frames as signed, padded inner messages, and join over a fixed-size, never-relayed join frame added to wire version 1
 
-> Proposed on 2026-11-19 for Antoine's acceptance. Phase 2 code (WI-017, WI-018) is built on it in
-> the meantime, so a change here changes that code.
+> Accepted by Antoine on 2026-11-19.
 
 ## Context
 
