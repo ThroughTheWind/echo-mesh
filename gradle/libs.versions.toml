@@ -25,6 +25,8 @@ jazzer = "0.30.0"
 # Every cryptographic primitive (ADR-0004). tink-android on the JVM too: the plain "tink" artifact
 # pulls in an HTTP client and native Conscrypt, and gradle/forbidden-dependencies.txt refuses it.
 tink = "1.24.0"
+# Offline map renderer (ADR-0006): LGPL-3.0, no network module (vtm-http is forbidden).
+vtm = "0.25.0"
 spotless = "8.11.0"
 ktlint = "1.8.0"
 
@@ -51,6 +53,8 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
 tink-android = { module = "com.google.crypto.tink:tink-android", version.ref = "tink" }
+vtm-android = { module = "org.mapsforge:vtm-android", version.ref = "vtm" }
+vtm-themes = { module = "org.mapsforge:vtm-themes", version.ref = "vtm" }
 jazzer-junit = { module = "com.code-intelligence:jazzer-junit", version.ref = "jazzer" }
 
 # Compile-only dependencies of the convention plugins in build-logic/.

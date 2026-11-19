@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Only the map library's directory is shareable; settings and keys are elsewhere. -->
+<paths>
+    <files-path name="maps" path="maps/" />
+</paths>

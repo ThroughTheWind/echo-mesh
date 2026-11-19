@@ -8,6 +8,7 @@ import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.register
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 internal val Project.libs: VersionCatalog
     get() = extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -66,4 +67,15 @@ private fun Project.register(
             reason.set(why)
         }
     tasks.named(FORBIDDEN_DEPENDENCIES_TASK) { dependsOn(task) }
+}
+
+/**
+ * kotlin.time.Instant is the model's clock type, used from the mesh to the screens. Set on every
+ * Kotlin compile task, so it holds for the Android modules' built-in Kotlin too; harmless once the
+ * API is stable.
+ */
+internal fun Project.optInToKotlinTime() {
+    tasks.withType(KotlinCompilationTask::class.java).configureEach {
+        compilerOptions.optIn.add("kotlin.time.ExperimentalTime")
+    }
 }

@@ -1,5 +1,7 @@
 package io.github.throughthewind.echo.core.mesh.wire
 
+import io.github.throughthewind.echo.core.model.ReportType
+
 /** Why a frame was dropped. Never sent back to the peer: a rejected frame is silently dropped. */
 enum class Rejection {
     EMPTY,
@@ -94,6 +96,11 @@ object WireCodec {
                 FrameKind.GROUP -> {
                     GroupFrame(hops, r.bytes(Wire.NONCE_BYTES), r.bytes(Wire.GROUP_CIPHERTEXT_BYTES))
                 }
+
+                FrameKind.SUMMARY -> {
+                    if (hops != 0) return reject(Rejection.HOP_BUDGET_OUT_OF_RANGE)
+                    SummaryFrame(r.bytes(Wire.SUMMARY_SALT_BYTES), r.bytes(Wire.SUMMARY_FILTER_BYTES))
+                }
             }
         check(r.offset == bytes.size) { "layout of $kind does not add up to its size" }
 
@@ -142,6 +149,11 @@ object WireCodec {
                 w.bytes(frame.nonce, Wire.NONCE_BYTES)
                 w.bytes(frame.ciphertext, Wire.GROUP_CIPHERTEXT_BYTES)
             }
+
+            is SummaryFrame -> {
+                w.bytes(frame.salt, Wire.SUMMARY_SALT_BYTES)
+                w.bytes(frame.filter, Wire.SUMMARY_FILTER_BYTES)
+            }
         }
         check(w.offset == out.size) { "layout of ${frame.kind} does not add up to its size" }
         return out
@@ -176,6 +188,10 @@ object WireCodec {
             }
 
             is GroupFrame -> {}
+
+            is SummaryFrame -> {
+                require(frame.hopBudget == 0) { "a summary is never relayed" }
+            }
         }
     }
 

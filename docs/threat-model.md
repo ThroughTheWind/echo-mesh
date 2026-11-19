@@ -176,8 +176,10 @@ This section states what each part must achieve.
 - The signed body contains the creation time (to the minute) and the lifetime. Receivers reject a
   report created more than 5 minutes in their future and drop it at creation + lifetime (+ 2 minutes
   of tolerated skew). This answers spec FR-7.3 differently from its suggestion: relative ages are
-  rejected because a relay could reset them and keep a report alive forever. Phones whose clock
-  differs from the median of recent peers by more than 5 minutes show a warning.
+  rejected because a relay could reset them and keep a report alive forever. A phone warns that its
+  clock is wrong when the signed creation times it receives disagree with it by more than 5
+  minutes: "behind" when most recent reports are from its future, "ahead" when even the freshest
+  quarter is older than that, since a phone receives old reports with new ones (`ClockCheck`).
 
 ### 5.3 Group traffic
 
@@ -272,8 +274,12 @@ what fakes cost everyone else:
   signature checks per second. Over budget, frames from that link are dropped, not queued. Limits
   are per link, not per sender, because senders have no identity.
 - **Bounded memory:** the store of live public reports has a fixed cap (a few hundred). When full,
-  the oldest unconfirmed public reports go first; group reports and reports confirmed by a group
-  member are never evicted by public ones.
+  it evicts from the link that brought the most frames, oldest first, so a flooder pushes out its
+  own fakes rather than everyone else's reports; a phone's own reports are never evicted. Group
+  reports and reports confirmed by a group member are never evicted by public ones (Phase 2).
+- **Summaries** (spec FR-5.1, [ADR-0008](decisions/ADR-0008-gossip-summary-frame.md)): a phone
+  answers a neighbour's summary at most once per half period per link, within a byte budget, so an
+  empty summary from a hostile peer costs it a bounded amount.
 - **Relay priority:** group frames first, then public reports confirmed by a group member, then
   other public reports by age. A flood of fakes slows other public reports, never group traffic.
 - **Sender-side limit** (spec FR-4.6) protects against mistakes only; a modified app ignores it.

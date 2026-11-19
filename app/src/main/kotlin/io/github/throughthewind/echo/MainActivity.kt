@@ -3,30 +3,20 @@ package io.github.throughthewind.echo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.activity.enableEdgeToEdge
 import io.github.throughthewind.echo.core.designsystem.theme.DisplayPrefs
 import io.github.throughthewind.echo.core.designsystem.theme.StreetTheme
+import io.github.throughthewind.echo.ui.EchoApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        val app = application as App
         setContent {
-            // Display preferences come from :core:data once settings exist.
+            // Display preferences join the sealed settings with discreet mode (WI-025).
             StreetTheme(prefs = DisplayPrefs()) {
-                Surface(Modifier.fillMaxSize()) {
-                    Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
-                        Text(stringResource(R.string.placeholder), style = MaterialTheme.typography.bodyLarge)
-                    }
-                }
+                EchoApp(app)
             }
         }
     }

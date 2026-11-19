@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Expiry indicator (components/ExpiryIndicator): minutes, never seconds. -->
+    <string name="ds_time_left">%1$d min left</string>
+    <string name="ds_time_left_under_one">under 1 min left</string>
+    <string name="ds_time_of_total">of %1$d</string>
+    <string name="ds_time_compact">%1$dm</string>
+    <string name="ds_time_compact_under_one">&lt;1m</string>
+    <string name="ds_time_refreshed">Confirmations kept it on the map, max %1$d min</string>
+
+    <!-- Mesh status chip (components/MeshStatus). -->
+    <string name="ds_mesh_off">Mesh off</string>
+    <string name="ds_mesh_turn_on">Turn on</string>
+    <string name="ds_mesh_searching">Looking for phones</string>
+    <string name="ds_mesh_nearby">%1$s nearby</string>
+    <string name="ds_mesh_alone">No phones nearby</string>
+    <string name="ds_mesh_fix">Fix</string>
+    <string name="ds_mesh_stopped">Relaying stopped</string>
+    <string name="ds_mesh_no_radio">No radio in this build</string>
+    <string name="ds_mesh_described_on">%1$s phones nearby, last report %2$s</string>
+    <string name="ds_mesh_described_on_none">%1$s phones nearby, no report yet</string>
+    <string name="ds_age_seconds">%1$ds</string>
+    <string name="ds_age_minutes">%1$d min</string>
+    <string name="ds_age_hours">%1$d h</string>
+</resources>

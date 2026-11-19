@@ -99,3 +99,20 @@ class FrameTooLargeException(
     size: Int,
     max: Int,
 ) : IllegalArgumentException("frame of $size bytes exceeds the transport's $max-byte limit")
+
+/** Why a transport cannot start, in terms the mesh status can turn into a fix (spec FR-3.5). */
+enum class Unavailable {
+    /** The radio is switched off; the user can switch it on. */
+    RADIO_OFF,
+
+    /** A runtime permission is missing; the user can grant it. */
+    PERMISSION_MISSING,
+
+    /** This phone cannot do what the transport needs; nothing to fix. */
+    UNSUPPORTED,
+}
+
+/** Thrown by [MeshTransport.start] when the transport cannot run now, and why. */
+class TransportUnavailableException(
+    val reason: Unavailable,
+) : IllegalStateException("transport unavailable: $reason")

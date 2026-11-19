@@ -2,7 +2,7 @@
 
 Time left at a glance (SPEC F7, FR-7.2). Reports vanish on their own, so people need to see how fresh something is without opening it.
 
-**Compose:** `ExpiryRing(fraction)` (drawn by ReportPin), `ExpiryBar(left, total, refreshed)`, `timeLeftLabel(left)`.
+**Status:** Built · **Compose:** the ring is drawn by `ReportPin`; `ExpiryBar(left, lifetime, maxLifetime)`, `timeLeftLabel(left)`, `timeLeftCompact(left)` and `Expiry.fraction` in `core/designsystem/…/component/Expiry.kt`.
 
 ## Variants
 

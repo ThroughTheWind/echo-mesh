@@ -1,5 +1,6 @@
 package io.github.throughthewind.echo.core.mesh.wire
 
+import io.github.throughthewind.echo.core.model.ReportType
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -53,7 +54,13 @@ object WireFixtures {
             ciphertext = filled(Wire.GROUP_CIPHERTEXT_BYTES, 9),
         )
 
-    val all: List<Frame> = listOf(report, vote, withdrawal, group)
+    val summary =
+        SummaryFrame(
+            salt = filled(Wire.SUMMARY_SALT_BYTES, 30),
+            filter = filled(Wire.SUMMARY_FILTER_BYTES, 60),
+        )
+
+    val all: List<Frame> = listOf(report, vote, withdrawal, group, summary)
 }
 
 /**
@@ -83,6 +90,11 @@ object WireProperty {
             is GroupFrame -> {
                 assertEquals(null, result.signedBytes)
                 assertEquals(Wire.GROUP_FRAME_BYTES, input.size)
+            }
+
+            is SummaryFrame -> {
+                assertEquals(null, result.signedBytes)
+                assertEquals(0, frame.hopBudget)
             }
         }
         assertIs<DecodeResult.Accepted>(decode(WireCodec.encode(result.frame.withHopBudget(0))))

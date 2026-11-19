@@ -1,7 +1,10 @@
 package io.github.throughthewind.echo.core.mesh.wire
 
+import io.github.throughthewind.echo.core.model.ReportType
+
 /**
- * Wire format version 1 (ADR-0005, `docs/decisions/ADR-0005-wire-format.md`).
+ * Wire format version 1 (ADR-0005, `docs/decisions/ADR-0005-wire-format.md`), with the summary
+ * kind of ADR-0008.
  *
  * Every frame is `version ‖ kind ‖ hop budget ‖ body`, with a fixed length per kind, no optional
  * field, no nesting, no length prefix read off the air and no compression. The hop budget is the
@@ -38,6 +41,12 @@ object Wire {
     /** Plaintext room inside a group frame, once the AEAD tag is counted. */
     const val GROUP_PLAINTEXT_BYTES: Int = GROUP_CIPHERTEXT_BYTES - TAG_BYTES
 
+    /** A summary's per-frame random salt, so two summaries of one set share no bits (ADR-0008). */
+    const val SUMMARY_SALT_BYTES: Int = 16
+
+    /** A summary's Bloom filter: the rest of a [GROUP_FRAME_BYTES] frame. */
+    const val SUMMARY_FILTER_BYTES: Int = GROUP_FRAME_BYTES - HEADER_BYTES - SUMMARY_SALT_BYTES
+
     /** The largest frame of any kind. A transport must carry at least this many bytes. */
     const val MAX_FRAME_BYTES: Int = GROUP_FRAME_BYTES
 }
@@ -52,30 +61,13 @@ enum class FrameKind(
     PUBLIC_VOTE(0x02, Wire.HEADER_BYTES + Wire.PUBLIC_KEY_BYTES + Wire.MESSAGE_ID_BYTES + 1 + 4 + 2 + Wire.SIGNATURE_BYTES),
     WITHDRAWAL(0x03, Wire.HEADER_BYTES + Wire.PUBLIC_KEY_BYTES + Wire.MESSAGE_ID_BYTES + 4 + 2 + Wire.SIGNATURE_BYTES),
     GROUP(0x04, Wire.GROUP_FRAME_BYTES),
+
+    /** What a phone holds, as a salted Bloom filter; never relayed (ADR-0008). */
+    SUMMARY(0x05, Wire.HEADER_BYTES + Wire.SUMMARY_SALT_BYTES + Wire.SUMMARY_FILTER_BYTES),
     ;
 
     companion object {
         fun of(code: Int): FrameKind? = entries.firstOrNull { it.code == code }
-    }
-}
-
-/** The report catalog of spec FR-4.1. Codes are fixed by the wire version; a new type is a new version. */
-enum class ReportType(
-    val code: Int,
-) {
-    POLICE_LINE(0),
-    KETTLE(1),
-    TEAR_GAS(2),
-    ARRESTS(3),
-    MEDIC(4),
-    WATER_SUPPLIES(5),
-    EXIT_OPEN(6),
-    STREET_CLOSED(7),
-    ALL_CLEAR(8),
-    ;
-
-    companion object {
-        fun of(code: Int): ReportType? = entries.firstOrNull { it.code == code }
     }
 }
 
@@ -131,6 +123,12 @@ sealed interface Frame {
 sealed interface SignedFrame : Frame {
     val publicKey: Bytes
     val signature: Bytes
+
+    /** Signed creation time, minutes since the Unix epoch, UTC (spec FR-7.3). */
+    val createdMinute: Long
+
+    /** Signed lifetime in minutes: the frame is void at [createdMinute] plus this (FR-5.2). */
+    val lifetimeMinutes: Int
 }
 
 /**
@@ -143,8 +141,8 @@ data class PublicReportFrame(
     val type: ReportType,
     val latitude: Int,
     val longitude: Int,
-    val createdMinute: Long,
-    val lifetimeMinutes: Int,
+    override val createdMinute: Long,
+    override val lifetimeMinutes: Int,
     override val signature: Bytes,
 ) : SignedFrame {
     override val kind get() = FrameKind.PUBLIC_REPORT
@@ -158,8 +156,8 @@ data class PublicVoteFrame(
     /** The message id of the report voted on. */
     val target: Bytes,
     val vote: Vote,
-    val createdMinute: Long,
-    val lifetimeMinutes: Int,
+    override val createdMinute: Long,
+    override val lifetimeMinutes: Int,
     override val signature: Bytes,
 ) : SignedFrame {
     override val kind get() = FrameKind.PUBLIC_VOTE
@@ -172,8 +170,8 @@ data class WithdrawalFrame(
     override val hopBudget: Int,
     override val publicKey: Bytes,
     val target: Bytes,
-    val createdMinute: Long,
-    val lifetimeMinutes: Int,
+    override val createdMinute: Long,
+    override val lifetimeMinutes: Int,
     override val signature: Bytes,
 ) : SignedFrame {
     override val kind get() = FrameKind.WITHDRAWAL
@@ -191,4 +189,23 @@ data class GroupFrame(
     override val kind get() = FrameKind.GROUP
 
     override fun withHopBudget(hops: Int) = copy(hopBudget = hops)
+}
+
+/**
+ * The set of message ids a phone holds, sent to a neighbour so it can push only what is missing
+ * (spec FR-5.1, ADR-0008). Not signed, not stored, never relayed: its hop budget is always 0.
+ */
+data class SummaryFrame(
+    val salt: Bytes,
+    /** A Bloom filter of [Wire.SUMMARY_FILTER_BYTES] bytes over the salted ids. */
+    val filter: Bytes,
+) : Frame {
+    override val kind get() = FrameKind.SUMMARY
+    override val hopBudget: Int get() = 0
+
+    /** A summary is never relayed, so it has no other hop budget. */
+    override fun withHopBudget(hops: Int): SummaryFrame {
+        require(hops == 0) { "a summary is never relayed" }
+        return this
+    }
 }

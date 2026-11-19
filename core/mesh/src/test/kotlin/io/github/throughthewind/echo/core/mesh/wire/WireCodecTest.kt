@@ -1,5 +1,6 @@
 package io.github.throughthewind.echo.core.mesh.wire
 
+import io.github.throughthewind.echo.core.model.ReportType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -35,6 +36,7 @@ class WireCodecTest {
         assertEquals(138, FrameKind.PUBLIC_VOTE.size)
         assertEquals(137, FrameKind.WITHDRAWAL.size)
         assertEquals(240, FrameKind.GROUP.size)
+        assertEquals(240, FrameKind.SUMMARY.size)
         assert(FrameKind.entries.all { it.size <= Wire.MAX_FRAME_BYTES })
         // The loopback radio's default, modelled on one BLE L2CAP packet, carries every kind.
         assert(Wire.MAX_FRAME_BYTES <= 244)
@@ -79,7 +81,7 @@ class WireCodecTest {
     @Test
     fun `an unknown kind is rejected`() {
         val bytes = WireCodec.encode(WireFixtures.report)
-        for (k in listOf(0, 5, 0xFF)) assertEquals(Rejection.UNKNOWN_KIND, rejected(bytes.with(1, k)))
+        for (k in listOf(0, 6, 0xFF)) assertEquals(Rejection.UNKNOWN_KIND, rejected(bytes.with(1, k)))
     }
 
     @Test
@@ -88,6 +90,16 @@ class WireCodecTest {
         assertEquals(Rejection.HOP_BUDGET_OUT_OF_RANGE, rejected(bytes.with(Wire.HOP_BUDGET_OFFSET, Wire.MAX_HOP_BUDGET + 1)))
         assertEquals(Rejection.HOP_BUDGET_OUT_OF_RANGE, rejected(bytes.with(Wire.HOP_BUDGET_OFFSET, 0xFF)))
         assertFailsWith<IllegalArgumentException> { WireCodec.encode(WireFixtures.report.copy(hopBudget = 8)) }
+    }
+
+    @Test
+    fun `a summary is never relayed, so any hop budget but 0 is rejected`() {
+        val bytes = WireCodec.encode(WireFixtures.summary)
+        assertEquals(0, bytes[Wire.HOP_BUDGET_OFFSET].toInt())
+        for (h in 1..Wire.MAX_HOP_BUDGET) {
+            assertEquals(Rejection.HOP_BUDGET_OUT_OF_RANGE, rejected(bytes.with(Wire.HOP_BUDGET_OFFSET, h)))
+        }
+        assertFailsWith<IllegalArgumentException> { WireFixtures.summary.withHopBudget(1) }
     }
 
     @Test

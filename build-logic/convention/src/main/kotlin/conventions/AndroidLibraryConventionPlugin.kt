@@ -28,12 +28,15 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
+                // Android unit tests annotate with org.junit.jupiter.api.Test: kotlin.test.Test is a
+                // typealias that does not resolve on an Android variant's test classpath.
                 add("testImplementation", platform(libs.findLibrary("junit-bom").get()))
                 add("testImplementation", libs.findLibrary("junit-jupiter").get())
                 add("testImplementation", libs.findLibrary("kotlin-test").get())
                 add("testRuntimeOnly", libs.findLibrary("junit-platform-launcher").get())
             }
 
+            optInToKotlinTime()
             forbiddenDependenciesLifecycle()
             extensions.configure<LibraryAndroidComponentsExtension> {
                 onVariants { variant -> checkForbiddenDependencies(variant.runtimeConfiguration) }
