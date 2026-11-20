@@ -1,0 +1,22 @@
+Echo works like Waze for people at a protest. Phones nearby share short, map-pinned reports with each other: a police line, tear gas, a medic, an open exit. Reports hop from phone to phone over Bluetooth LE and expire after a few minutes.
+
+<b>No server, no account, no internet.</b> Echo talks only to other phones running it, over peer-to-peer radio. The only time it touches the internet is a map download you start yourself, at home.
+
+<b>What it protects</b>
+<ul>
+<li>Group reports, positions and nicknames can be read only by people who joined the group in person, by QR code.</li>
+<li>Nothing you send carries your name, number or a fixed ID, and its radio signals change regularly.</li>
+<li>It keeps no history of where you or others were. Reports disappear when they expire.</li>
+<li>A panic wipe makes everything it stored unreadable within 2 seconds.</li>
+</ul>
+
+<b>What it does not protect</b>
+<ul>
+<li>Anyone nearby with a radio receiver can tell your phone is running Echo.</li>
+<li>Public reports can be fake. A public report saying where to go can be a trap, and Echo marks it so.</li>
+<li>Anyone in your group can read everything sent to it and pass it on.</li>
+</ul>
+
+Discreet mode, an offline map, English, French and Spanish. Free software under the GPL-3.0, with no ads, no trackers and no proprietary libraries.
+
+Pre-release: it has not yet had the independent security review it needs before 1.0.

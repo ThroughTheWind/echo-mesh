@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- French (WI-037). Draft: the safety set (onboarding, What Echo protects, wipe, QR warning,
+         steering warning) needs a fluent speaker's review against threat model §7 before it ships
+         (FR-18.3). Comments are the English file's, kept so the two read side by side. -->
+    <!-- Expiry indicator (components/ExpiryIndicator): minutes, never seconds. -->
+    <string name="ds_time_left">%1$d min restantes</string>
+    <string name="ds_time_left_under_one">moins d\'1 min restante</string>
+    <string name="ds_time_of_total">sur %1$d</string>
+    <string name="ds_time_compact">%1$dm</string>
+    <string name="ds_time_compact_under_one">&lt;1m</string>
+    <string name="ds_time_refreshed">Des confirmations l\'ont gardé sur la carte, %1$d min au plus</string>
+
+    <!-- Mesh status chip (components/MeshStatus). -->
+    <string name="ds_mesh_off">Maillage coupé</string>
+    <string name="ds_mesh_turn_on">Activer</string>
+    <string name="ds_mesh_searching">Recherche de téléphones</string>
+    <string name="ds_mesh_nearby">%1$s à proximité</string>
+    <string name="ds_mesh_alone">Aucun téléphone à proximité</string>
+    <string name="ds_mesh_few">Peu de téléphones · %1$s à proximité</string>
+    <string name="ds_mesh_described_few">Peu de téléphones entendus récemment : il peut manquer des signalements sur la carte</string>
+    <string name="ds_mesh_fix">Corriger</string>
+    <string name="ds_mesh_stopped">Relais arrêté</string>
+    <string name="ds_mesh_no_radio">Pas de radio dans cette version</string>
+    <plurals name="ds_mesh_described_on">
+        <item quantity="one">%1$s téléphone à proximité, dernier signalement %2$s</item>
+        <item quantity="other">%1$s téléphones à proximité, dernier signalement %2$s</item>
+    </plurals>
+    <plurals name="ds_mesh_described_on_none">
+        <item quantity="one">%1$s téléphone à proximité, aucun signalement pour l\'instant</item>
+        <item quantity="other">%1$s téléphones à proximité, aucun signalement pour l\'instant</item>
+    </plurals>
+    <string name="ds_age_seconds">%1$ds</string>
+    <string name="ds_age_minutes">%1$d min</string>
+    <string name="ds_age_hours">%1$d h</string>
+</resources>

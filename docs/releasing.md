@@ -23,7 +23,7 @@ debug build on every push to `main`.
 Only the maintainer does this, once. **The key is the app's identity:** Android installs an update
 only if it is signed with the same key, and for this app a stolen key would let someone ship a
 malicious update that phones accept. Keep the keystore and its password in a password manager, a
-second copy offline, and nowhere else.
+second copy offline, and the CI copy below, and nowhere else.
 
 1. Create the keystore (needs a JDK). Pick a long password; it is asked twice, and the same one is
    used for the key.
@@ -52,14 +52,40 @@ second copy offline, and nowhere else.
 
 3. Check the setup with a dry run: *Actions → Release → Run workflow* on `main`. It builds and signs
    the APK and attaches it to the run without publishing anything.
+4. **Publish the fingerprint** (extended spec FR-19.2), in one pull request: copy the signing
+   certificate's SHA-256 from the dry run's notice into `docs/signing-certificate.sha256`, and
+   between the `signing-fingerprint` markers in `README.md` and `SECURITY.md`. The `fingerprint`
+   gate fails until all three agree, and from then on the release workflow refuses an APK signed
+   with any other certificate. A tag is refused until the file exists.
 
 Never commit the keystore. `*.jks` and `*.keystore` are in `.gitignore`.
+
+### Keeping the key (FR-19.1)
+
+The maintainer holds the key alone (SECURITY.md states the risk). Keep:
+
+- **The master copy offline:** the keystore file on an encrypted USB drive (VeraCrypt, LUKS or
+  BitLocker), kept somewhere the maintainer controls and away from the phone and laptop carried to
+  protests.
+- **An encrypted offline backup** in a second place, so a lost or seized drive does not end the
+  app's ability to ship updates.
+- **The password** in a password manager, never next to either copy.
+- **The CI copy:** the repository secrets above, which let the release workflow sign. They are a
+  second, online copy of the key, kept so releases are built and signed in one reviewed workflow
+  (Antoine, 2026-11-19; extended spec FR-19.1). Protect what can reach it: two-factor
+  authentication on the maintainer's GitHub account, and no workflow that runs on a fork's pull
+  request with access to secrets. If the account is ever compromised, treat the key as exposed.
+
+If the key is ever lost, phones cannot update: users must uninstall and install a new app. If it is
+ever exposed, say so at once in SECURITY.md and the README, stop releasing with it, and publish a
+new fingerprint through channels users already trust.
 
 ## Cutting a release
 
 Use the `/cut-release` skill, which follows these steps.
 
-1. **Check `main` is ready:** the roadmap phase for this version is merged and CI is green.
+1. **Check `main` is ready:** the roadmap phase for this version is merged and CI is green, and
+   the [storage and radio audits](audits.md) passed on the candidate, with their evidence recorded.
 2. **Prepare it on a branch** `chore/release-X.Y.Z`, in one pull request: set `app = "X.Y.Z"` in
    `gradle/libs.versions.toml`; in `CHANGELOG.md`, rename `## [Unreleased]` to
    `## [X.Y.Z] - YYYY-MM-DD` and add a fresh `## [Unreleased]` above it; write
@@ -83,3 +109,20 @@ or asks for a forbidden permission.
 
 If the workflow failed **before publishing**, fix it on `main`, delete the tag and push it again on
 the fixed commit. If a release went out broken, do not move or reuse its tag: release `X.Y.Z+1`.
+
+## Checking a release is the source it names
+
+Echo's build is reproducible (AC-31, NFR-24, extended spec FR-19.4): two builds of the same commit
+contain the same files, so anyone can check a published APK against the tag.
+
+1. Install a JDK 21 and the Android SDK, and clone this repository.
+2. Download the release's `echo-X.Y.Z.apk` and check its `.sha256`.
+3. Run `scripts/reproducible.sh --against echo-X.Y.Z.apk vX.Y.Z`. It builds the tag in a separate
+   copy, unsigned, and compares every file inside the two APKs, the signature files apart. It ends
+   with "Reproducible" or lists what differs.
+
+CI runs the same script on every change, building twice from two copies at different paths, time
+zones and locales, and the release workflow runs it against the signed APK before publishing.
+`docs/fdroid/` holds the draft F-Droid metadata for after 1.0; the store text lives in
+`fastlane/metadata/android/`.
+

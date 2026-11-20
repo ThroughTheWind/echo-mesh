@@ -60,7 +60,14 @@ object WireFixtures {
             filter = filled(Wire.SUMMARY_FILTER_BYTES, 60),
         )
 
-    val all: List<Frame> = listOf(report, vote, withdrawal, group, summary)
+    val join =
+        JoinFrame(
+            session = filled(Wire.JOIN_SESSION_BYTES, 70),
+            step = 2,
+            message = filled(Wire.JOIN_MESSAGE_BYTES, 80),
+        )
+
+    val all: List<Frame> = listOf(report, vote, withdrawal, group, summary, join)
 }
 
 /**
@@ -95,6 +102,12 @@ object WireProperty {
             is SummaryFrame -> {
                 assertEquals(null, result.signedBytes)
                 assertEquals(0, frame.hopBudget)
+            }
+
+            is JoinFrame -> {
+                assertEquals(null, result.signedBytes)
+                assertEquals(0, frame.hopBudget)
+                assertEquals(Wire.GROUP_FRAME_BYTES, input.size)
             }
         }
         assertIs<DecodeResult.Accepted>(decode(WireCodec.encode(result.frame.withHopBudget(0))))

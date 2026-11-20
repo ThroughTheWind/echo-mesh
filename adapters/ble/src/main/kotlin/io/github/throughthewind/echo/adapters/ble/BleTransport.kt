@@ -2,6 +2,7 @@ package io.github.throughthewind.echo.adapters.ble
 
 import io.github.throughthewind.echo.core.mesh.BandwidthClass
 import io.github.throughthewind.echo.core.mesh.FrameTooLargeException
+import io.github.throughthewind.echo.core.mesh.LinkFailure
 import io.github.throughthewind.echo.core.mesh.MeshTransport
 import io.github.throughthewind.echo.core.mesh.PeerHandle
 import io.github.throughthewind.echo.core.mesh.RangeClass
@@ -9,6 +10,7 @@ import io.github.throughthewind.echo.core.mesh.TransportCapabilities
 import io.github.throughthewind.echo.core.mesh.TransportEvent
 import io.github.throughthewind.echo.core.mesh.TransportUnavailableException
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +20,6 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -46,11 +47,27 @@ data class BleConfig(
     val helloTimeout: Duration = 5.seconds,
     /** Wait before trying again when a session cannot start, for example with Bluetooth off. */
     val retryAfter: Duration = 5.seconds,
+    /**
+     * How long the higher token waits for the lower one to connect before connecting itself. The
+     * lower token connects first so two phones open one link, not two; but when it cannot hear the
+     * other phone (its scan stopped, or it hears late), waiting for it left two phones side by side
+     * apart for half an hour on the phone check of 2026-11-19.
+     */
+    val fallbackAfter: Duration = 15.seconds,
+    /**
+     * The longest wait between retries. Each retry after a failure waits twice the last, from
+     * [retryAfter] up to this: Android blocks an app that starts more than five scans in 30 s, and
+     * a fixed 5 s retry against a radio that keeps refusing tripped that on the phone check of
+     * 2026-11-20, leaving the phone deaf as well as silent.
+     */
+    val maxBackoff: Duration = 2.minutes,
 ) {
     init {
         require(rotateEvery <= 10.minutes && rotateEvery.isPositive()) { "rotation must be at most 10 minutes" }
         require(rotateJitter in 0.0..1.0) { "jitter is a share of the period" }
         require(maxLinks > 0 && connectsPerMinute > 0) { "limits must be positive" }
+        require(fallbackAfter.isPositive()) { "the fallback must wait" }
+        require(maxBackoff >= retryAfter) { "the longest wait is at least the first" }
     }
 }
 
@@ -61,8 +78,14 @@ data class BleConfig(
  *
  * Nothing stable on the air (threat model §5.1): the advertised token and PSM are random and change
  * together at every rotation, which also drops every link, so phones that met before reconnect as
- * strangers. Of two phones, the one with the lower token connects; the other waits. A [PeerHandle]
- * is random per link and never derived from an address.
+ * strangers. Of two phones, the one with the lower token connects; the other waits
+ * [BleConfig.fallbackAfter], then connects itself if no link came. A [PeerHandle] is random per
+ * link and never derived from an address.
+ *
+ * Nothing that fails on the radio waits for the next rotation, and nothing retries in a tight loop:
+ * a scan that stops is started again, an advertisement that is refused is tried again while the
+ * session keeps scanning and connecting out, and a server that dies starts a new session, each
+ * after a wait that doubles from [BleConfig.retryAfter] to [BleConfig.maxBackoff].
  */
 class BleTransport(
     private val radio: BleRadio,
@@ -87,6 +110,10 @@ class BleTransport(
         val token: Int,
         val listener: Listener,
         val jobs: MutableList<Job> = mutableListOf(),
+        /** Completed when the server dies under the session, so a new one starts at once. */
+        val broken: CompletableDeferred<Unit> = CompletableDeferred(),
+        /** Higher tokens heard, each waiting [BleConfig.fallbackAfter] for the other phone to connect. */
+        val waiting: MutableSet<Int> = mutableSetOf(),
     )
 
     private class Open(
@@ -155,6 +182,7 @@ class BleTransport(
      */
     private suspend fun rotateLoop() {
         val scope = scope ?: return
+        var failures = 0
         while (scope.isActive) {
             val started =
                 try {
@@ -167,11 +195,20 @@ class BleTransport(
                 } catch (_: SecurityException) {
                     false
                 }
+            if (!started) channel.trySend(TransportEvent.LinkFailed(LinkFailure.SESSION_START))
             if (started) {
                 val share = 1.0 - config.rotateJitter * random.nextDouble()
-                delay(config.rotateEvery * share)
+                val current = lock.withLock { session }
+                val broke = withTimeoutOrNull(config.rotateEvery * share) { current?.broken?.await() } != null
+                if (broke) {
+                    channel.trySend(TransportEvent.LinkFailed(LinkFailure.SESSION_START))
+                    endSession()
+                    delay(backoff(failures++))
+                    continue
+                }
+                failures = 0
             } else {
-                delay(config.retryAfter)
+                delay(backoff(failures++))
             }
             endSession()
         }
@@ -183,8 +220,56 @@ class BleTransport(
         val current = Session(token, listener)
         lock.withLock { session = current }
         current.jobs += scope.launch { acceptLoop(current) }
-        current.jobs += scope.launch { radio.sightings().catch { }.collect { seen(current, it) } }
-        radio.advertise(Advertisement(token, listener.psm).encode())
+        current.jobs += scope.launch { scanLoop(current) }
+        current.jobs += scope.launch { advertiseLoop(Advertisement(token, listener.psm).encode()) }
+    }
+
+    /**
+     * Puts the session on the air, trying again while the stack refuses (its link slots full, for
+     * one). Meanwhile the session still scans and connects out, so it stays on the mesh.
+     */
+    private suspend fun advertiseLoop(payload: ByteArray) {
+        var failures = 0
+        while (true) {
+            try {
+                radio.advertise(payload)
+                return
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: IOException) {
+                channel.trySend(TransportEvent.LinkFailed(LinkFailure.ADVERTISE))
+            } catch (_: SecurityException) {
+                channel.trySend(TransportEvent.LinkFailed(LinkFailure.ADVERTISE))
+            }
+            delay(backoff(failures++))
+        }
+    }
+
+    /** Scans for the session's whole life: a scan the stack stops is started again. */
+    private suspend fun scanLoop(current: Session) {
+        var failures = 0
+        while (true) {
+            val began = clockMillis()
+            try {
+                radio.sightings().collect { seen(current, it) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: IOException) {
+                channel.trySend(TransportEvent.LinkFailed(LinkFailure.SCAN))
+            } catch (_: SecurityException) {
+                channel.trySend(TransportEvent.LinkFailed(LinkFailure.SCAN))
+            }
+            // A scan that ran a while was healthy: the next failure starts the waits over.
+            if (clockMillis() - began > SCAN_WINDOW_MILLIS) failures = 0
+            delay(backoff(failures++))
+        }
+    }
+
+    /** The wait before retry number [failures] (from 0): doubling from retryAfter, capped. */
+    private fun backoff(failures: Int): Duration {
+        var wait = config.retryAfter
+        repeat(minOf(failures, MAX_DOUBLINGS)) { wait *= 2 }
+        return minOf(wait, config.maxBackoff)
     }
 
     /** Takes the advertisement off the air, closes the server and drops every link. */
@@ -206,6 +291,9 @@ class BleTransport(
                 } catch (e: CancellationException) {
                     throw e
                 } catch (_: IOException) {
+                    // The server died under a live session: nobody can connect to what it
+                    // advertises, so the session ends now rather than at the next rotation.
+                    current.broken.complete(Unit)
                     return
                 }
             scope?.launch { greet(current, link) }
@@ -237,6 +325,7 @@ class BleTransport(
                 null
             }
         if (hello == null) {
+            channel.trySend(TransportEvent.LinkFailed(LinkFailure.HELLO))
             link.close()
             return
         }
@@ -249,8 +338,33 @@ class BleTransport(
     ) {
         val ad = Advertisement.decode(sighting.payload) ?: return
         if (ad.token == current.token) return
-        // The lower token connects, so two phones open one link between them, not two.
-        if (Integer.compareUnsigned(current.token, ad.token) > 0) return
+        // The lower token connects, so two phones open one link between them, not two. The higher
+        // one waits for it, then connects itself if it never came.
+        if (Integer.compareUnsigned(current.token, ad.token) > 0) {
+            val first = lock.withLock { current.waiting.add(ad.token) }
+            if (!first) return
+            val scope = scope ?: return
+            current.jobs +=
+                scope.launch {
+                    try {
+                        delay(config.fallbackAfter)
+                        val linked = lock.withLock { links.values.any { it.remoteToken == ad.token } }
+                        if (!linked) connect(current, ad, sighting)
+                    } finally {
+                        // Heard again later (a link that broke mid-session), it waits again.
+                        lock.withLock { current.waiting.remove(ad.token) }
+                    }
+                }
+            return
+        }
+        connect(current, ad, sighting)
+    }
+
+    private suspend fun connect(
+        current: Session,
+        ad: Advertisement,
+        sighting: Sighting,
+    ) {
         val go =
             lock.withLock {
                 val already = links.values.any { it.remoteToken == ad.token } || ad.token in connecting
@@ -262,17 +376,21 @@ class BleTransport(
                 }
             }
         if (!go) return
+        var link: Link? = null
         try {
-            val link = radio.connect(sighting, ad.psm)
+            link = radio.connect(sighting, ad.psm)
             link.write(Advertisement.tokenBytes(current.token))
-            if (!admit(current, ad.token, link)) link.close()
+            if (admit(current, ad.token, link)) link = null
         } catch (e: CancellationException) {
             throw e
         } catch (_: IOException) {
             // Out of range or refused: the next advertisement heard tries again.
+            channel.trySend(TransportEvent.LinkFailed(LinkFailure.CONNECT))
         } catch (_: SecurityException) {
             // A permission withdrawn while on: the next session start finds it.
         } finally {
+            // A link that is not kept is closed, whatever failed: an open one holds a radio slot.
+            link?.close()
             lock.withLock { connecting -= ad.token }
         }
     }
@@ -322,6 +440,7 @@ class BleTransport(
             throw e
         } catch (_: IOException) {
             // A bad length or a broken channel: the link goes, the phone stays on the mesh.
+            channel.trySend(TransportEvent.LinkFailed(LinkFailure.LINK_BROKEN))
         }
         drop(peer)
     }
@@ -354,5 +473,9 @@ class BleTransport(
         private const val HELLO = 4
         private const val HANDLE_BYTES = 8
         private const val MINUTE_MILLIS = 60_000L
+
+        /** Android's window for counting scan starts (five per 30 s). */
+        private const val SCAN_WINDOW_MILLIS = 30_000L
+        private const val MAX_DOUBLINGS = 16
     }
 }

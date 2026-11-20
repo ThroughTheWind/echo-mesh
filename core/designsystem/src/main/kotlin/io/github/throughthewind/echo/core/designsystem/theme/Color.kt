@@ -118,7 +118,13 @@ internal val discreetScheme: ColorScheme =
         scrim = Color(0xFF000000),
     )
 
-/** Report families, group halos and the map style: not part of Material's ColorScheme. */
+/**
+ * Report families, group halos and the map style: not part of Material's ColorScheme.
+ *
+ * Material cannot work out the text colour for these, so a `Surface` on a `…Container` colour must
+ * pass its `on…Container` as `contentColor`: without it the text keeps the screen's colour, and the
+ * "No phones nearby" banner shipped pale text on amber that way.
+ */
 @Immutable
 data class StreetColors(
     val pinHalo: Color,

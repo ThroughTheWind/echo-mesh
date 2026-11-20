@@ -2,13 +2,24 @@ package io.github.throughthewind.echo.core.mesh.node
 
 import io.github.throughthewind.echo.core.mesh.MeshTransport
 import io.github.throughthewind.echo.core.mesh.TransportUnavailableException
+import io.github.throughthewind.echo.core.mesh.diagnostics.FieldDiagnostics
+import io.github.throughthewind.echo.core.mesh.group.GroupChannel
+import io.github.throughthewind.echo.core.mesh.group.GroupInfo
+import io.github.throughthewind.echo.core.mesh.group.MemberPosition
+import io.github.throughthewind.echo.core.mesh.group.SealedRecords
 import io.github.throughthewind.echo.core.mesh.relay.Relay
 import io.github.throughthewind.echo.core.mesh.relay.RelayConfig
+import io.github.throughthewind.echo.core.mesh.report.CastVote
 import io.github.throughthewind.echo.core.mesh.report.ReportAuthor
+import io.github.throughthewind.echo.core.mesh.report.Tally
 import io.github.throughthewind.echo.core.mesh.report.Validation
+import io.github.throughthewind.echo.core.mesh.report.VoteRule
 import io.github.throughthewind.echo.core.mesh.report.toReport
+import io.github.throughthewind.echo.core.mesh.report.wireMinute
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.mesh.wire.PublicReportFrame
+import io.github.throughthewind.echo.core.mesh.wire.PublicVoteFrame
+import io.github.throughthewind.echo.core.mesh.wire.Vote
 import io.github.throughthewind.echo.core.model.GeoPoint
 import io.github.throughthewind.echo.core.model.Report
 import io.github.throughthewind.echo.core.model.ReportType
@@ -27,6 +38,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
@@ -38,6 +50,34 @@ data class ShownReport(
     val hops: Int,
     /** Sent from this phone, so it can be withdrawn (FR-4.5). */
     val mine: Boolean,
+    /** For a group report (FR-9.2): the group's name and who in it sent it. Null for a public one. */
+    val group: GroupTag? = null,
+    /** Confirmations and dismissals, split into group and nearby, and whether it is probably gone (FR-6). */
+    val tally: Tally = Tally(expiresMinute = report.expiresAt.wireMinute()),
+    /** This phone's own vote on it, if it voted: one vote per report (FR-6.1). */
+    val myVote: Vote? = null,
+)
+
+/** This phone sharing its position with one group (FR-10.1): until [until], or until the mesh is off when null. */
+data class Sharing(
+    val groupId: Bytes,
+    val groupName: String,
+    val until: Instant?,
+)
+
+/** Why sharing stopped without a tap on Stop, said the next time the map is visible (patterns/PositionSharing). */
+data class SharingStopped(
+    val groupName: String,
+    val why: Why,
+) {
+    enum class Why { TIME_UP, MESH_OFF, GROUP_GONE }
+}
+
+/** Where a group report came from, shown in the verified style (FR-9.2). */
+data class GroupTag(
+    val groupId: Bytes,
+    val groupName: String,
+    val sender: String,
 )
 
 /** Whether the mesh is on, as the mesh status shows it (spec FR-3.1, FR-3.2). */
@@ -56,12 +96,22 @@ sealed interface MeshState {
     /** The transport failed to start for a reason it did not name. */
     data object Failed : MeshState
 
-    /** On since [since]: [nearby] phones in range, the last report from another phone at [lastReport]. */
+    /**
+     * On since [since]: [nearby] phones in range, the last report from another phone at [lastReport],
+     * and [recentPeers] distinct phones heard in the last few minutes (FR-16.1).
+     */
     data class On(
         val since: Instant,
         val nearby: Int,
         val lastReport: Instant?,
-    ) : MeshState
+        val recentPeers: Int = 0,
+    ) : MeshState {
+        /**
+         * Too few phones heard lately to trust an empty map (FR-16.1): fewer than [MeshNode.LOW_DENSITY_PEERS]
+         * in the window. Not while still looking, before the first [MeshNode.SEARCHING] has passed.
+         */
+        fun lowDensity(now: Instant): Boolean = now - since >= MeshNode.SEARCHING && recentPeers < MeshNode.LOW_DENSITY_PEERS
+    }
 }
 
 /** A report waiting out its grace period before it is signed and sent (FR-4.7). */
@@ -69,6 +119,8 @@ data class PendingReport(
     val type: ReportType,
     val position: GeoPoint,
     val sendsAt: Instant,
+    /** The group it goes to, or null for everyone nearby (FR-4.3). */
+    val group: Bytes? = null,
 )
 
 /**
@@ -82,14 +134,29 @@ class MeshNode(
     private val clock: () -> Instant,
     random: Random,
     val config: RelayConfig = RelayConfig(),
+    /** Where groups are kept between runs (FR-12.1): the app's sealed store. Null keeps them in memory. */
+    groupVault: SealedRecords? = null,
 ) {
     private val relay: Relay? = transport?.let { Relay(it, clock, random, config) }
+
+    /** This phone's groups on the mesh (WI-018); null when there is no radio to reach them over. */
+    val groupChannel: GroupChannel? = relay?.let { GroupChannel(it, clock, config.hopBudget, groupVault) }
+
+    /** The groups this phone is in. */
+    val groups: StateFlow<List<GroupInfo>> = groupChannel?.groups ?: MutableStateFlow(emptyList<GroupInfo>()).asStateFlow()
     private val author = ReportAuthor(clock)
     private val lock = Mutex()
     private var running: Job? = null
     private val power = MutableStateFlow<MeshState>(if (transport == null) MeshState.NoRadio else MeshState.Off)
     private val ownIds = MutableStateFlow<Set<Bytes>>(emptySet())
     private val waiting = MutableStateFlow<PendingReport?>(null)
+    private val myVotes = MutableStateFlow<Map<Bytes, Vote>>(emptyMap())
+    private val sharingNow = MutableStateFlow<List<Sharing>>(emptyList())
+    private val stoppedSharing = MutableStateFlow<SharingStopped?>(null)
+    private val shareJobs = HashMap<Bytes, Job>()
+
+    /** The phone's own latest fix and when it came, in memory only; sent only while sharing. */
+    private val ownFix = MutableStateFlow<Pair<GeoPoint, Instant>?>(null)
     private var grace: Job? = null
 
     /** On, off, or unable; with the count of phones nearby while on. */
@@ -97,39 +164,108 @@ class MeshNode(
         if (relay == null) {
             power.asStateFlow()
         } else {
-            combine(power, relay.nearby, relay.lastReportReceived) { power, nearby, last ->
-                if (power is MeshState.On) power.copy(nearby = nearby, lastReport = last) else power
+            combine(power, relay.nearby, relay.lastReportReceived, relay.recentPeers) { power, nearby, last, recent ->
+                if (power is MeshState.On) power.copy(nearby = nearby, lastReport = last, recentPeers = recent) else power
             }.stateIn(scope, SharingStarted.Eagerly, power.value)
         }
 
-    /** Every live report this phone holds, its own included. */
+    /** Every live report this phone holds, its own included, public and from its groups. */
     val reports: StateFlow<List<ShownReport>> =
-        if (relay == null) {
+        if (relay == null || groupChannel == null) {
             MutableStateFlow(emptyList<ShownReport>()).asStateFlow()
         } else {
-            combine(relay.reports, ownIds) { held, own ->
-                held.mapNotNull { frame ->
-                    val report = frame.frame as? PublicReportFrame ?: return@mapNotNull null
-                    ShownReport(
-                        id = frame.id,
-                        report = report.toReport(),
-                        hops = if (frame.id in own) 0 else (config.hopBudget - frame.hopsLeft).coerceAtLeast(0),
-                        mine = frame.id in own,
-                    )
-                }
+            val votes =
+                combine(relay.votes, groupChannel.votes, myVotes) { public, group, mine -> Triple(public, group, mine) }
+            combine(relay.reports, ownIds, groupChannel.reports, votes) { held, own, fromGroups, (public, group, mine) ->
+                val nearby =
+                    public
+                        .mapNotNull { it.frame as? PublicVoteFrame }
+                        .groupBy({ it.target }, { CastVote(it.publicKey, fromGroup = false, vote = it.vote, minute = it.createdMinute) })
+                val shown =
+                    held.mapNotNull { frame ->
+                        val report = frame.frame as? PublicReportFrame ?: return@mapNotNull null
+                        ShownReport(
+                            id = frame.id,
+                            report = report.toReport(),
+                            hops = if (frame.id in own) 0 else (config.hopBudget - frame.hopsLeft).coerceAtLeast(0),
+                            mine = frame.id in own,
+                        )
+                    } +
+                        fromGroups.map {
+                            ShownReport(
+                                id = it.id,
+                                report = it.report,
+                                hops = if (it.mine) 0 else (config.hopBudget - it.hopsLeft).coerceAtLeast(0),
+                                mine = it.mine,
+                                group = GroupTag(it.groupId, it.groupName, it.sender),
+                            )
+                        }
+                shown.map { it.withVotes(nearby[it.id].orEmpty() + group[it.id].orEmpty(), mine[it.id]) }
             }.stateIn(scope, SharingStarted.Eagerly, emptyList())
         }
+
+    /** The groups this phone shares its position with now (FR-10.4): the screens show a bar for each. */
+    val sharing: StateFlow<List<Sharing>> = sharingNow.asStateFlow()
+
+    /** The last time sharing stopped on its own, until the screens have said so ([sharingStopNoted]). */
+    val sharingStopped: StateFlow<SharingStopped?> = stoppedSharing.asStateFlow()
+
+    /** Group members' latest shared positions (FR-10.3), in memory only. */
+    val positions: StateFlow<List<MemberPosition>> =
+        groupChannel?.positions ?: MutableStateFlow(emptyList<MemberPosition>()).asStateFlow()
 
     /** The report in its grace period, if any. */
     val pending: StateFlow<PendingReport?> = waiting.asStateFlow()
 
+    @Volatile
+    private var fieldDiagnostics: FieldDiagnostics? = null
+    private val counting = MutableStateFlow(false)
+
+    /** Whether field diagnostics are counting (FR-17.1). Off by default. */
+    val diagnosticsOn: StateFlow<Boolean> = counting.asStateFlow()
+
+    /**
+     * Starts counting field diagnostics in memory, from now (FR-17.1). [killedBefore]: the app
+     * found the mesh still meant on at launch, so the process was killed before this session.
+     */
+    fun startDiagnostics(killedBefore: Boolean = false) {
+        if (fieldDiagnostics != null) return
+        val started = FieldDiagnostics(clock())
+        if (killedBefore) started.killedBeforeStart()
+        relay?.diagnostics = started
+        fieldDiagnostics = started
+        counting.value = true
+    }
+
+    /** Stops counting and forgets every count (FR-17.4). */
+    fun stopDiagnostics() {
+        relay?.diagnostics = null
+        fieldDiagnostics = null
+        counting.value = false
+    }
+
+    /** The export file as the user sees it before sharing (FR-17.3), or null when diagnostics are off. */
+    fun diagnosticsExport(): String? = fieldDiagnostics?.export(clock())
+
+    /** The battery level, for diagnostics; ignored when they are off. */
+    fun batteryLevel(percent: Int) {
+        fieldDiagnostics?.battery(percent, clock())
+    }
+
+    /** The mesh stopped without the user turning it off (FR-3.3a), for diagnostics; ignored when they are off. */
+    fun serviceKilled() {
+        fieldDiagnostics?.serviceKilled(clock())
+    }
+
     init {
         // Reports expire with the mesh off too.
         if (relay != null) {
+            groupChannel?.run(scope)
             scope.launch {
                 while (true) {
                     delay(config.sweepEvery)
                     relay.sweep()
+                    groupChannel?.sweep()
                 }
             }
         }
@@ -161,9 +297,10 @@ class MeshNode(
         }
     }
 
-    /** Stops every radio use (FR-3.1). Held reports stay until they expire; nothing new arrives. */
+    /** Stops every radio use (FR-3.1), and all position sharing with it (FR-10.1). Held reports stay until they expire. */
     suspend fun turnOff() {
         val transport = transport ?: return
+        sharingNow.value.forEach { ended(it.groupId, SharingStopped.Why.MESH_OFF) }
         lock.withLock {
             running?.cancel()
             running = null
@@ -183,26 +320,31 @@ class MeshNode(
 
     /**
      * Puts a report of [type] at [position] in its grace period: it is signed and sent after
-     * [SEND_GRACE] unless [cancelPending] is called first (FR-4.7). Returns false when another report
-     * is already waiting or the type is rate-limited.
+     * [SEND_GRACE] unless [cancelPending] is called first (FR-4.7). It goes to everyone nearby, or
+     * only to the group [group] (FR-4.3). Returns false when another report is already waiting or
+     * the type is rate-limited; the rate limit counts both audiences (FR-4.6).
      */
     fun send(
         type: ReportType,
         position: GeoPoint,
+        group: Bytes? = null,
     ): Boolean {
         val relay = relay ?: return false
         if (waiting.value != null || author.nextAllowed(type) != null) return false
-        val pending = PendingReport(type, position, clock() + SEND_GRACE)
+        val pending = PendingReport(type, position, clock() + SEND_GRACE, group)
         waiting.value = pending
         grace =
             scope.launch {
                 delay(SEND_GRACE)
-                if (waiting.compareAndSet(pending, null)) {
+                if (!waiting.compareAndSet(pending, null)) return@launch
+                if (group == null) {
                     val outcome = author.report(type, position, config.hopBudget)
                     if (outcome is ReportAuthor.Outcome.Sent) {
                         ownIds.value = ownIds.value + outcome.id
                         relay.publish(outcome.frame)
                     }
+                } else if (author.takeSlot(type)) {
+                    groupChannel?.sendReport(group, type, position)
                 }
             }
         return true
@@ -215,9 +357,118 @@ class MeshNode(
         grace = null
     }
 
+    /**
+     * Confirms or dismisses the report [id] (FR-6.1): once per report, never on this phone's own.
+     * A group report's vote goes to its group only. A public report gets a public vote, under a
+     * fresh one-time key, and a vote to each of this phone's groups, so members count it as a
+     * member's (FR-6.2, threat model §5.7). False when it cannot vote.
+     */
+    suspend fun vote(
+        id: Bytes,
+        vote: Vote,
+    ): Boolean {
+        val relay = relay ?: return false
+        val channel = groupChannel ?: return false
+        val shown = reports.value.firstOrNull { it.id == id } ?: return false
+        if (shown.mine || shown.myVote != null || id in myVotes.value) return false
+        myVotes.value = myVotes.value + (id to vote)
+        val r = shown.report
+        val until =
+            r.createdAt.wireMinute() + maxOf(r.lifetime.inWholeMinutes, 2 * r.type.defaultLifetime.inWholeMinutes)
+        val tag = shown.group
+        if (tag != null) return channel.vote(tag.groupId, id, vote, until)
+        val sent = relay.publish(author.vote(id, vote, until, config.hopBudget)) is Validation.Valid
+        groups.value.forEach { channel.vote(it.id, id, vote, until) }
+        return sent
+    }
+
+    /**
+     * The phone's own position, as the screens get it while the app is open (NFR-10: never in the
+     * background). Kept in memory, and sent only to groups this phone shares with.
+     */
+    fun updatePosition(position: GeoPoint) {
+        ownFix.value = position to clock()
+    }
+
+    /**
+     * Starts sharing this phone's position with the group [id] until [until], or until the mesh is
+     * off when null (FR-10.1): every [SHARE_EVERY] while there is a fix under [FIX_FRESH] old. False
+     * when the mesh is off or this phone is not in the group. Never on by itself.
+     */
+    fun startSharing(
+        id: Bytes,
+        until: Instant?,
+    ): Boolean {
+        val channel = groupChannel ?: return false
+        if (power.value !is MeshState.On) return false
+        val group = groups.value.firstOrNull { it.id == id } ?: return false
+        stopSharing(id)
+        sharingNow.value = sharingNow.value + Sharing(id, group.name, until)
+        val job =
+            scope.launch {
+                while (true) {
+                    val now = clock()
+                    if (until != null && now >= until) {
+                        ended(id, SharingStopped.Why.TIME_UP)
+                        break
+                    }
+                    if (groups.value.none { it.id == id }) {
+                        ended(id, SharingStopped.Why.GROUP_GONE)
+                        break
+                    }
+                    val fix = ownFix.value
+                    if (fix != null && now - fix.second <= FIX_FRESH) channel.sharePosition(id, fix.first, fix.second)
+                    delay(if (until == null) SHARE_EVERY else minOf(SHARE_EVERY, until - now))
+                }
+            }
+        synchronized(shareJobs) { shareJobs[id] = job }
+        return true
+    }
+
+    /** Stops sharing with the group [id] at once (FR-10.4): one tap, no confirm. */
+    fun stopSharing(id: Bytes) {
+        synchronized(shareJobs) { shareJobs.remove(id) }?.cancel()
+        sharingNow.value = sharingNow.value.filter { it.groupId != id }
+    }
+
+    /** The screens said why sharing stopped. */
+    fun sharingStopNoted() {
+        stoppedSharing.value = null
+    }
+
+    private fun ended(
+        id: Bytes,
+        why: SharingStopped.Why,
+    ) {
+        val sharing = sharingNow.value.firstOrNull { it.groupId == id } ?: return
+        stopSharing(id)
+        stoppedSharing.value = SharingStopped(sharing.groupName, why)
+    }
+
+    /**
+     * The panic wipe's part here (FR-11.2): the radio stops without a word on the air (FR-11.4),
+     * sharing stops, the pending report is dropped unsent, field diagnostics are forgotten (FR-17.4),
+     * and group keys are destroyed in memory.
+     * The app restarts the process afterwards, which takes the rest of memory with it.
+     */
+    suspend fun wipe() {
+        stopDiagnostics()
+        cancelPending()
+        synchronized(shareJobs) { shareJobs.values.forEach { it.cancel() } }
+        synchronized(shareJobs) { shareJobs.clear() }
+        sharingNow.value = emptyList()
+        stoppedSharing.value = null
+        ownFix.value = null
+        turnOff()
+        groupChannel?.wipe()
+        myVotes.value = emptyMap()
+        ownIds.value = emptySet()
+    }
+
     /** Withdraws one of this phone's reports everywhere it spread (FR-4.5). False if it cannot. */
     suspend fun withdraw(id: Bytes): Boolean {
         val relay = relay ?: return false
+        if (groupChannel?.withdraw(id) == true) return true
         val frame = author.withdraw(id, config.hopBudget) ?: return false
         return relay.publish(frame) is Validation.Valid
     }
@@ -226,7 +477,37 @@ class MeshNode(
         /** Time to cancel a report before it leaves the phone (token `send-grace`, FR-4.7). */
         val SEND_GRACE: Duration = 5.seconds
 
+        /** How often a shared position is sent ("about every minute", FR-10.2; tuned in WI-028). */
+        val SHARE_EVERY: Duration = 60.seconds
+
+        /** A fix older than this is not sent: the group sees the last one go stale instead (FR-10.3). */
+        val FIX_FRESH: Duration = 2.minutes
+
         /** How long a mesh that has heard nobody yet says "Looking for phones" (components/MeshStatus). */
         val SEARCHING: Duration = 30.seconds
+
+        /**
+         * Fewer distinct phones than this in [RelayConfig.densityWindow] is the low-density state
+         * (FR-16.1). A first guess, tuned by the field test (WI-028, FR-16.4).
+         */
+        const val LOW_DENSITY_PEERS: Int = 3
     }
+}
+
+/** [this] with its votes counted: the tally, the time left a confirmation gave it, and this phone's vote. */
+private fun ShownReport.withVotes(
+    votes: List<CastVote>,
+    mine: Vote?,
+): ShownReport {
+    val createdMinute = report.createdAt.wireMinute()
+    val tally =
+        VoteRule.tally(
+            votes,
+            createdMinute,
+            report.lifetime.inWholeMinutes.toInt(),
+            report.type.defaultLifetime.inWholeMinutes
+                .toInt(),
+        )
+    val lifetime = (tally.expiresMinute - createdMinute).minutes
+    return copy(report = if (lifetime > report.lifetime) report.copy(lifetime = lifetime) else report, tally = tally, myVote = mine)
 }

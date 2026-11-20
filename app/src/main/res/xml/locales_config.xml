@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The languages Echo ships (extended spec FR-18.1). Android 13 and later offer them under the
+     app's own language setting. Keep this list and SHIPPED in scripts/gates/locales.mjs the same. -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="fr" />
+    <locale android:name="es" />
+</locale-config>

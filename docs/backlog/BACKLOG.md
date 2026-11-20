@@ -6,7 +6,7 @@
 The board. One row per live work item, grouped by status. Items live in
 [`items/`](items/); finished work moves to [`archive/`](archive/).
 
-<!-- NEXT-ID: WI-074 -->
+<!-- NEXT-ID: WI-078 -->
 <!-- Claim from this marker and bump it on your own branch. `node .ai/rungs.mjs check` refuses a duplicate. -->
 
 ## In progress
@@ -14,6 +14,28 @@ The board. One row per live work item, grouped by status. Items live in
 | Id | Title | Type | Branch |
 | --- | --- | --- | --- |
 | [WI-007](items/WI-007-ble-spike-reference-phones.md) | Prove BLE discovery and exchange on the three reference phones | spike | `claude/project-thread-67cn4e` |
+| [WI-017](items/WI-017-group-keys-and-qr-join.md) | Create groups and join them in person by QR | feature | `claude/project-thread-67cn4e` |
+| [WI-018](items/WI-018-encrypted-group-reports.md) | Send encrypted group reports that everyone relays and only members read | feature | `claude/project-thread-67cn4e` |
+| [WI-019](items/WI-019-confirm-and-dismiss.md) | Confirm or dismiss a report, with votes that spread | feature | `claude/project-thread-67cn4e` |
+| [WI-020](items/WI-020-position-sharing.md) | Share position with a group, opt-in and short-lived | feature | `claude/project-thread-67cn4e` |
+| [WI-021](items/WI-021-mute-a-member.md) | Mute a group member on this phone | feature | `claude/project-thread-67cn4e` |
+| [WI-022](items/WI-022-group-screens.md) | Build the group screens: create, join, roster, verified style and filters | feature | `claude/project-thread-67cn4e` |
+| [WI-023](items/WI-023-phase-3-safety-and-street-use.md) | Phase 3 — Safety and street use: ship 0.3.0 | epic | `claude/project-thread-67cn4e` |
+| [WI-024](items/WI-024-panic-wipe.md) | Panic wipe in under two seconds | feature | `claude/project-thread-67cn4e` |
+| [WI-025](items/WI-025-discreet-mode.md) | Discreet mode | feature | `claude/project-thread-67cn4e` |
+| [WI-026](items/WI-026-final-onboarding-copy.md) | Final onboarding and "What this app protects" copy, traced to the threat model | docs | `claude/project-thread-67cn4e` |
+| [WI-027](items/WI-027-storage-and-air-audits.md) | Audit storage and radio for leaks | chore | `claude/project-thread-67cn4e` |
+| [WI-031](items/WI-031-accessibility-pass.md) | Accessibility pass | chore | `claude/project-thread-67cn4e` |
+| [WI-032](items/WI-032-reproducible-build.md) | Verify the build is reproducible and F-Droid ready | chore | `claude/project-thread-67cn4e` |
+| [WI-034](items/WI-034-steering-report-warnings.md) | Warn on public steering reports and hide their public counts | feature | `claude/project-thread-67cn4e` |
+| [WI-035](items/WI-035-low-density-honesty.md) | Tell people when the mesh around them is too thin | feature | `claude/project-thread-67cn4e` |
+| [WI-036](items/WI-036-field-diagnostics.md) | Export a field diagnostics file with no positions or reports | feature | `claude/project-thread-67cn4e` |
+| [WI-037](items/WI-037-languages-en-fr-es.md) | Ship Echo in English, French and Spanish | feature | `claude/project-thread-67cn4e` |
+| [WI-038](items/WI-038-release-key-custody.md) | Publish who signs Echo and how to check it | docs | `claude/project-thread-67cn4e` |
+| [WI-074](items/WI-074-settings-screen.md) | Build the settings screen as designed | feature | `claude/project-thread-67cn4e` |
+| [WI-075](items/WI-075-share-position-off-screen.md) | Keep sharing your position while Echo is off screen | feature | `claude/project-thread-67cn4e` |
+| [WI-076](items/WI-076-ble-link-recovery.md) | Keep two phones in range linked over Bluetooth | bug | `claude/project-thread-67cn4e` |
+| [WI-077](items/WI-077-survive-locked-keystore.md) | Keep Echo running while the phone is locked and its storage key refuses | bug | `claude/project-thread-67cn4e` |
 
 ## Review
 
@@ -23,37 +45,19 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-011](items/WI-011-ble-transport-adapter.md) | Build the BLE transport adapter and the relay foreground service | feature | `claude/project-thread-67cn4e` |
 | [WI-012](items/WI-012-offline-map.md) | Show an offline map: renderer wrapper, import, browser download and sharing | feature | `claude/project-thread-67cn4e` |
 | [WI-013](items/WI-013-phase-1-screens.md) | Build the Phase 1 screens: onboarding draft, map with pins, drop a report, mesh status | feature | `claude/project-thread-67cn4e` |
+| [WI-014](items/WI-014-transport-guide.md) | Write docs/transports.md: how to add a transport | docs | `claude/project-thread-67cn4e` |
 
 ## Planned
 
 | Id | Title | Type |
 | --- | --- | --- |
 | [WI-006](items/WI-006-phase-1-two-phones-one-report.md) | Phase 1 — Two phones, one report: ship 0.1.0 | epic |
-| [WI-014](items/WI-014-transport-guide.md) | Write docs/transports.md: how to add a transport | docs |
 | [WI-015](items/WI-015-release-0-1-0.md) | Set up release signing and cut 0.1.0 | chore |
 | [WI-016](items/WI-016-phase-2-groups.md) | Phase 2 — Groups: ship 0.2.0 | epic |
-| [WI-017](items/WI-017-group-keys-and-qr-join.md) | Create groups and join them in person by QR | feature |
-| [WI-018](items/WI-018-encrypted-group-reports.md) | Send encrypted group reports that everyone relays and only members read | feature |
-| [WI-019](items/WI-019-confirm-and-dismiss.md) | Confirm or dismiss a report, with votes that spread | feature |
-| [WI-020](items/WI-020-position-sharing.md) | Share position with a group, opt-in and short-lived | feature |
-| [WI-021](items/WI-021-mute-a-member.md) | Mute a group member on this phone | feature |
-| [WI-022](items/WI-022-group-screens.md) | Build the group screens: create, join, roster, verified style and filters | feature |
-| [WI-023](items/WI-023-phase-3-safety-and-street-use.md) | Phase 3 — Safety and street use: ship 0.3.0 | epic |
-| [WI-024](items/WI-024-panic-wipe.md) | Panic wipe in under two seconds | feature |
-| [WI-025](items/WI-025-discreet-mode.md) | Discreet mode | feature |
-| [WI-026](items/WI-026-final-onboarding-copy.md) | Final onboarding and "What this app protects" copy, traced to the threat model | docs |
-| [WI-027](items/WI-027-storage-and-air-audits.md) | Audit storage and radio for leaks | chore |
 | [WI-028](items/WI-028-crowd-field-test.md) | Field-test in a crowd and tune lifetimes, rates and battery | spike |
 | [WI-029](items/WI-029-phase-4-release-1-0.md) | Phase 4 — Release 1.0 | epic |
 | [WI-030](items/WI-030-independent-security-review.md) | Independent security review and fixes | chore |
-| [WI-031](items/WI-031-accessibility-pass.md) | Accessibility pass | chore |
-| [WI-032](items/WI-032-reproducible-build.md) | Verify the build is reproducible and F-Droid ready | chore |
 | [WI-033](items/WI-033-release-1-0.md) | Final docs and cut 1.0.0 | chore |
-| [WI-034](items/WI-034-steering-report-warnings.md) | Warn on public steering reports and hide their public counts | feature |
-| [WI-035](items/WI-035-low-density-honesty.md) | Tell people when the mesh around them is too thin | feature |
-| [WI-036](items/WI-036-field-diagnostics.md) | Export a field diagnostics file with no positions or reports | feature |
-| [WI-037](items/WI-037-languages-en-fr-es.md) | Ship Echo in English, French and Spanish | feature |
-| [WI-038](items/WI-038-release-key-custody.md) | Publish who signs Echo and how to check it | docs |
 | [WI-039](items/WI-039-phase-5-release-1-1.md) | Phase 5 — Release 1.1: groups through the whole day | epic |
 | [WI-040](items/WI-040-accept-threat-model-1-1.md) | Review and accept the threat model's 1.1 section | docs |
 | [WI-041](items/WI-041-canned-group-phrases.md) | Send canned phrases inside a group | feature |

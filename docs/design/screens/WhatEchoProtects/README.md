@@ -21,6 +21,7 @@ Two lists, word for word from threat model §7 (meaning fixed there, wording her
 4. If your phone is taken while unlocked, whoever has it can read your groups and post as you until you wipe it or your group makes a new one.
 5. Someone with many receivers may guess roughly where a report was first sent.
 6. Downloading a map reveals the region to your network and the map host.
+7. A public report saying where to go, or that a place is safe, can be a trap. Echo marks it unconfirmed and hides its public confirmations.
 
 ## Rules
 

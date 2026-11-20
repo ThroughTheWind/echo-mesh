@@ -27,6 +27,14 @@ jazzer = "0.30.0"
 tink = "1.24.0"
 # Offline map renderer (ADR-0006): LGPL-3.0, no network module (vtm-http is forbidden).
 vtm = "0.25.0"
+# The QR join (WI-017, FR-8.2): an open-source scanner with no Play Services. ZXing core draws and
+# reads the code (Apache-2.0, pure Java); CameraX gives it frames (Apache-2.0, AndroidX).
+zxing = "3.5.4"
+camerax = "1.4.2"
+# Accessibility tests (WI-031): Compose semantics checked on the JVM. Test classpath only; MIT and
+# EPL-1.0. Robolectric runs JUnit 4 tests, which the JUnit platform runs through the vintage engine.
+robolectric = "4.18.1"
+junit4 = "4.13.2"
 spotless = "8.11.0"
 ktlint = "1.8.0"
 
@@ -38,6 +46,10 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camerax" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
+androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "camerax" }
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
@@ -47,6 +59,11 @@ compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+junit4 = { module = "junit:junit", version.ref = "junit4" }
+junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine" }
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }

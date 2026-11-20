@@ -93,6 +93,35 @@ sealed interface TransportEvent {
         val from: PeerHandle,
         val frame: ByteArray,
     ) : TransportEvent
+
+    /**
+     * A link to a nearby phone failed, for field diagnostics only (FR-17.1). It names the kind of
+     * failure, never the phone. A transport may never send it; the mesh does not act on it.
+     */
+    data class LinkFailed(
+        val kind: LinkFailure,
+    ) : TransportEvent
+}
+
+/** Kinds of link failure field diagnostics count (FR-17.1), the same for every radio. */
+enum class LinkFailure {
+    /** This phone could not start advertising and listening, for example with the radio turned off under it. */
+    SESSION_START,
+
+    /** Opening a link to a phone heard nearby failed. */
+    CONNECT,
+
+    /** A phone opened a link to this one and did not say which advertisement it answered in time. */
+    HELLO,
+
+    /** An open link broke. */
+    LINK_BROKEN,
+
+    /** The stack stopped this phone's scan for nearby phones; the transport starts it again. */
+    SCAN,
+
+    /** The stack refused this phone's advertisement; the transport tries again. */
+    ADVERTISE,
 }
 
 class FrameTooLargeException(

@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -41,10 +42,14 @@ sealed interface MeshChip {
     /** The first 30 s after turning on, before anyone is heard. */
     data object Searching : MeshChip
 
-    /** [nearby] phones in range; [lastReport] is the age of the last report received, if any. */
+    /**
+     * [nearby] phones in range; [lastReport] is the age of the last report received, if any.
+     * [lowDensity]: too few phones heard lately to trust an empty map (FR-16.1).
+     */
     data class On(
         val nearby: Int,
         val lastReport: Duration?,
+        val lowDensity: Boolean = false,
     ) : MeshChip
 
     /** Nobody heard for a minute. */
@@ -92,18 +97,39 @@ fun MeshStatusChip(
     val street = LocalStreetColors.current
     val (background, content) =
         when (state) {
-            is MeshChip.On, MeshChip.Searching -> scheme.surfaceContainerHigh to scheme.onSurface
-            is MeshChip.Alone -> street.blockedContainer to street.onBlockedContainer
-            MeshChip.Off, MeshChip.NoRadio -> scheme.surfaceContainerHighest to scheme.onSurface
-            is MeshChip.NeedsFix, MeshChip.Stopped -> scheme.errorContainer to scheme.onErrorContainer
+            is MeshChip.On -> {
+                if (state.lowDensity) {
+                    street.blockedContainer to street.onBlockedContainer
+                } else {
+                    scheme.surfaceContainerHigh to
+                        scheme.onSurface
+                }
+            }
+
+            MeshChip.Searching -> {
+                scheme.surfaceContainerHigh to scheme.onSurface
+            }
+
+            is MeshChip.Alone -> {
+                street.blockedContainer to street.onBlockedContainer
+            }
+
+            MeshChip.Off, MeshChip.NoRadio -> {
+                scheme.surfaceContainerHighest to scheme.onSurface
+            }
+
+            is MeshChip.NeedsFix, MeshChip.Stopped -> {
+                scheme.errorContainer to scheme.onErrorContainer
+            }
         }
     val icon =
         when (state) {
-            is MeshChip.On, MeshChip.Searching -> R.drawable.ic_radar
+            is MeshChip.On -> if (state.lowDensity) R.drawable.ic_warning else R.drawable.ic_radar
+            MeshChip.Searching -> R.drawable.ic_radar
             is MeshChip.Alone, is MeshChip.NeedsFix, MeshChip.Stopped -> R.drawable.ic_warning
             MeshChip.Off, MeshChip.NoRadio -> R.drawable.ic_sensors_off
         }
-    val iconTint = if (state is MeshChip.On) scheme.primary else content
+    val iconTint = if (state is MeshChip.On && !state.lowDensity) scheme.primary else content
     val (label, action) = chipText(state)
     val description = chipDescription(state, label, action)
     Box(
@@ -147,7 +173,8 @@ private fun chipText(state: MeshChip): Pair<String, String?> =
         }
 
         is MeshChip.On -> {
-            stringResource(R.string.ds_mesh_nearby, nearbyCount(state.nearby)) to state.lastReport?.let { ageLabel(it) }
+            val label = if (state.lowDensity) R.string.ds_mesh_few else R.string.ds_mesh_nearby
+            stringResource(label, nearbyCount(state.nearby)) to state.lastReport?.let { ageLabel(it) }
         }
 
         is MeshChip.Alone -> {
@@ -176,8 +203,10 @@ private fun chipDescription(
     when (state) {
         is MeshChip.On -> {
             val count = nearbyCount(state.nearby)
-            state.lastReport?.let { stringResource(R.string.ds_mesh_described_on, count, ageLabel(it)) }
-                ?: stringResource(R.string.ds_mesh_described_on_none, count)
+            val said =
+                state.lastReport?.let { pluralStringResource(R.plurals.ds_mesh_described_on, state.nearby, count, ageLabel(it)) }
+                    ?: pluralStringResource(R.plurals.ds_mesh_described_on_none, state.nearby, count)
+            if (state.lowDensity) "$said. ${stringResource(R.string.ds_mesh_described_few)}" else said
         }
 
         else -> {

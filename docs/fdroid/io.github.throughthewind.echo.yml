@@ -1,0 +1,35 @@
+# Draft F-Droid metadata (WI-032), for a merge request to fdroiddata after 1.0. Not used by any
+# build here. The descriptions come from fastlane/metadata/android/ in this repository.
+#
+# F-Droid builds the tag itself and, because Echo's build is reproducible (scripts/reproducible.sh),
+# publishes our signed APK when its contents match: `Binaries` and `AllowedAPKSigningKeys` below.
+Categories:
+  - Connectivity
+  - Navigation
+License: GPL-3.0-only
+SourceCode: https://github.com/ThroughTheWind/echo-mesh
+IssueTracker: https://github.com/ThroughTheWind/echo-mesh/issues
+Changelog: https://github.com/ThroughTheWind/echo-mesh/blob/main/CHANGELOG.md
+
+AutoName: Echo
+
+RepoType: git
+Repo: https://github.com/ThroughTheWind/echo-mesh.git
+Binaries: https://github.com/ThroughTheWind/echo-mesh/releases/download/v%v/echo-%v.apk
+
+Builds:
+  - versionName: 1.0.0
+    versionCode: 1000000
+    commit: v1.0.0
+    subdir: app
+    gradle:
+      - yes
+
+# The release certificate's SHA-256, lower case with no colons, from docs/signing-certificate.sha256
+# once the key exists (WI-015, WI-038).
+AllowedAPKSigningKeys: TODO-after-the-first-signed-release
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags ^v[0-9.]+$
+CurrentVersion: 1.0.0
+CurrentVersionCode: 1000000
