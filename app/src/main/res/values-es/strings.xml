@@ -361,6 +361,8 @@
     <!-- Low density (F16, WI-035) -->
     <string name="mesh_low_density">Pocos teléfonos oídos últimamente. Al mapa le pueden faltar avisos: un mapa vacío no significa vía libre.</string>
     <string name="map_alone">Ningún teléfono cerca. Los avisos no pueden llegarte, así que un mapa vacío no significa vía libre.</string>
+    <string name="map_pins_stacked">%1$d avisos aquí</string>
+    <string name="map_pin_open">Abrir: %1$s</string>
 
     <!-- Field diagnostics (F17, WI-036) -->
     <string name="diagnostics_title">Diagnóstico de campo</string>

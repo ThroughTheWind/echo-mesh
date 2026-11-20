@@ -62,6 +62,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
@@ -614,19 +615,63 @@ private fun Pins(
     onClick: (ShownReport) -> Unit,
 ) {
     val half = with(LocalDensity.current) { (Touch.min / 2).roundToPx() }
-    Box(Modifier.fillMaxSize()) {
+    val placed =
         reports
             .filter { now < it.report.expiresAt }
             .sortedByDescending { it.report.type.family.ordinal }
-            .forEach { shown ->
-                val at = camera.toScreen(shown.report.position) ?: return@forEach
-                ReportPin(
-                    look = shown.look(now),
-                    contentDescription = shown.describe(now),
-                    onClick = { onClick(shown) },
-                    modifier = Modifier.offset { IntOffset(at.x.toInt() - half, at.y.toInt() - half) },
-                )
-            }
+            .mapNotNull { shown -> camera.toScreen(shown.report.position)?.let { shown to it } }
+    // A pin drawn over most of another hides it from TalkBack as well as from the eye: the top pin
+    // of a stack speaks for the stack and offers every report under it as an action (NFR-11).
+    val coveredBy = HashMap<Int, Int>()
+    placed.indices.forEach { i ->
+        val (_, a) = placed[i]
+        val top = (placed.lastIndex downTo i + 1).firstOrNull { j -> (placed[j].second - a).getDistance() < half }
+        if (top != null) coveredBy[i] = top
+    }
+
+    fun topOf(i: Int): Int = coveredBy[i]?.let(::topOf) ?: i
+    val under = placed.indices.filter { it in coveredBy }.groupBy(::topOf)
+    val stackLabel = stringResource(R.string.map_pins_stacked)
+    val openLabel = stringResource(R.string.map_pin_open)
+    Box(Modifier.fillMaxSize()) {
+        placed.forEachIndexed { i, (shown, at) ->
+            val hidden = under[i].orEmpty().map { placed[it].first }
+            val said = hidden.map { it to it.describe(now) }
+            val description =
+                if (hidden.isEmpty()) {
+                    shown.describe(now)
+                } else {
+                    (listOf(stackLabel.format(hidden.size + 1), shown.describe(now)) + said.map { it.second }).joinToString(". ")
+                }
+            val semantics =
+                when {
+                    i in coveredBy -> {
+                        Modifier.clearAndSetSemantics {}
+                    }
+
+                    hidden.isEmpty() -> {
+                        Modifier
+                    }
+
+                    else -> {
+                        Modifier.semantics {
+                            customActions =
+                                said.map { (other, words) ->
+                                    CustomAccessibilityAction(openLabel.format(words)) {
+                                        onClick(other)
+                                        true
+                                    }
+                                }
+                        }
+                    }
+                }
+            ReportPin(
+                look = shown.look(now),
+                contentDescription = description,
+                onClick = { onClick(shown) },
+                modifier = Modifier.offset { IntOffset(at.x.toInt() - half, at.y.toInt() - half) }.then(semantics),
+            )
+        }
     }
 }
 

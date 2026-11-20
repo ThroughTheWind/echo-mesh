@@ -357,6 +357,8 @@
     <!-- Low density (F16, WI-035) -->
     <string name="mesh_low_density">Few phones heard lately. The map may be missing reports: an empty map doesn\'t mean all clear.</string>
     <string name="map_alone">No phones nearby. Reports can\'t reach you, so an empty map doesn\'t mean all clear.</string>
+    <string name="map_pins_stacked">%1$d reports here</string>
+    <string name="map_pin_open">Open %1$s</string>
 
     <!-- Field diagnostics (F17, WI-036) -->
     <string name="diagnostics_title">Field diagnostics</string>

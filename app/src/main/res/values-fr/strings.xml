@@ -361,6 +361,8 @@
     <!-- Low density (F16, WI-035) -->
     <string name="mesh_low_density">Peu de téléphones entendus récemment. Il peut manquer des signalements sur la carte : une carte vide ne veut pas dire voie libre.</string>
     <string name="map_alone">Aucun téléphone à proximité. Les signalements ne peuvent pas vous parvenir, donc une carte vide ne veut pas dire voie libre.</string>
+    <string name="map_pins_stacked">%1$d signalements ici</string>
+    <string name="map_pin_open">Ouvrir : %1$s</string>
 
     <!-- Field diagnostics (F17, WI-036) -->
     <string name="diagnostics_title">Diagnostics de terrain</string>
