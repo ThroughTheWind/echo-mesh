@@ -393,6 +393,7 @@ fun MapScreen(
             if (alone != null && alone.nearby == 0 && now - alone.since >= MeshNode.SEARCHING) {
                 Surface(
                     color = LocalStreetColors.current.blockedContainer,
+                    contentColor = LocalStreetColors.current.onBlockedContainer,
                     shape = MaterialTheme.shapes.medium,
                     modifier = Modifier.padding(horizontal = LocalSpacing.current.lg),
                 ) {

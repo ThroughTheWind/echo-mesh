@@ -190,7 +190,11 @@ fun MeshSheet(
                 }
                 if (state is MeshState.On && state.lowDensity(now)) {
                     // FR-16.1: an empty map in a thin crowd is not "all clear".
-                    Surface(color = LocalStreetColors.current.blockedContainer, shape = MaterialTheme.shapes.medium) {
+                    Surface(
+                        color = LocalStreetColors.current.blockedContainer,
+                        contentColor = LocalStreetColors.current.onBlockedContainer,
+                        shape = MaterialTheme.shapes.medium,
+                    ) {
                         IconLine(
                             DS.drawable.ic_warning,
                             LocalStreetColors.current.onBlockedContainer,
