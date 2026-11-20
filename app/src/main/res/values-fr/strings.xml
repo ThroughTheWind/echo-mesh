@@ -101,7 +101,10 @@
     <string name="map_centre_on_me">Me centrer</string>
     <string name="map_reports_near_you">Signalements autour de vous</string>
     <string name="map_crosshair">Le signalement sera placé au centre de la carte</string>
-    <string name="map_described">Carte. %1$d signalements.</string>
+    <plurals name="map_described">
+        <item quantity="one">Carte. %1$d signalement.</item>
+        <item quantity="other">Carte. %1$d signalements.</item>
+    </plurals>
 
     <!-- Location (patterns/PermissionsInContext) -->
     <string name="location_title">Vous afficher sur votre carte ?</string>

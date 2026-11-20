@@ -60,6 +60,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -320,7 +321,7 @@ fun MapScreen(
     }
 
     val listLabel = stringResource(R.string.map_reports_near_you)
-    val mapDescription = stringResource(R.string.map_described, reports.size)
+    val mapDescription = pluralStringResource(R.plurals.map_described, reports.size, reports.size)
     BoxWithConstraints(
         Modifier
             .fillMaxSize()

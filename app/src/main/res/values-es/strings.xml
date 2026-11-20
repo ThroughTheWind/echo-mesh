@@ -101,7 +101,10 @@
     <string name="map_centre_on_me">Centrar en mí</string>
     <string name="map_reports_near_you">Avisos cerca de ti</string>
     <string name="map_crosshair">El aviso se colocará en el centro del mapa</string>
-    <string name="map_described">Mapa. %1$d avisos.</string>
+    <plurals name="map_described">
+        <item quantity="one">Mapa. %1$d aviso.</item>
+        <item quantity="other">Mapa. %1$d avisos.</item>
+    </plurals>
 
     <!-- Location (patterns/PermissionsInContext) -->
     <string name="location_title">¿Mostrarte en tu mapa?</string>

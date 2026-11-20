@@ -98,7 +98,10 @@
     <string name="map_centre_on_me">Centre on me</string>
     <string name="map_reports_near_you">Reports near you</string>
     <string name="map_crosshair">Report will be placed at the map centre</string>
-    <string name="map_described">Map. %1$d reports.</string>
+    <plurals name="map_described">
+        <item quantity="one">Map. %1$d report.</item>
+        <item quantity="other">Map. %1$d reports.</item>
+    </plurals>
 
     <!-- Location (patterns/PermissionsInContext) -->
     <string name="location_title">Show you on your map?</string>
