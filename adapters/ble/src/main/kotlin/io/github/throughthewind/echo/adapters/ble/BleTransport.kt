@@ -10,6 +10,7 @@ import io.github.throughthewind.echo.core.mesh.TransportCapabilities
 import io.github.throughthewind.echo.core.mesh.TransportEvent
 import io.github.throughthewind.echo.core.mesh.TransportUnavailableException
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +20,6 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -47,11 +47,19 @@ data class BleConfig(
     val helloTimeout: Duration = 5.seconds,
     /** Wait before trying again when a session cannot start, for example with Bluetooth off. */
     val retryAfter: Duration = 5.seconds,
+    /**
+     * How long the higher token waits for the lower one to connect before connecting itself. The
+     * lower token connects first so two phones open one link, not two; but when it cannot hear the
+     * other phone (its scan stopped, or it hears late), waiting for it left two phones side by side
+     * apart for half an hour on the phone check of 2026-11-19.
+     */
+    val fallbackAfter: Duration = 15.seconds,
 ) {
     init {
         require(rotateEvery <= 10.minutes && rotateEvery.isPositive()) { "rotation must be at most 10 minutes" }
         require(rotateJitter in 0.0..1.0) { "jitter is a share of the period" }
         require(maxLinks > 0 && connectsPerMinute > 0) { "limits must be positive" }
+        require(fallbackAfter.isPositive()) { "the fallback must wait" }
     }
 }
 
@@ -62,8 +70,13 @@ data class BleConfig(
  *
  * Nothing stable on the air (threat model §5.1): the advertised token and PSM are random and change
  * together at every rotation, which also drops every link, so phones that met before reconnect as
- * strangers. Of two phones, the one with the lower token connects; the other waits. A [PeerHandle]
- * is random per link and never derived from an address.
+ * strangers. Of two phones, the one with the lower token connects; the other waits
+ * [BleConfig.fallbackAfter], then connects itself if no link came. A [PeerHandle] is random per
+ * link and never derived from an address.
+ *
+ * Nothing that fails on the radio waits for the next rotation: a scan that stops is started again,
+ * and a server that dies or an advertisement that is refused starts a new session, each after
+ * [BleConfig.retryAfter].
  */
 class BleTransport(
     private val radio: BleRadio,
@@ -88,6 +101,10 @@ class BleTransport(
         val token: Int,
         val listener: Listener,
         val jobs: MutableList<Job> = mutableListOf(),
+        /** Completed when the server dies under the session, so a new one starts at once. */
+        val broken: CompletableDeferred<Unit> = CompletableDeferred(),
+        /** Higher tokens heard, each waiting [BleConfig.fallbackAfter] for the other phone to connect. */
+        val waiting: MutableSet<Int> = mutableSetOf(),
     )
 
     private class Open(
@@ -171,7 +188,12 @@ class BleTransport(
             if (!started) channel.trySend(TransportEvent.LinkFailed(LinkFailure.SESSION_START))
             if (started) {
                 val share = 1.0 - config.rotateJitter * random.nextDouble()
-                delay(config.rotateEvery * share)
+                val current = lock.withLock { session }
+                val broke = withTimeoutOrNull(config.rotateEvery * share) { current?.broken?.await() } != null
+                if (broke) {
+                    channel.trySend(TransportEvent.LinkFailed(LinkFailure.SESSION_START))
+                    delay(config.retryAfter)
+                }
             } else {
                 delay(config.retryAfter)
             }
@@ -185,8 +207,34 @@ class BleTransport(
         val current = Session(token, listener)
         lock.withLock { session = current }
         current.jobs += scope.launch { acceptLoop(current) }
-        current.jobs += scope.launch { radio.sightings().catch { }.collect { seen(current, it) } }
-        radio.advertise(Advertisement(token, listener.psm).encode())
+        current.jobs += scope.launch { scanLoop(current) }
+        try {
+            radio.advertise(Advertisement(token, listener.psm).encode())
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // Refused by the stack: nobody can find this session, so it is not kept.
+            lock.withLock { if (session === current) session = null }
+            current.jobs.forEach { it.cancel() }
+            listener.close()
+            throw e
+        }
+    }
+
+    /** Scans for the session's whole life: a scan the stack stops is started again. */
+    private suspend fun scanLoop(current: Session) {
+        while (true) {
+            try {
+                radio.sightings().collect { seen(current, it) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: IOException) {
+                channel.trySend(TransportEvent.LinkFailed(LinkFailure.SCAN))
+            } catch (_: SecurityException) {
+                channel.trySend(TransportEvent.LinkFailed(LinkFailure.SCAN))
+            }
+            delay(config.retryAfter)
+        }
     }
 
     /** Takes the advertisement off the air, closes the server and drops every link. */
@@ -208,6 +256,9 @@ class BleTransport(
                 } catch (e: CancellationException) {
                     throw e
                 } catch (_: IOException) {
+                    // The server died under a live session: nobody can connect to what it
+                    // advertises, so the session ends now rather than at the next rotation.
+                    current.broken.complete(Unit)
                     return
                 }
             scope?.launch { greet(current, link) }
@@ -252,8 +303,33 @@ class BleTransport(
     ) {
         val ad = Advertisement.decode(sighting.payload) ?: return
         if (ad.token == current.token) return
-        // The lower token connects, so two phones open one link between them, not two.
-        if (Integer.compareUnsigned(current.token, ad.token) > 0) return
+        // The lower token connects, so two phones open one link between them, not two. The higher
+        // one waits for it, then connects itself if it never came.
+        if (Integer.compareUnsigned(current.token, ad.token) > 0) {
+            val first = lock.withLock { current.waiting.add(ad.token) }
+            if (!first) return
+            val scope = scope ?: return
+            current.jobs +=
+                scope.launch {
+                    try {
+                        delay(config.fallbackAfter)
+                        val linked = lock.withLock { links.values.any { it.remoteToken == ad.token } }
+                        if (!linked) connect(current, ad, sighting)
+                    } finally {
+                        // Heard again later (a link that broke mid-session), it waits again.
+                        lock.withLock { current.waiting.remove(ad.token) }
+                    }
+                }
+            return
+        }
+        connect(current, ad, sighting)
+    }
+
+    private suspend fun connect(
+        current: Session,
+        ad: Advertisement,
+        sighting: Sighting,
+    ) {
         val go =
             lock.withLock {
                 val already = links.values.any { it.remoteToken == ad.token } || ad.token in connecting

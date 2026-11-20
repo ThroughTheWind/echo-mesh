@@ -58,6 +58,63 @@ class BleTransportTest {
         }
 
     @Test
+    fun `a phone that hears nothing still gets a link, from the other phone, without waiting for a rotation`() =
+        runTest {
+            // Both orders, so the deaf phone is the lower token once and the higher once.
+            for (deafFirst in listOf(true, false)) {
+                val air = FakeAir()
+                val slow = BleConfig(rotateEvery = 10.minutes, rotateJitter = 0.0)
+                val one = air.radio().also { it.deaf = deafFirst }
+                val two = air.radio().also { it.deaf = !deafFirst }
+                val a = BleTransport(one, Random(1), slow, coroutineContext.minusKey(Job))
+                val b = BleTransport(two, Random(2), slow, coroutineContext.minusKey(Job))
+                a.start()
+                b.start()
+                withTimeout(slow.fallbackAfter + 5.seconds) {
+                    a.events.filterIsInstance<TransportEvent.PeerSeen>().first()
+                    b.events.filterIsInstance<TransportEvent.PeerSeen>().first()
+                }
+                a.stop()
+                b.stop()
+            }
+        }
+
+    @Test
+    fun `a scan the stack stops is started again`() =
+        runTest {
+            val air = FakeAir()
+            // The fallback is out of the way, so only a restarted scan can make the link.
+            val patient = BleConfig(rotateEvery = 10.minutes, rotateJitter = 0.0, fallbackAfter = 9.minutes)
+            val one = air.radio().also { it.scanFailures = 1 }
+            val two = air.radio().also { it.scanFailures = 1 }
+            val a = BleTransport(one, Random(1), patient, coroutineContext.minusKey(Job))
+            val b = BleTransport(two, Random(2), patient, coroutineContext.minusKey(Job))
+            a.start()
+            b.start()
+            assertEquals(TransportEvent.LinkFailed(LinkFailure.SCAN), withTimeout(10_000) { a.events.first() })
+            withTimeout(patient.retryAfter + 5.seconds) { a.events.filterIsInstance<TransportEvent.PeerSeen>().first() }
+            a.stop()
+            b.stop()
+        }
+
+    @Test
+    fun `a server that dies under a session starts a new one, not at the next rotation`() =
+        runTest {
+            val air = FakeAir()
+            val slow = BleConfig(rotateEvery = 10.minutes, rotateJitter = 0.0)
+            val a = BleTransport(air.radio(), Random(1), slow, coroutineContext.minusKey(Job))
+            a.start()
+            testScheduler.runCurrent()
+            val before = air.advertised.size
+            air.dropListeners()
+            assertEquals(TransportEvent.LinkFailed(LinkFailure.SESSION_START), withTimeout(10_000) { a.events.first() })
+            testScheduler.advanceTimeBy((slow.retryAfter + 1.seconds).inWholeMilliseconds)
+            testScheduler.runCurrent()
+            assertTrue(air.advertised.size > before, "a new session is on the air within seconds")
+            a.stop()
+        }
+
+    @Test
     fun `stopping takes the advertisement off the air`() =
         runTest {
             val air = FakeAir()

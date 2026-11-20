@@ -116,6 +116,9 @@ enum class LinkFailure {
 
     /** An open link broke. */
     LINK_BROKEN,
+
+    /** The stack stopped this phone's scan for nearby phones; the transport starts it again. */
+    SCAN,
 }
 
 class FrameTooLargeException(

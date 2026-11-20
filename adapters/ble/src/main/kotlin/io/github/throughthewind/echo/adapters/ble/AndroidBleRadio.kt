@@ -19,12 +19,15 @@ import android.content.pm.PackageManager
 import android.os.ParcelUuid
 import androidx.core.content.ContextCompat
 import io.github.throughthewind.echo.core.mesh.Unavailable
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.IOException
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * [BleRadio] on Android's Bluetooth stack (minSdk 31, so no location permission: `BLUETOOTH_SCAN`
@@ -77,9 +80,26 @@ class AndroidBleRadio(
                 .setIncludeTxPowerLevel(false)
                 .addServiceData(SERVICE, payload)
                 .build()
-        val callback = object : AdvertiseCallback() {}
+        // The stack answers on a callback; a refusal (too many advertisers, a stack in a bad state)
+        // is an error here, so the transport starts a new session instead of advertising nothing.
+        val answer = CompletableDeferred<Int?>()
+        val callback =
+            object : AdvertiseCallback() {
+                override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
+                    answer.complete(null)
+                }
+
+                override fun onStartFailure(errorCode: Int) {
+                    answer.complete(errorCode)
+                }
+            }
         advertising = callback
         advertiser.startAdvertising(settings, data, response, callback)
+        val refused = withTimeoutOrNull(ADVERTISE_ANSWER) { answer.await() }
+        if (refused != null) {
+            advertising = null
+            throw IOException("advertising refused: $refused")
+        }
     }
 
     override suspend fun stopAdvertising() {
@@ -172,6 +192,9 @@ class AndroidBleRadio(
 
     companion object {
         private val SERVICE = ParcelUuid(Advertisement.SERVICE_UUID)
+
+        /** How long to wait for the stack to accept an advertisement; silence counts as accepted. */
+        private val ADVERTISE_ANSWER = 2.seconds
 
         /** The "Nearby devices" group (spec NFR-10). Location is never asked for. */
         val PERMISSIONS =
