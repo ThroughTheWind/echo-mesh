@@ -115,7 +115,8 @@ class MeshService : Service() {
             app.scope.launch {
                 var last: GeoPoint? = null
                 launch {
-                    OwnPosition.updates(this@MeshService).collect { fix ->
+                    // Every fix, standing still too: the group's marker must not go stale while locked.
+                    OwnPosition.updates(this@MeshService, minDistanceMeters = 0f).collect { fix ->
                         val point = GeoPoint(fix.latitude, fix.longitude)
                         last = point
                         app.mesh.updatePosition(point)
