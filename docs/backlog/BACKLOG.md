@@ -6,7 +6,7 @@
 The board. One row per live work item, grouped by status. Items live in
 [`items/`](items/); finished work moves to [`archive/`](archive/).
 
-<!-- NEXT-ID: WI-077 -->
+<!-- NEXT-ID: WI-078 -->
 <!-- Claim from this marker and bump it on your own branch. `node .ai/rungs.mjs check` refuses a duplicate. -->
 
 ## In progress
@@ -35,6 +35,7 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-074](items/WI-074-settings-screen.md) | Build the settings screen as designed | feature | `claude/project-thread-67cn4e` |
 | [WI-075](items/WI-075-share-position-off-screen.md) | Keep sharing your position while Echo is off screen | feature | `claude/project-thread-67cn4e` |
 | [WI-076](items/WI-076-ble-link-recovery.md) | Keep two phones in range linked over Bluetooth | bug | `claude/project-thread-67cn4e` |
+| [WI-077](items/WI-077-survive-locked-keystore.md) | Keep Echo running while the phone is locked and its storage key refuses | bug | `claude/project-thread-67cn4e` |
 
 ## Review
 

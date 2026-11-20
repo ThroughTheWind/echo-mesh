@@ -1,6 +1,8 @@
 package io.github.throughthewind.echo.core.data
 
 import io.github.throughthewind.echo.core.crypto.Sealers
+import io.github.throughthewind.echo.core.crypto.SealingKey
+import io.github.throughthewind.echo.core.crypto.SealingUnavailableException
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.Test
@@ -92,5 +94,70 @@ class SealedFilesTest {
         assertEquals(emptySet(), files.names())
         assertFailsWith<IllegalArgumentException> { files.write("../escape", byteArrayOf(1)) }
         assertFailsWith<IllegalArgumentException> { files.read("Settings") }
+    }
+
+    /** A key that refuses every use while [locked], as an Android Keystore key does on a locked phone. */
+    private class LockableKey(
+        private val key: SealingKey = Sealers.ephemeral(),
+    ) : SealingKey by key {
+        var locked = false
+
+        override fun seal(
+            plaintext: ByteArray,
+            context: ByteArray,
+        ): ByteArray =
+            if (locked) throw SealingUnavailableException(IllegalStateException("Device locked")) else key.seal(plaintext, context)
+
+        override fun open(
+            sealed: ByteArray,
+            context: ByteArray,
+        ): ByteArray? = if (locked) throw SealingUnavailableException(IllegalStateException("Device locked")) else key.open(sealed, context)
+    }
+
+    @Test
+    fun `a setting changed while the phone is locked applies at once and is written after unlock`() {
+        val key = LockableKey()
+        val store = SettingsStore(SealedFiles(dir, key))
+        store.update { it.copy(onboardingDone = true) }
+        key.locked = true
+        // The discreet tile works on the lock screen: no crash, and the change shows at once.
+        assertTrue(store.update { it.copy(discreet = true) }.discreet)
+        assertTrue(store.settings.value.discreet)
+        assertFalse(SettingsStore(SealedFiles(dir, key.also { it.locked = false })).settings.value.discreet)
+
+        key.locked = true
+        store.flush()
+        key.locked = false
+        store.flush()
+        assertEquals(Settings(onboardingDone = true, discreet = true), SettingsStore(SealedFiles(dir, key)).settings.value)
+    }
+
+    @Test
+    fun `settings first opened while locked are never written over with defaults`() {
+        val key = LockableKey()
+        SettingsStore(SealedFiles(dir, key)).update { it.copy(onboardingDone = true, haptics = "Strong") }
+        key.locked = true
+        val store = SettingsStore(SealedFiles(dir, key))
+        store.update { it.copy(discreet = true) }
+        assertTrue(store.settings.value.discreet)
+
+        key.locked = false
+        store.flush()
+        // The change made while locked is replayed on the real settings, which were kept.
+        val expected = Settings(onboardingDone = true, haptics = "Strong", discreet = true)
+        assertEquals(expected, store.settings.value)
+        assertEquals(expected, SettingsStore(SealedFiles(dir, key)).settings.value)
+    }
+
+    @Test
+    fun `a locked phone reads as unavailable, not as a missing file`() {
+        val key = LockableKey()
+        val files = SealedFiles(dir, key)
+        files.write("group-1", byteArrayOf(1))
+        key.locked = true
+        assertFailsWith<SealingUnavailableException> { files.read("group-1") }
+        assertFailsWith<SealingUnavailableException> { files.write("group-1", byteArrayOf(2)) }
+        key.locked = false
+        assertContentEquals(byteArrayOf(1), files.read("group-1"))
     }
 }

@@ -2,8 +2,12 @@ package io.github.throughthewind.echo
 
 import android.app.Activity
 import android.app.Application
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.BatteryManager
+import androidx.core.content.ContextCompat
 import io.github.throughthewind.echo.core.crypto.Randomness
 import io.github.throughthewind.echo.core.crypto.keystore.KeystoreSealingKey
 import io.github.throughthewind.echo.core.data.SealedFiles
@@ -26,6 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -56,7 +61,13 @@ class App : Application() {
         object : SealedRecords {
             override fun names() = sealed.names()
 
-            override fun read(name: String) = sealed.read(name)
+            // Unreadable while the phone is locked (WI-077): left alone, as a record that cannot be opened.
+            override fun read(name: String) =
+                try {
+                    sealed.read(name)
+                } catch (_: IOException) {
+                    null
+                }
 
             override fun write(
                 name: String,
@@ -81,6 +92,20 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        // What could not be written while the phone was locked is written once it is unlocked (WI-077).
+        ContextCompat.registerReceiver(
+            this,
+            object : BroadcastReceiver() {
+                override fun onReceive(
+                    context: Context,
+                    intent: Intent,
+                ) {
+                    scope.launch(Dispatchers.IO) { settings.flush() }
+                }
+            },
+            IntentFilter(Intent.ACTION_USER_PRESENT),
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
         // Diagnostics left on count again from this launch. The mesh still meant on at launch
         // means the process was killed with it running (FR-3.3a, FR-17.1).
         scope.launch(Dispatchers.IO) {
