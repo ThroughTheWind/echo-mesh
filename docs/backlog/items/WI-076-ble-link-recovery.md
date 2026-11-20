@@ -60,4 +60,6 @@ On the phone check of 2026-11-19 two phones side by side, Bluetooth on and Echo 
   - Echo closes every link it does not keep: a connect that finishes after its caller gave up, and a link whose first write fails, were left open and could each hold a radio link.
 - Not fixed here: links Android's own services keep open after Echo closes its channel. Echo cannot close those; the backoff and the connect-out path keep it on the mesh while they last.
 
+- 2026-11-20, hour-long watch on the phones with this build (screens kept awake): linked in 128 of 132 samples on one phone and 127 on the other; five gaps of under 50 s each, at token rotations; no long drop. The phone holding stale system links still had 62 advertising refusals in the hour (one every 5 s before), and neither phone hit Android's scan limit.
+
 ## Review

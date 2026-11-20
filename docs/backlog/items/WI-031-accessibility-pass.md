@@ -54,4 +54,7 @@ Phase 4 of the [roadmap](../../ROADMAP.md).
 - The app's unit tests print a failure's message in full, so CI names the control instead of only the line that asserted.
 - Screens that need the whole app (map, settings, groups) are left to the TalkBack walkthrough on phones, queued with the other phone checks.
 
+- 2026-11-20, label check on a Pixel 9a by reading Android's accessibility tree (the hands-on TalkBack walkthrough was dropped: it needs someone who uses TalkBack daily). Every control on the map, the report flow, a report's detail with votes, Reports near you and Settings is named, except three, fixed: the map's Report button reached the tree with no label at all, so it now carries its label itself; each report type tile was named twice, by its description and its text, so the text is left out (the picker test now fails if it comes back); each row in Reports near you gave TalkBack a second stop on its pin, which is now left out. Long distances read in km.
+- 2026-11-20: a refused location permission ended at a dead end ("Location is off for Echo") when Android refused without its dialog; the refusal now offers Echo's page in Settings, on the map and in the share sheet.
+
 ## Review

@@ -61,4 +61,6 @@ Needed before the field test (WI-028).
 - Manifest: `FOREGROUND_SERVICE_LOCATION`, the service type `connectedDevice|location`. `app/build.gradle.kts` adds `ACCESS_BACKGROUND_LOCATION` to the forbidden set, so NFR-10 is now a gate rather than a sentence.
 - The notification says "Updating for your group · stops in …" in all three languages. NFR-10 in the spec records the decision; patterns/PositionSharing and components/SystemNotification say the same.
 
+- 2026-11-20, phone check (AC-15): the marker showed and Stop in the notification ended the share in 3 s, but the marker vanished as soon as the sharing phone locked. The service's location request was in place the whole time and received no fix in 12.5 minutes: the phone stood still, and the 5 m distance filter held every update back. `OwnPosition.updates` now starts with the last known fix when it is under 2 minutes old and asks for one current fix, and the service asks for updates with no distance filter. Retested: locked for 9 minutes, the other phone's marker stayed fresh, updated about every 30 s (14 fixes in the first 6.5 minutes, none before the fix).
+
 ## Review
