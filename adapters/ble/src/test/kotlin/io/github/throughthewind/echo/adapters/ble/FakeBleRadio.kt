@@ -44,9 +44,19 @@ class FakeBleRadio internal constructor(
     /** The next this many scans are stopped by the stack at once. */
     var scanFailures = 0
 
+    /** The next this many advertisements are refused, as with the radio's link slots full. */
+    var advertiseFailures = 0
+
+    /** Scans started, to check the transport does not hammer the stack. */
+    var scansStarted = 0
+
     override fun unavailable(): Unavailable? = problem
 
     override suspend fun advertise(payload: ByteArray) {
+        if (advertiseFailures > 0) {
+            advertiseFailures--
+            throw IOException("advertising refused: 9")
+        }
         air.advertised += payload.copyOf()
         air.ads.value = air.ads.value + (this to payload.copyOf())
     }
@@ -57,6 +67,7 @@ class FakeBleRadio internal constructor(
 
     override fun sightings(): Flow<Sighting> =
         flow {
+            scansStarted++
             if (scanFailures > 0) {
                 scanFailures--
                 throw IOException("scan failed: 2")

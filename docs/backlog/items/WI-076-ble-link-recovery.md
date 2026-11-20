@@ -54,4 +54,10 @@ On the phone check of 2026-11-19 two phones side by side, Bluetooth on and Echo 
 - As planned. The fallback re-arms when the same phone is heard again after it fired, so a link that breaks mid-session is remade by either phone.
 - The tests were checked against the transport with each fix removed: each fails then.
 
+- 2026-11-20, second phone check, on this build: the phones lost each other again after about 30 minutes. The OnePlus was holding three old Bluetooth LE links that Android's own services kept up after Echo closed its channels, so its radio refused every advertisement ("connection limit exceeded"). The retry then started a new session every 5 s, and Android blocked its scans for starting more than five in 30 s, so it went deaf too. Changed:
+  - Retries double from `retryAfter` to `maxBackoff` (2 min) instead of a fixed 5 s; a scan that ran 30 s resets its count.
+  - A refused advertisement no longer ends the session: the session keeps scanning and connecting out (the fallback connects from either side), and retries advertising with the same backoff. `LinkFailure.ADVERTISE` counts it.
+  - Echo closes every link it does not keep: a connect that finishes after its caller gave up, and a link whose first write fails, were left open and could each hold a radio link.
+- Not fixed here: links Android's own services keep open after Echo closes its channel. Echo cannot close those; the backoff and the connect-out path keep it on the mesh while they last.
+
 ## Review

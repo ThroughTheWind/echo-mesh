@@ -54,12 +54,20 @@ data class BleConfig(
      * apart for half an hour on the phone check of 2026-11-19.
      */
     val fallbackAfter: Duration = 15.seconds,
+    /**
+     * The longest wait between retries. Each retry after a failure waits twice the last, from
+     * [retryAfter] up to this: Android blocks an app that starts more than five scans in 30 s, and
+     * a fixed 5 s retry against a radio that keeps refusing tripped that on the phone check of
+     * 2026-11-20, leaving the phone deaf as well as silent.
+     */
+    val maxBackoff: Duration = 2.minutes,
 ) {
     init {
         require(rotateEvery <= 10.minutes && rotateEvery.isPositive()) { "rotation must be at most 10 minutes" }
         require(rotateJitter in 0.0..1.0) { "jitter is a share of the period" }
         require(maxLinks > 0 && connectsPerMinute > 0) { "limits must be positive" }
         require(fallbackAfter.isPositive()) { "the fallback must wait" }
+        require(maxBackoff >= retryAfter) { "the longest wait is at least the first" }
     }
 }
 
@@ -74,9 +82,10 @@ data class BleConfig(
  * [BleConfig.fallbackAfter], then connects itself if no link came. A [PeerHandle] is random per
  * link and never derived from an address.
  *
- * Nothing that fails on the radio waits for the next rotation: a scan that stops is started again,
- * and a server that dies or an advertisement that is refused starts a new session, each after
- * [BleConfig.retryAfter].
+ * Nothing that fails on the radio waits for the next rotation, and nothing retries in a tight loop:
+ * a scan that stops is started again, an advertisement that is refused is tried again while the
+ * session keeps scanning and connecting out, and a server that dies starts a new session, each
+ * after a wait that doubles from [BleConfig.retryAfter] to [BleConfig.maxBackoff].
  */
 class BleTransport(
     private val radio: BleRadio,
@@ -173,6 +182,7 @@ class BleTransport(
      */
     private suspend fun rotateLoop() {
         val scope = scope ?: return
+        var failures = 0
         while (scope.isActive) {
             val started =
                 try {
@@ -192,10 +202,13 @@ class BleTransport(
                 val broke = withTimeoutOrNull(config.rotateEvery * share) { current?.broken?.await() } != null
                 if (broke) {
                     channel.trySend(TransportEvent.LinkFailed(LinkFailure.SESSION_START))
-                    delay(config.retryAfter)
+                    endSession()
+                    delay(backoff(failures++))
+                    continue
                 }
+                failures = 0
             } else {
-                delay(config.retryAfter)
+                delay(backoff(failures++))
             }
             endSession()
         }
@@ -208,22 +221,35 @@ class BleTransport(
         lock.withLock { session = current }
         current.jobs += scope.launch { acceptLoop(current) }
         current.jobs += scope.launch { scanLoop(current) }
-        try {
-            radio.advertise(Advertisement(token, listener.psm).encode())
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            // Refused by the stack: nobody can find this session, so it is not kept.
-            lock.withLock { if (session === current) session = null }
-            current.jobs.forEach { it.cancel() }
-            listener.close()
-            throw e
+        current.jobs += scope.launch { advertiseLoop(Advertisement(token, listener.psm).encode()) }
+    }
+
+    /**
+     * Puts the session on the air, trying again while the stack refuses (its link slots full, for
+     * one). Meanwhile the session still scans and connects out, so it stays on the mesh.
+     */
+    private suspend fun advertiseLoop(payload: ByteArray) {
+        var failures = 0
+        while (true) {
+            try {
+                radio.advertise(payload)
+                return
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: IOException) {
+                channel.trySend(TransportEvent.LinkFailed(LinkFailure.ADVERTISE))
+            } catch (_: SecurityException) {
+                channel.trySend(TransportEvent.LinkFailed(LinkFailure.ADVERTISE))
+            }
+            delay(backoff(failures++))
         }
     }
 
     /** Scans for the session's whole life: a scan the stack stops is started again. */
     private suspend fun scanLoop(current: Session) {
+        var failures = 0
         while (true) {
+            val began = clockMillis()
             try {
                 radio.sightings().collect { seen(current, it) }
             } catch (e: CancellationException) {
@@ -233,8 +259,17 @@ class BleTransport(
             } catch (_: SecurityException) {
                 channel.trySend(TransportEvent.LinkFailed(LinkFailure.SCAN))
             }
-            delay(config.retryAfter)
+            // A scan that ran a while was healthy: the next failure starts the waits over.
+            if (clockMillis() - began > SCAN_WINDOW_MILLIS) failures = 0
+            delay(backoff(failures++))
         }
+    }
+
+    /** The wait before retry number [failures] (from 0): doubling from retryAfter, capped. */
+    private fun backoff(failures: Int): Duration {
+        var wait = config.retryAfter
+        repeat(minOf(failures, MAX_DOUBLINGS)) { wait *= 2 }
+        return minOf(wait, config.maxBackoff)
     }
 
     /** Takes the advertisement off the air, closes the server and drops every link. */
@@ -341,10 +376,11 @@ class BleTransport(
                 }
             }
         if (!go) return
+        var link: Link? = null
         try {
-            val link = radio.connect(sighting, ad.psm)
+            link = radio.connect(sighting, ad.psm)
             link.write(Advertisement.tokenBytes(current.token))
-            if (!admit(current, ad.token, link)) link.close()
+            if (admit(current, ad.token, link)) link = null
         } catch (e: CancellationException) {
             throw e
         } catch (_: IOException) {
@@ -353,6 +389,8 @@ class BleTransport(
         } catch (_: SecurityException) {
             // A permission withdrawn while on: the next session start finds it.
         } finally {
+            // A link that is not kept is closed, whatever failed: an open one holds a radio slot.
+            link?.close()
             lock.withLock { connecting -= ad.token }
         }
     }
@@ -435,5 +473,9 @@ class BleTransport(
         private const val HELLO = 4
         private const val HANDLE_BYTES = 8
         private const val MINUTE_MILLIS = 60_000L
+
+        /** Android's window for counting scan starts (five per 30 s). */
+        private const val SCAN_WINDOW_MILLIS = 30_000L
+        private const val MAX_DOUBLINGS = 16
     }
 }

@@ -119,6 +119,9 @@ enum class LinkFailure {
 
     /** The stack stopped this phone's scan for nearby phones; the transport starts it again. */
     SCAN,
+
+    /** The stack refused this phone's advertisement; the transport tries again. */
+    ADVERTISE,
 }
 
 class FrameTooLargeException(
