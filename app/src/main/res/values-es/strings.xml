@@ -111,6 +111,7 @@
     <string name="location_body">Solo para dibujarte en tu propio mapa. Tu posición nunca se guarda, y nunca se envía salvo que la compartas con un grupo.</string>
     <string name="location_keep_off">No mostrarme</string>
     <string name="location_refused">La ubicación está desactivada para Echo. Todo lo demás funciona.</string>
+    <string name="location_open_settings">Abrir Ajustes</string>
 
     <!-- Report types (spec FR-4.1) -->
     <string name="type_police_line">Cordón policial</string>

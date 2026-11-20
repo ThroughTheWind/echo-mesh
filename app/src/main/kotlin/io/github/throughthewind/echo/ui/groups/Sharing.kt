@@ -2,7 +2,10 @@ package io.github.throughthewind.echo.ui.groups
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
@@ -169,6 +172,19 @@ fun ShareSheet(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.error,
                 )
+                // Android may refuse without its dialog, so Start alone could loop: offer the setting.
+                TextButton(
+                    onClick = {
+                        runCatching {
+                            context.startActivity(
+                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
+                            )
+                        }
+                    },
+                    modifier = Modifier.heightIn(min = Touch.min),
+                ) {
+                    Text(stringResource(R.string.location_open_settings), style = MaterialTheme.typography.labelLarge)
+                }
             }
             PrimaryButton(stringResource(R.string.share_start), {
                 if (hasLocation(context)) {

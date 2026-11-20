@@ -108,6 +108,7 @@
     <string name="location_body">Only to draw you on your own map. Your position is never stored, and never sent unless you share it with a group.</string>
     <string name="location_keep_off">Keep me off the map</string>
     <string name="location_refused">Location is off for Echo. Everything else works.</string>
+    <string name="location_open_settings">Open Settings</string>
 
     <!-- Report types (spec FR-4.1) -->
     <string name="type_police_line">Police line</string>

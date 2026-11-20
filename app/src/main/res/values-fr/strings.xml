@@ -111,6 +111,7 @@
     <string name="location_body">Seulement pour vous dessiner sur votre propre carte. Votre position n\'est jamais stockée, et jamais envoyée sauf si vous la partagez avec un groupe.</string>
     <string name="location_keep_off">Ne pas m\'afficher</string>
     <string name="location_refused">La localisation est désactivée pour Echo. Tout le reste fonctionne.</string>
+    <string name="location_open_settings">Ouvrir les Paramètres</string>
 
     <!-- Report types (spec FR-4.1) -->
     <string name="type_police_line">Cordon de police</string>

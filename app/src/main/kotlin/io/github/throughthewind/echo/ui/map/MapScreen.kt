@@ -36,8 +36,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -70,6 +72,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.throughthewind.echo.App
 import io.github.throughthewind.echo.R
@@ -159,6 +163,8 @@ fun MapScreen(
     var locationGranted by remember { mutableStateOf(hasLocation(context)) }
     var locationAsked by rememberSaveable { mutableStateOf(false) }
     var showLocationSheet by rememberSaveable { mutableStateOf(false) }
+    // Granted in Android's Settings while Echo was in the background: pick it up on return.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { locationGranted = hasLocation(context) }
     val ownFix by remember(locationGranted) {
         if (locationGranted) OwnPosition.updates(context) else emptyFlow()
     }.collectAsStateWithLifecycle(null)
@@ -185,6 +191,7 @@ fun MapScreen(
     val meshOffMessage = stringResource(R.string.mesh_off_snackbar)
     val withdrawnMessage = stringResource(R.string.detail_withdrawn)
     val locationRefused = stringResource(R.string.location_refused)
+    val locationSettings = stringResource(R.string.location_open_settings)
     val haptics = LocalHapticFeedback.current
     val hapticsLevel = LocalHaptics.current
 
@@ -241,10 +248,19 @@ fun MapScreen(
         }
     }
 
+    // Android may refuse without showing its dialog (a past refusal, or the phone's own policy), so a
+    // refusal always offers Echo's page in Settings: never a dead end.
+    fun showLocationRefused() {
+        scope.launch {
+            val result = snackbar.showSnackbar(locationRefused, actionLabel = locationSettings, duration = SnackbarDuration.Long)
+            if (result == SnackbarResult.ActionPerformed) openAppSettings(context)
+        }
+    }
+
     val locationLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
             locationGranted = result.values.any { it }
-            if (!locationGranted) scope.launch { snackbar.showSnackbar(locationRefused) }
+            if (!locationGranted) showLocationRefused()
         }
 
     fun centreOnMe() {
@@ -252,7 +268,7 @@ fun MapScreen(
         when {
             fix != null -> camera.centreOn(fix.point())
             locationGranted -> Unit
-            locationAsked -> scope.launch { snackbar.showSnackbar(locationRefused) }
+            locationAsked -> showLocationRefused()
             else -> showLocationSheet = true
         }
     }
