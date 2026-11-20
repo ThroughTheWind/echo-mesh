@@ -162,6 +162,7 @@
     <string name="direction_west">west</string>
     <string name="direction_north_west">north-west</string>
     <string name="distance_direction">About %1$d m %2$s</string>
+    <string name="distance_direction_km">About %1$s km %2$s</string>
     <string name="reported_ago">reported %1$d min ago</string>
     <string name="reported_now">reported just now</string>
     <string name="row_source_nearby">nearby</string>

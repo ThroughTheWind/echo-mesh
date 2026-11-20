@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.heading
@@ -219,6 +220,8 @@ private fun Tile(
                 sentAgo ?: name,
                 style = MaterialTheme.typography.labelMedium,
                 textAlign = TextAlign.Center,
+                // Read once, in the tile's description, not again as text.
+                modifier = Modifier.clearAndSetSemantics {},
             )
         }
     }

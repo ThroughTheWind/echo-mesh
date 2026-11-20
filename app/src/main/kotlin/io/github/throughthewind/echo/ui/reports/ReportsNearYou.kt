@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.throughthewind.echo.App
@@ -189,7 +190,15 @@ private fun ReportRow(
         }
     val where = from?.let { distanceFrom(it, shown.report.position) }
     ListItem(
-        leadingContent = { ReportPin(shown.look(now), contentDescription = shown.describe(now), onClick = onClick) },
+        // One focus stop per report: the row says it all, so the pin inside is not a second stop.
+        leadingContent = {
+            ReportPin(
+                shown.look(now),
+                contentDescription = shown.describe(now),
+                onClick = onClick,
+                modifier = Modifier.clearAndSetSemantics {},
+            )
+        },
         headlineContent = { Text(stringResource(shown.report.type.label), style = MaterialTheme.typography.titleMedium) },
         supportingContent = {
             Column {

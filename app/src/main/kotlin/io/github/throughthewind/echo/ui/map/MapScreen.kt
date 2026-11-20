@@ -191,6 +191,7 @@ fun MapScreen(
     val meshOffMessage = stringResource(R.string.mesh_off_snackbar)
     val withdrawnMessage = stringResource(R.string.detail_withdrawn)
     val locationRefused = stringResource(R.string.location_refused)
+    val reportLabel = stringResource(R.string.map_report)
     val locationSettings = stringResource(R.string.location_open_settings)
     val haptics = LocalHapticFeedback.current
     val hapticsLevel = LocalHaptics.current
@@ -462,12 +463,23 @@ fun MapScreen(
                         ExtendedFloatingActionButton(
                             onClick = { if (entry == null) showGetMap = true else picking = true },
                             icon = { Icon(painterResource(DS.drawable.ic_add_location_alt), contentDescription = null) },
-                            text = { Text(stringResource(R.string.map_report), style = MaterialTheme.typography.labelLarge) },
+                            // The label is set on the button itself: on a Pixel 9a the FAB's text never
+                            // reached the accessibility tree, so TalkBack had nothing to read (WI-031).
+                            text = {
+                                Text(
+                                    reportLabel,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    modifier = Modifier.clearAndSetSemantics {},
+                                )
+                            },
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary,
                             // A minimum, not a fixed size: a longer label (French, large text) must
                             // grow the button, or it is clipped and TalkBack finds nothing to read.
-                            modifier = Modifier.sizeIn(minWidth = Touch.hero + Touch.hero / 2, minHeight = Touch.hero),
+                            modifier =
+                                Modifier
+                                    .sizeIn(minWidth = Touch.hero + Touch.hero / 2, minHeight = Touch.hero)
+                                    .semantics { contentDescription = reportLabel },
                         )
                     }
                 }

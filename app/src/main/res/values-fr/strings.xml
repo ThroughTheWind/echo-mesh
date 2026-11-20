@@ -166,6 +166,7 @@
     <string name="direction_west">ouest</string>
     <string name="direction_north_west">nord-ouest</string>
     <string name="distance_direction">Environ %1$d m %2$s</string>
+    <string name="distance_direction_km">Environ %1$s km %2$s</string>
     <string name="reported_ago">signalé il y a %1$d min</string>
     <string name="reported_now">signalé à l\'instant</string>
     <string name="row_source_nearby">à proximité</string>

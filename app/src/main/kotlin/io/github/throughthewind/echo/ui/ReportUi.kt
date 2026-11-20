@@ -21,6 +21,7 @@ import io.github.throughthewind.echo.core.model.Compass
 import io.github.throughthewind.echo.core.model.Geo
 import io.github.throughthewind.echo.core.model.GeoPoint
 import io.github.throughthewind.echo.core.model.ReportType
+import java.text.NumberFormat
 import kotlin.time.Instant
 import io.github.throughthewind.echo.core.designsystem.R as DS
 
@@ -142,12 +143,25 @@ fun Compass.word(): String =
         },
     )
 
-/** "About 120 m north-east", from [from]. */
+/** "About 120 m north-east", or "About 2.5 km north-east" from 1 km, from [from]. */
 @Composable
 fun distanceFrom(
     from: GeoPoint,
     to: GeoPoint,
-): String = stringResource(R.string.distance_direction, Geo.roundedMeters(Geo.distanceMeters(from, to)), Geo.compass(from, to).word())
+): String {
+    val meters = Geo.roundedMeters(Geo.distanceMeters(from, to))
+    val direction = Geo.compass(from, to).word()
+    if (meters < METERS_PER_KM) return stringResource(R.string.distance_direction, meters, direction)
+    val km = meters.toDouble() / METERS_PER_KM
+    val number =
+        NumberFormat.getNumberInstance().apply { maximumFractionDigits = if (km < KM_WITH_TENTHS) 1 else 0 }.format(km)
+    return stringResource(R.string.distance_direction_km, number, direction)
+}
+
+private const val METERS_PER_KM = 1000
+
+/** Under this many km, a tenth of a km is still worth saying. */
+private const val KM_WITH_TENTHS = 10
 
 /** "reported 6 min ago". */
 @Composable

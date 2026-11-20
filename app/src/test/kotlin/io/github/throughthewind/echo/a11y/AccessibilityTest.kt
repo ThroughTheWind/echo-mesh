@@ -11,8 +11,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -142,6 +144,8 @@ class AccessibilityTest {
             )
         }
         everyActionIsNamedAndReachable()
+        // Each tile is read once, by its description: its text is not a second reading (phone check, 2026-11-20).
+        compose.onAllNodesWithText(text(R.string.type_police_line), useUnmergedTree = true).assertCountEquals(0)
         compose.onNodeWithContentDescription(text(R.string.type_police_line)).performClick()
         compose.waitForIdle()
         everyActionIsNamedAndReachable()

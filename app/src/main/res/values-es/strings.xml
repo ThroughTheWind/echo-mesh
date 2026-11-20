@@ -166,6 +166,7 @@
     <string name="direction_west">al oeste</string>
     <string name="direction_north_west">al noroeste</string>
     <string name="distance_direction">Unos %1$d m %2$s</string>
+    <string name="distance_direction_km">Unos %1$s km %2$s</string>
     <string name="reported_ago">avisado hace %1$d min</string>
     <string name="reported_now">avisado ahora mismo</string>
     <string name="row_source_nearby">cerca</string>
