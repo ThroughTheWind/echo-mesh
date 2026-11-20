@@ -54,3 +54,5 @@ On the phone check of 2026-11-20 Echo crashed on a locked Pixel 9a at 17:00 and 
 2026-11-20.
 
 - As planned. Found from the crash buffer of the Pixel's 17:00 crash (`GroupChannel.sweep` → `saveMoved` → `save` → `SealedFiles.write` → `TinkSealingKey.seal`).
+- On the phones: the Pixel locked for over an hour on this build kept relaying with no crash. At 21:38, still locked, the sweep hit the same save; the Keystore refused, Echo kept the group in memory, and the record was written at 22:10, right after unlock.
+- A cold start on a locked phone shows onboarding until unlock: F-010.
