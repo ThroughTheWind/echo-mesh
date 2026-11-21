@@ -9,7 +9,8 @@ leak found here becomes its own work item; the audit does not fix it.
 
 ## AC-18: nothing readable in storage
 
-1. Install the **debug** build of the candidate (only a debug build allows `run-as`). Start from a
+1. Install the **debug** build of the candidate (only a debug build allows `run-as`; it installs as
+   `io.github.throughthewind.echo.debug`, beside any release copy). Start from a
    fresh install.
 2. Use it the way a marcher would for about 20 minutes with a second phone: create a group named
    `AuditCrew` with the nickname `Yellow Otter`, join it from the second phone, send public and group
@@ -18,7 +19,7 @@ leak found here becomes its own work item; the audit does not fix it.
 3. Leave the app in the background, then pull its storage:
 
    ```sh
-   adb shell run-as io.github.throughthewind.echo tar -cf - . > echo-storage.tar
+   adb shell run-as io.github.throughthewind.echo.debug tar -cf - . > echo-storage.tar
    mkdir echo-storage && tar -xf echo-storage.tar -C echo-storage
    ```
 
@@ -67,3 +68,31 @@ group records are kept.
 
 Record the capture's length, the number of rotations seen, the longest-lived address and token, and
 "no device name" in the work item.
+
+### Without a sniffer: a second phone's HCI snoop log
+
+A phone that is **not running Echo** can stand in for the dongle. Its Bluetooth controller hands
+every advertising report to Android with the address as it was on the air, and the HCI snoop log
+keeps them all. `scripts/audit/air_scan.py` reads that log and runs every check above.
+
+1. On the listening phone: Settings → Developer options → **Enable Bluetooth HCI snoop log** →
+   *Enabled* (not *Filtered*), then turn Bluetooth off and on so the log starts. Stop Echo on it, or
+   uninstall the debug build, so only one phone runs Echo in range.
+2. Open any BLE scanner app (for example nRF Connect for Mobile) and keep it scanning in the
+   foreground, screen on, next to the Echo phone, for at least 35 minutes. Keep the Echo phone still
+   with the mesh on.
+3. Pull the log and check it:
+
+   ```sh
+   adb bugreport audit-bugreport.zip
+   # extract FS/data/misc/bluetooth/logs/btsnoop_hci.log from the zip
+   python3 -I scripts/audit/air_scan.py btsnoop_hci.log
+   ```
+
+   Exit 0 passes. Exit 2 means the capture is blind or inconclusive (under 30 minutes, or a gap of
+   more than 2 minutes with no Echo report, which a duplicate filter or a throttled scan causes):
+   run it again, it is not a pass. Run `python3 -I scripts/audit/air_scan.py --self-test` once.
+4. Turn the snoop log off again on the listening phone.
+
+What this cannot see: adverts the listening phone missed between scan windows. The gap check bounds
+that; a dongle hears more, so record which method was used.
