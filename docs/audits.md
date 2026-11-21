@@ -15,10 +15,12 @@ leak found here becomes its own work item; the audit does not fix it.
    `AuditCrew` with the nickname `Yellow Otter`, join it from the second phone, send public and group
    reports, confirm and dismiss, share your position, mute and unmute a member. Write down the
    positions you reported and stood at (four decimals is enough).
-3. Leave the app in the background, then pull its storage:
+3. Leave the app in the background, then pull its storage. The debug build's id ends in `.debug`
+   (`applicationIdSuffix` in `app/build.gradle.kts`); `run-as` on the release id fails with
+   "package not debuggable". With both phones on USB, pick one with `adb -s <serial>`.
 
    ```sh
-   adb shell run-as io.github.throughthewind.echo tar -cf - . > echo-storage.tar
+   adb shell run-as io.github.throughthewind.echo.debug tar -cf - . > echo-storage.tar
    mkdir echo-storage && tar -xf echo-storage.tar -C echo-storage
    ```
 
