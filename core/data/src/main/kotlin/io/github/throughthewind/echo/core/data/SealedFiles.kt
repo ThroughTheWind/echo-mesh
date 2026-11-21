@@ -21,6 +21,7 @@ class SealedFiles(
         require(directory.isDirectory) { "not a directory: $directory" }
     }
 
+    /** Throws [IOException] when the file cannot be written, including while the phone is locked. */
     fun write(
         name: String,
         plaintext: ByteArray,
@@ -34,7 +35,11 @@ class SealedFiles(
         }
     }
 
-    /** The contents of [name], or null when it does not exist or cannot be opened (key destroyed, tampered). */
+    /**
+     * The contents of [name], or null when it does not exist or cannot be opened (key destroyed,
+     * tampered). Throws [io.github.throughthewind.echo.core.crypto.SealingUnavailableException] while
+     * the phone is locked: the file is there, the key is not usable yet.
+     */
     fun read(name: String): ByteArray? {
         val file = fileFor(name)
         if (!file.isFile) return null

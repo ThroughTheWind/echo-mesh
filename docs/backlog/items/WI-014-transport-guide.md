@@ -2,10 +2,10 @@
 id: WI-014
 title: Write docs/transports.md: how to add a transport
 type: docs
-status: planned
-branch:
+status: review
+branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-17
+updated: 2026-11-19
 related: [FR-14.4, ADR-0002]
 epic: WI-006
 children: []
@@ -46,5 +46,7 @@ Phase 1 of the [roadmap](../../ROADMAP.md).
 - Final review of the guide before 1.0: WI-033.
 
 ## Execution
+
+2026-11-19. [`docs/transports.md`](../../transports.md) covers what a transport is and is not, the contract, nothing stable on the air, honest capabilities, nine steps from module to phones with the BLE adapter as the worked example, what each gate checks, and the radio facts measured on the Pixel 9a, Pixel 11 Pro and OnePlus Nord CE 3 Lite (WI-007, WI-011). Linked from the routing table in `AGENTS.md` and from `CONTRIBUTING.md`; `gates-links-resolve` and `instructions-stale-commands` pass.
 
 ## Review

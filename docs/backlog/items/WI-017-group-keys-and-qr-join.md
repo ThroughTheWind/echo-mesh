@@ -2,10 +2,10 @@
 id: WI-017
 title: Create groups and join them in person by QR
 type: feature
-status: planned
-branch:
+status: in_progress
+branch: claude/project-thread-67cn4e
 created: 2026-11-17
-updated: 2026-11-17
+updated: 2026-11-19
 related: [F8, FR-8.1, FR-8.2, FR-8.3, FR-8.5, FR-8.6, FR-12.5, AC-13, AC-25, ADR-0004]
 epic: WI-016
 children: []
@@ -48,5 +48,23 @@ Phase 2 of the [roadmap](../../ROADMAP.md).
 - Group report encryption: WI-018. Roster and join screens: WI-022.
 
 ## Execution
+
+2026-11-19, the core half, built development-first while the phones are away. The layout is [ADR-0009](../../decisions/ADR-0009-group-frames-and-join.md) (accepted 2026-11-19).
+
+- `:core:crypto`: `NoiseHandshake` (`Noise_NKpsk0_25519_ChaChaPoly_SHA256` on Tink and the JDK), checked byte for byte against the cacophony vectors, with tests for a wrong PSK, a wrong key, a changed byte, a replayed reply and reordered transport messages. `GroupEpochs`, `GroupCipher` and `MemberKey` generate and ratchet the group keys.
+- `:core:mesh`: the join frame (kind `0x06`, 240 bytes, never relayed, fuzzed); `JoinOffer`, the QR text, base64url with one spelling; `JoinPayloads`, the fixed-size step plaintexts; `GroupChannel.invite` and `GroupChannel.join`, both sides of the join over one hop. A code answers the first valid step 1 only and is then destroyed; the member sends a member-added frame so the group sees every join; the newcomer gets the current epoch key and nothing older. Leave and expiry destroy the keys (`GroupBook`).
+- Tests: `GroupMeshTest` on loopback joins by code, refuses a second scan of the same code (AC-25 in code), refuses a tampered token without burning the real code, and shows a phone replaying an overheard join lets nobody in. `JoinPayloadsTest` and the new `GroupFuzzTest` (a CI step of its own, 39 million local runs clean) cover the decoders.
+
+Groups outlive a restart (2026-11-19). Each group is one sealed record, named by its random id and never by its name. The record holds the facts, the epoch keys held now, this phone's member key and the roster. It sits in the app's `SealedFiles` under the Keystore key (WI-010), behind the `SealedRecords` interface in `:core:mesh`, so the mesh never sees the key. A record is rewritten when its group is created, joined, gains a member or ratchets its keys, so a deleted epoch key leaves the record as well. Leaving or expiry deletes the record (FR-8.5, FR-8.6, FR-12.4). A record that cannot be opened, as while the phone is locked, is left alone rather than deleted. `GroupRecordTest` covers the round trip, the one encoding, damaged records and file names. A loopback test restarts a phone over the same store and reads the group's frames with the kept keys. Deleting a file unlinks it but does not erase flash, as WI-010 notes; only the panic wipe's key destruction is a real erase.
+
+First screens (2026-11-19), reached from a Groups button on the map. The list allows at most five groups. Creating a group takes a name, a lifetime of 6 h, 24 h, 3 days or 7 days, and a random nickname. The roster has an "Add someone in person" button and a confirmed Leave. The show-code screen puts the warning first, draws the code black on white at full brightness, blocks screenshots with `FLAG_SECURE` and replaces the code after 2 minutes or once it is used. When someone joins, it says who, with the threat model's guidance. The scanner uses CameraX and ZXing core, both Apache-2.0, with no Play Services and no network, and asks for the camera in context. Two choices differ from patterns/QrJoinFlow:
+- The nickname is picked before scanning, because the join carries it to the group.
+- A code that fails says it "may have been used or expired", because the protocol gives a stranger no answer and the phone can't tell which happened.
+
+Not built yet: the joined snackbar on other members' phones, position sharing and muting (WI-020, WI-021).
+
+Still to do on this item: AC-25 and the screens on two phones.
+
+branch-merged-ok: the core half merges with PR #6 while the app half and the phone check stay open on this item.
 
 ## Review

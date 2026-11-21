@@ -99,7 +99,7 @@ it is a wrong value that passes review.
 - Package root is `app.packageRoot` in `gradle.properties`; module namespaces append the module path
   (`…echo.core.mesh`).
 - Never log a key, a report, a position or a peer handle, in any build ([crypto rule](.ai/rules/crypto.md)).
-- English only until the languages item (F18 in `docs/SPEC-EXTENDED.md`); then English, French and Spanish.
+- English, French and Spanish (F18): a new string goes into every language's `strings.xml`, per [`docs/translating.md`](docs/translating.md); the `locales` gate fails otherwise.
 - No dependency injection framework until the container passes about thirty bindings (ADR-0001).
 
 ## Routing
@@ -111,7 +111,7 @@ it is a wrong value that passes review.
 | What the app must do | `docs/SPEC.md` |
 | What to build next | `docs/ROADMAP.md` and [`docs/backlog/`](docs/backlog/BACKLOG.md) |
 | Who we defend against, and how | `docs/threat-model.md` |
-| Radio transports | `docs/research/` |
+| Adding a radio transport, and radio facts per phone | [`docs/transports.md`](docs/transports.md); research in `docs/research/` |
 | How a screen looks | `docs/design/` |
 | Why a decision was made | [`docs/decisions/`](docs/decisions/README.md) |
 | Releasing, and reporting a vulnerability | [`docs/releasing.md`](docs/releasing.md), [`SECURITY.md`](SECURITY.md) |

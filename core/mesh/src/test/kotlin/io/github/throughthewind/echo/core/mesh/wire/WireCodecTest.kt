@@ -81,7 +81,7 @@ class WireCodecTest {
     @Test
     fun `an unknown kind is rejected`() {
         val bytes = WireCodec.encode(WireFixtures.report)
-        for (k in listOf(0, 6, 0xFF)) assertEquals(Rejection.UNKNOWN_KIND, rejected(bytes.with(1, k)))
+        for (k in listOf(0, 7, 0xFF)) assertEquals(Rejection.UNKNOWN_KIND, rejected(bytes.with(1, k)))
     }
 
     @Test
@@ -100,6 +100,19 @@ class WireCodecTest {
             assertEquals(Rejection.HOP_BUDGET_OUT_OF_RANGE, rejected(bytes.with(Wire.HOP_BUDGET_OFFSET, h)))
         }
         assertFailsWith<IllegalArgumentException> { WireFixtures.summary.withHopBudget(1) }
+    }
+
+    @Test
+    fun `a join is never relayed, is one size, and its step is bounded`() {
+        val bytes = WireCodec.encode(WireFixtures.join)
+        assertEquals(Wire.GROUP_FRAME_BYTES, bytes.size)
+        for (h in 1..Wire.MAX_HOP_BUDGET) {
+            assertEquals(Rejection.HOP_BUDGET_OUT_OF_RANGE, rejected(bytes.with(Wire.HOP_BUDGET_OFFSET, h)))
+        }
+        val stepAt = Wire.HEADER_BYTES + Wire.JOIN_SESSION_BYTES
+        assertEquals(Rejection.JOIN_STEP_OUT_OF_RANGE, rejected(bytes.with(stepAt, 0)))
+        assertEquals(Rejection.JOIN_STEP_OUT_OF_RANGE, rejected(bytes.with(stepAt, WireCodec.MAX_JOIN_STEP + 1)))
+        assertFailsWith<IllegalArgumentException> { WireFixtures.join.withHopBudget(1) }
     }
 
     @Test

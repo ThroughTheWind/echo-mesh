@@ -8,51 +8,78 @@
     <string name="not_now">Not now</string>
     <string name="continue_">Continue</string>
 
-    <!-- Onboarding (patterns/OnboardingFlow). The claims trace to threat model §7; copy is a first
-         draft, final copy is WI-026. -->
+    <!-- Onboarding (patterns/OnboardingFlow). Every safety claim cites its threat model §7 row in the
+         comment above it; scripts/gates/claims.mjs checks it (NFR-14, WI-026). -->
     <string name="onboarding_welcome_title">See what\'s happening around you, without the internet</string>
+    <!-- §7 P6 -->
     <string name="onboarding_welcome_body">Phones near you share short reports with each other over radio: a police line, a medic, an open exit. No server, no account, no internet.</string>
     <string name="onboarding_get_started">Get started</string>
     <string name="onboarding_protects_title">What Echo protects, and what it doesn\'t</string>
     <string name="onboarding_protects_heading">It protects</string>
+    <!-- §7 P1 -->
     <string name="onboarding_protects_1">Group reports, positions and nicknames can be read only by people who joined the group in person.</string>
+    <!-- §7 P3 -->
     <string name="onboarding_protects_2">Nothing you send carries your name, number or a fixed ID.</string>
+    <!-- §7 P4 -->
     <string name="onboarding_protects_3">Echo keeps no history of where you or others were. Reports disappear when they expire.</string>
+    <!-- §7 P6 -->
     <string name="onboarding_protects_4">There\'s no server, no account, and no internet use except a map download you start yourself.</string>
     <string name="onboarding_not_heading">It doesn\'t protect</string>
+    <!-- §7 N1 -->
     <string name="onboarding_not_1">Anyone nearby with a radio receiver can tell your phone is running Echo.</string>
+    <!-- §7 N2 -->
     <string name="onboarding_not_2">Public reports can be fake, and their confirmations can be faked in bulk.</string>
+    <!-- §7 N3 -->
     <string name="onboarding_not_3">Anyone in your group can read everything sent to it and pass it on.</string>
+    <!-- §7 N4 -->
     <string name="onboarding_not_4">If your phone is taken while unlocked, whoever has it can read it until you wipe it.</string>
     <string name="onboarding_understand">I understand</string>
     <string name="onboarding_read_everything">Read everything</string>
     <string name="onboarding_map_title">Get a map before you go</string>
+    <!-- §7 N6 -->
     <string name="onboarding_map_body">Echo draws an offline map you download at home, on Wi-Fi you trust. Downloading reveals the region to your network and the map host.</string>
     <string name="onboarding_skip">Skip for now</string>
-    <!-- Discreet mode and panic wipe join this step when they ship (WI-025, WI-024): the app never
-         points at a control it does not have yet. -->
     <string name="onboarding_know_title">Before you go</string>
     <string name="onboarding_know_mesh">The mesh starts off. Turn it on from the map when you\'re there.</string>
+    <!-- §7 P4 -->
     <string name="onboarding_know_expiry">Every report disappears on its own after a few minutes, on every phone.</string>
+    <string name="onboarding_know_carry">Few phones around means fewer reports. Walking with the mesh on carries reports across the gaps to the people you meet.</string>
+    <string name="onboarding_know_discreet">The eye button on the map makes the screen dark, dim and silent. It doesn\'t hide the app.</string>
+    <string name="onboarding_know_wipe">To erase everything, tap the wipe button at the top of the map, then hold for 2 seconds.</string>
     <string name="onboarding_open_map">Open the map</string>
     <string name="onboarding_step">Step %1$d of %2$d</string>
 
-    <!-- What Echo protects (screens/WhatEchoProtects): word for word from threat model §7. -->
+    <!-- What Echo protects (screens/WhatEchoProtects): word for word from threat model §7, every row
+         once, with "Echo" for "the app". -->
     <string name="protects_title">What Echo protects</string>
     <string name="protects_heading">It protects</string>
+    <!-- §7 P1 -->
     <string name="protects_1">Group reports, positions and nicknames can be read only by people who joined the group in person.</string>
+    <!-- §7 P2 -->
     <string name="protects_2">A group report shows which member sent it, and nobody can fake another member\'s report.</string>
+    <!-- §7 P3 -->
     <string name="protects_3">Nothing you send carries your name, number or a fixed ID, and Echo\'s radio signals change regularly.</string>
+    <!-- §7 P4 -->
     <string name="protects_4">Echo keeps no history of where you or others were. Reports disappear when they expire.</string>
+    <!-- §7 P5 -->
     <string name="protects_5">A panic wipe makes everything Echo stored unreadable within 2 seconds.</string>
+    <!-- §7 P6 -->
     <string name="protects_6">There\'s no server, no account, and no internet use except a map download you start yourself.</string>
     <string name="not_protects_heading">It doesn\'t protect</string>
+    <!-- §7 N1 -->
     <string name="not_protects_1">Anyone nearby with a radio receiver can tell your phone is running Echo.</string>
+    <!-- §7 N2 -->
     <string name="not_protects_2">Public reports can be fake, and their confirmations can be faked in bulk.</string>
+    <!-- §7 N3 -->
     <string name="not_protects_3">Anyone in your group can read everything sent to it, see shared positions, and pass them on. If a member\'s phone is taken, assume the group is exposed and make a new one in person.</string>
+    <!-- §7 N4 -->
     <string name="not_protects_4">If your phone is taken while unlocked, whoever has it can read your groups and post as you until you wipe it or your group makes a new one.</string>
+    <!-- §7 N5 -->
     <string name="not_protects_5">Someone with many receivers may guess roughly where a report was first sent.</string>
+    <!-- §7 N6 -->
     <string name="not_protects_6">Downloading a map reveals the region to your network and the map host.</string>
+    <!-- §7 N7 -->
+    <string name="not_protects_7">A public report saying where to go, or that a place is safe, can be a trap. Echo marks it unconfirmed and hides its public confirmations.</string>
 
     <!-- Get a map (patterns/GetAMap) -->
     <string name="get_map_title">Get a map</string>
@@ -71,13 +98,17 @@
     <string name="map_centre_on_me">Centre on me</string>
     <string name="map_reports_near_you">Reports near you</string>
     <string name="map_crosshair">Report will be placed at the map centre</string>
-    <string name="map_described">Map. %1$d reports.</string>
+    <plurals name="map_described">
+        <item quantity="one">Map. %1$d report.</item>
+        <item quantity="other">Map. %1$d reports.</item>
+    </plurals>
 
     <!-- Location (patterns/PermissionsInContext) -->
     <string name="location_title">Show you on your map?</string>
     <string name="location_body">Only to draw you on your own map. Your position is never stored, and never sent unless you share it with a group.</string>
     <string name="location_keep_off">Keep me off the map</string>
     <string name="location_refused">Location is off for Echo. Everything else works.</string>
+    <string name="location_open_settings">Open Settings</string>
 
     <!-- Report types (spec FR-4.1) -->
     <string name="type_police_line">Police line</string>
@@ -96,6 +127,10 @@
     <string name="picker_unverified">Anyone can send these, and they can be fake.</string>
     <string name="picker_lasts">Lasts %1$d min</string>
     <string name="picker_send_everyone">Send to everyone nearby</string>
+    <string name="picker_send_group">Send to %1$s</string>
+    <string name="picker_group_note">Signed by you and encrypted: only %1$s can read it.</string>
+    <string name="picker_audience">Who sees it</string>
+    <string name="picker_audience_group">%1$s only</string>
     <string name="picker_change_type">Change type</string>
     <string name="picker_sent_ago">Sent %1$d s ago</string>
     <string name="picker_no_map">Get a map first: a report goes at the map centre, never at your position.</string>
@@ -107,7 +142,17 @@
     <!-- Report pins and rows (components/ReportPin) -->
     <string name="source_nearby">from a phone nearby, unverified</string>
     <string name="source_yours">yours</string>
+    <string name="source_group">from %1$s in %2$s</string>
     <string name="pin_described">%1$s, %2$s, %3$s</string>
+    <plurals name="pin_confirmations">
+        <item quantity="one">%1$d confirmation</item>
+        <item quantity="other">%1$d confirmations</item>
+    </plurals>
+    <string name="pin_probably_gone">probably gone</string>
+    <string name="pin_could_be_trap">unconfirmed, could be a trap</string>
+    <string name="row_could_be_trap">Unconfirmed · could be a trap</string>
+    <!-- §7 N7 -->
+    <string name="detail_could_be_trap">Unconfirmed: could be a trap. Anyone nearby could have sent this, and a fake one can lead people into a kettle. Check with your group before you go.</string>
     <string name="direction_north">north</string>
     <string name="direction_north_east">north-east</string>
     <string name="direction_east">east</string>
@@ -117,10 +162,12 @@
     <string name="direction_west">west</string>
     <string name="direction_north_west">north-west</string>
     <string name="distance_direction">About %1$d m %2$s</string>
+    <string name="distance_direction_km">About %1$s km %2$s</string>
     <string name="reported_ago">reported %1$d min ago</string>
     <string name="reported_now">reported just now</string>
     <string name="row_source_nearby">nearby</string>
     <string name="row_source_yours">yours</string>
+    <string name="row_source_group">%1$s in %2$s</string>
 
     <!-- Reports near you (screens/ReportsNearYou) -->
     <string name="reports_title">Reports near you</string>
@@ -136,9 +183,23 @@
     <string name="detail_relayed">Relayed %1$d hops.</string>
     <string name="detail_yours_title">Your report.</string>
     <string name="detail_yours_body">Sent to everyone nearby. Withdrawing removes it from every phone it reached.</string>
+    <string name="detail_yours_group_body">Sent to %1$s only. Withdrawing removes it from every phone it reached.</string>
+    <string name="detail_group_title">From %1$s, in %2$s.</string>
+    <string name="detail_group_body">Signed by %1$s\'s phone and encrypted to your group.</string>
     <string name="detail_withdraw">Withdraw report</string>
     <string name="detail_withdrawn">Report withdrawn</string>
-    <string name="detail_votes_later">Still there and Gone votes arrive with a later version.</string>
+    <string name="vote_still_there">Still there</string>
+    <string name="vote_gone">Gone</string>
+    <string name="vote_said_there">You said still there</string>
+    <string name="vote_said_gone">You said gone</string>
+    <string name="votes_from">%1$s: %2$s</string>
+    <string name="votes_confirmed">%1$d confirmed</string>
+    <string name="votes_said_gone">%1$d said gone</string>
+    <string name="votes_nearby">Nearby</string>
+    <string name="votes_your_groups">Your groups</string>
+    <string name="votes_none">No votes yet.</string>
+    <string name="detail_gone_public">Faded because far more nearby phones said it\'s gone. Those votes can be faked, so it stays on the map until it expires.</string>
+    <string name="detail_gone_group">Faded because someone in %1$s said it\'s gone and nobody in %1$s has confirmed it since.</string>
 
     <!-- Mesh (patterns/MeshOnOff, components/MeshStatus) -->
     <string name="mesh_sheet_title">Mesh</string>
@@ -178,7 +239,187 @@
     <string name="notification_searching">Looking for phones · relaying</string>
     <string name="notification_nearby">%1$s nearby · relaying</string>
     <string name="notification_turn_off">Turn off</string>
+    <string name="notification_sharing_title">Sharing your position with %1$s</string>
+    <string name="notification_sharing_text">Updating for your group · %1$s</string>
+    <string name="notification_stops_in">stops in %1$d h %2$02d</string>
+    <string name="notification_stops_in_minutes">stops in %1$d min</string>
+    <string name="notification_stop_sharing">Stop sharing</string>
     <string name="mesh_honesty">Anyone nearby with a radio receiver can tell your phone is running Echo. Nothing it sends carries your name, number or a fixed ID.</string>
     <string name="mesh_on_snackbar">Mesh on</string>
     <string name="mesh_off_snackbar">Mesh off. Reports you have stay until they expire.</string>
+    <!-- Groups (WI-017, WI-022): patterns/CreateGroup, patterns/QrJoinFlow, screens/GroupRoster. -->
+    <string name="groups_title">Groups</string>
+    <string name="groups_empty">You\'re not in a group yet. A group shares encrypted reports that only its members can read.</string>
+    <string name="groups_create">Create a group</string>
+    <string name="groups_join">Join by scanning</string>
+    <string name="groups_full">You\'re in 5 groups, the most Echo allows. Leave one first.</string>
+    <string name="groups_cant_remove">You can\'t remove someone from a group. Make a new one and share it in person.</string>
+    <string name="groups_row">%1$d seen recently · ends %2$s</string>
+    <string name="groups_row_sharing">you share your position</string>
+    <string name="groups_mesh_needed">Turn the mesh on from the map first. The two phones talk to each other over it.</string>
+    <string name="groups_no_radio">This build has no radio, so it can\'t join a group or add people.</string>
+    <string name="create_title">New group</string>
+    <string name="create_name_label">Group name</string>
+    <string name="create_name_help">Shown on this phone, and to the people you add in person. Never to anyone else.</string>
+    <string name="create_lifetime">How long it lasts</string>
+    <string name="lifetime_6h">6 h</string>
+    <string name="lifetime_24h">24 h</string>
+    <string name="lifetime_3d">3 days</string>
+    <string name="lifetime_7d">7 days</string>
+    <string name="create_lifetime_help">When it ends, its keys are deleted from every phone. Shorter is safer: less to expose if a phone is taken.</string>
+    <string name="nickname_label">Your nickname in this group</string>
+    <string name="nickname_help">Everyone in the group sees it. Never use your real name.</string>
+    <string name="nickname_new">New nickname</string>
+    <string name="nickname_too_long">Too long. Keep it short.</string>
+    <string name="create_button">Create %1$s</string>
+    <string name="create_button_plain">Create</string>
+    <string name="roster_ends">Ends %1$s</string>
+    <string name="roster_members">Members</string>
+    <string name="roster_you">%1$s (you)</string>
+    <string name="roster_add">Add someone in person</string>
+    <string name="roster_leave">Leave %1$s</string>
+    <string name="leave_title">Leave %1$s?</string>
+    <string name="leave_body">Its keys are deleted from this phone. To come back, someone has to show you the code again.</string>
+    <string name="leave_confirm">Leave</string>
+    <string name="code_title">Add someone</string>
+    <string name="code_warning">Show this only face to face. Whoever scans it can read %1$s\'s reports.</string>
+    <string name="code_description">Join code for %1$s</string>
+    <string name="code_countdown">One person, one scan · new code in %1$s</string>
+    <string name="code_joined">%1$s joined %2$s</string>
+    <string name="code_joined_check">Not the person in front of you? Someone else used the code. Make a new group in person and stop using this one.</string>
+    <string name="scan_title">Join a group</string>
+    <string name="scan_start">Scan the code</string>
+    <string name="scan_camera_body">Echo needs the camera to read the code. It reads only the code, takes no photo and keeps nothing.</string>
+    <string name="scan_camera_allow">Allow camera</string>
+    <string name="scan_camera_denied">The camera permission is off. Turn it on in Settings to scan a code.</string>
+    <string name="scan_open_settings">Open Settings</string>
+    <string name="scan_hint">Point the camera at the code on the other phone.</string>
+    <string name="scan_not_echo">That\'s not an Echo group code.</string>
+    <string name="joining">Joining…</string>
+    <string name="joining_body">Keep the two phones close. They talk directly to each other, not through the mesh.</string>
+    <string name="joined_title">You joined %1$s</string>
+    <string name="joined_body">Everyone in %1$s sees that you joined. The group ends %2$s.</string>
+    <string name="join_failed">No answer from the other phone. The code may have been used or expired, or the phones may be too far apart. Ask for a new code.</string>
+    <string name="join_full">You\'re already in 5 groups, the most Echo allows. Leave one first.</string>
+    <string name="join_again">Scan again</string>
+    <string name="joined_name_help">The name the other phone uses. Change it if you like: only this phone sees what you pick.</string>
+    <string name="done">Done</string>
+    <string name="share_title">Share your position with %1$s</string>
+    <string name="share_30_min">30 minutes</string>
+    <string name="share_1_hour">1 hour</string>
+    <string name="share_2_hours">2 hours</string>
+    <string name="share_until_off">Until the mesh is off</string>
+    <!-- §7 P1, P4 -->
+    <string name="share_callout">%1$s sees where you are, updated about every minute. Each update expires after a few minutes, and nothing is stored on any phone.</string>
+    <string name="share_start">Start sharing</string>
+    <string name="share_needs_location">Sharing needs your location. You can allow it in the phone\'s settings.</string>
+    <string name="share_mesh_off">Turn the mesh on to share your position.</string>
+    <string name="sharing_bar">Sharing your position with %1$s · %2$s</string>
+    <string name="sharing_left_hours">%1$d h %2$02d left</string>
+    <string name="sharing_left_minutes">%1$d min left</string>
+    <string name="sharing_until_off">until the mesh is off</string>
+    <string name="sharing_stop">Stop</string>
+    <string name="sharing_stopped_time">Stopped sharing your position with %1$s: time is up.</string>
+    <string name="sharing_stopped_mesh">Stopped sharing your position with %1$s: the mesh is off.</string>
+    <string name="sharing_stopped_group">Stopped sharing your position with %1$s: you\'re no longer in it.</string>
+    <string name="roster_share">Share my position</string>
+    <string name="roster_share_on">%1$s sees where you are · %2$s</string>
+    <string name="roster_share_off">Off. Nobody sees where you are.</string>
+    <string name="member_sharing">Sharing · seen %1$s</string>
+    <string name="age_seconds">%1$d s ago</string>
+    <string name="age_minutes">%1$d min ago</string>
+    <string name="marker_described">%1$s in %2$s, seen %3$s</string>
+    <string name="member_muted">Muted · hidden on this phone</string>
+    <string name="member_mute">Mute %1$s</string>
+    <string name="member_unmute">Unmute %1$s</string>
+    <string name="member_mute_body">Muting hides %1$s\'s reports, votes and position on this phone only. %1$s stays in %2$s and isn\'t told.</string>
+    <string name="roster_muted_callout">You can\'t remove someone. Mute them on your phone, or make a new group and share it in person.</string>
+    <string name="member_seen">Seen %1$s</string>
+    <string name="member_show_on_map">Show on map</string>
+    <string name="roster_seen_note">Members not seen for 15 min drop off this list. Nobody\'s history is kept.</string>
+    <string name="joined_snackbar">%1$s joined %2$s</string>
+    <string name="filter_everything">Everything</string>
+    <string name="filter_my_groups">My groups</string>
+    <string name="filter_groups_only">Show my groups only</string>
+    <string name="filter_show_everything">Show everything</string>
+    <string name="wipe_button">Wipe everything</string>
+    <string name="wipe_title">Wipe everything?</string>
+    <!-- §7 P5 -->
+    <string name="wipe_body">Groups and their keys, all reports, settings. It looks like a fresh install afterwards.</string>
+    <!-- §7 P5 -->
+    <string name="wipe_body_maps">Groups and their keys, all reports, settings and maps. It looks like a fresh install afterwards.</string>
+    <string name="wipe_others">Copies on other phones stay. Nothing is sent to say you wiped.</string>
+    <string name="wipe_include_maps">Also delete maps</string>
+    <string name="wipe_hold">Hold to wipe</string>
+    <string name="wipe_keep_holding">Keep holding · %1$.1f s</string>
+    <string name="wipe_cancel">Cancel</string>
+    <string name="tile_label">Echo discreet</string>
+    <string name="discreet_on">Discreet mode on. Tap to turn off</string>
+    <string name="discreet_off">Discreet mode off. Tap to turn on</string>
+    <string name="notification_discreet_title">Echo</string>
+    <string name="notification_discreet_text">Running · Tap to open</string>
+
+    <!-- Low density (F16, WI-035) -->
+    <string name="mesh_low_density">Few phones heard lately. The map may be missing reports: an empty map doesn\'t mean all clear.</string>
+    <string name="map_alone">No phones nearby. Reports can\'t reach you, so an empty map doesn\'t mean all clear.</string>
+    <string name="map_pins_stacked">%1$d reports here</string>
+    <string name="map_pin_open">Open %1$s</string>
+
+    <!-- Field diagnostics (F17, WI-036) -->
+    <string name="diagnostics_title">Field diagnostics</string>
+    <string name="diagnostics_switch">Count how the mesh behaves</string>
+    <string name="diagnostics_open">Field diagnostics</string>
+    <string name="diagnostics_on">On</string>
+    <string name="diagnostics_off">Off</string>
+    <string name="diagnostics_counts">For field tests. While on, Echo counts phones nearby each minute, reports received and passed on, how long reports took to arrive, failed connections, the battery level, and whether Android stopped the mesh.</string>
+    <!-- §7 P4, P6 -->
+    <string name="diagnostics_never">It never records a position, a report, a map area, a group, a nickname, a key, or the time of day. Counts are in minutes since you turned this on.</string>
+    <!-- §7 P4, P6 -->
+    <string name="diagnostics_kept">The counts stay in memory and are never sent. They\'re forgotten when you turn this off, when Echo stops running, or with the panic wipe. You can share them yourself below.</string>
+    <string name="diagnostics_review">The whole file</string>
+    <string name="diagnostics_share">Share this file</string>
+    <string name="diagnostics_refresh">Refresh</string>
+
+    <!-- Settings (WI-074) -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_mesh_section">Mesh</string>
+    <string name="settings_background">Keep running in the background</string>
+    <string name="settings_background_on">Allowed: Android lets Echo keep relaying with the screen off</string>
+    <string name="settings_background_off">Not allowed: Android may stop Echo with the screen off. Tap to change</string>
+    <string name="settings_on">On</string>
+    <string name="settings_off">Off</string>
+    <string name="settings_groups_section">Groups and maps</string>
+    <string name="settings_groups_support">Create, join or leave a group</string>
+    <string name="settings_maps">Maps</string>
+    <string name="settings_maps_support">Get a map of where you are going</string>
+    <string name="settings_display_section">Display</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_auto">Auto, by the light around you</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_sun">Sunlight</string>
+    <string name="settings_theme_overridden">Discreet while discreet mode is on</string>
+    <string name="settings_discreet">Discreet mode</string>
+    <string name="settings_discreet_support">Darkest theme, dimmed, no vibration, a plain notification</string>
+    <string name="settings_large_pins">Large pins</string>
+    <string name="settings_large_pins_support">Bigger pins, easier to see and tap</string>
+    <string name="settings_overridden">Off while discreet mode is on</string>
+    <string name="settings_privacy_section">Privacy</string>
+    <string name="settings_feedback_section">Feedback</string>
+    <string name="settings_haptics">Vibration</string>
+    <string name="settings_haptics_off">Off</string>
+    <string name="settings_haptics_light">Light</string>
+    <string name="settings_haptics_strong">Strong</string>
+    <string name="settings_language_section">Language</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_support">%1$s. Opens Android\'s language setting for Echo</string>
+    <string name="settings_language_follows">%1$s, the phone\'s language. Change it in Android\'s settings</string>
+    <string name="settings_wipe_section">Panic wipe</string>
+    <string name="settings_about_section">About</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_licence">Licence</string>
+    <string name="settings_licence_value">GPL-3.0: free software, with no ads, no tracking and no servers</string>
+    <string name="settings_source">Source code</string>
+    <string name="settings_security">Found a security problem?</string>
+    <string name="settings_security_value">Report it privately: the Security tab of the source code page, then Report a vulnerability. Never in a public issue.</string>
+    <string name="settings_open">Settings</string>
 </resources>

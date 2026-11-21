@@ -14,11 +14,19 @@
     <string name="ds_mesh_searching">Looking for phones</string>
     <string name="ds_mesh_nearby">%1$s nearby</string>
     <string name="ds_mesh_alone">No phones nearby</string>
+    <string name="ds_mesh_few">Few phones · %1$s nearby</string>
+    <string name="ds_mesh_described_few">Few phones heard lately: the map may be missing reports</string>
     <string name="ds_mesh_fix">Fix</string>
     <string name="ds_mesh_stopped">Relaying stopped</string>
     <string name="ds_mesh_no_radio">No radio in this build</string>
-    <string name="ds_mesh_described_on">%1$s phones nearby, last report %2$s</string>
-    <string name="ds_mesh_described_on_none">%1$s phones nearby, no report yet</string>
+    <plurals name="ds_mesh_described_on">
+        <item quantity="one">%1$s phone nearby, last report %2$s</item>
+        <item quantity="other">%1$s phones nearby, last report %2$s</item>
+    </plurals>
+    <plurals name="ds_mesh_described_on_none">
+        <item quantity="one">%1$s phone nearby, no report yet</item>
+        <item quantity="other">%1$s phones nearby, no report yet</item>
+    </plurals>
     <string name="ds_age_seconds">%1$ds</string>
     <string name="ds_age_minutes">%1$d min</string>
     <string name="ds_age_hours">%1$d h</string>

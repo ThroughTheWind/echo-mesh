@@ -5,7 +5,7 @@
 ## Flow
 
 1. **Start:** from the group roster's "Share my position" row (or the map's group filter). A sheet names the group and offers a duration as [radio buttons](../../components/RadioAndCheckbox/README.md): 30 min, 1 hour, **2 hours** (default, FR-10.1), until the mesh is off. Callout: "Crew sees where you are, updated about every minute. Each update expires after a few minutes, and nothing is stored on any phone." Button "Start sharing". Location permission is asked [in context](../PermissionsInContext/README.md) if needed.
-2. **While sharing** (FR-10.4): the `primary-container` bar under the top bar ("Sharing your position with **Crew** · 1 h 42 left · Stop") on every map view, and the [notification](../../components/SystemNotification/README.md) when the app is in the background. Stop is one tap, with no confirm.
+2. **While sharing** (FR-10.4): the `primary-container` bar under the top bar ("Sharing your position with **Crew** · 1 h 42 left · Stop") on every map view, and the [notification](../../components/SystemNotification/README.md) when the app is in the background. The position keeps updating with the screen off: the relay service also runs as a location service while a share runs, and stops being one when the last share ends (SPEC NFR-10). Stop is one tap, with no confirm.
 3. **Stops on its own** (FR-10.1): when time is up, the mesh is turned off, or the app is killed. A snackbar says why the next time the map is visible.
 4. **Their side** (FR-10.3, AC-15): the member's avatar with its age. Over 2 minutes: the stale style. When the last update expires, the marker disappears. Nothing older is ever shown.
 

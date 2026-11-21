@@ -4,7 +4,7 @@ import io.github.throughthewind.echo.core.model.ReportType
 
 /**
  * Wire format version 1 (ADR-0005, `docs/decisions/ADR-0005-wire-format.md`), with the summary
- * kind of ADR-0008.
+ * kind of ADR-0008 and the join kind of ADR-0009.
  *
  * Every frame is `version ‖ kind ‖ hop budget ‖ body`, with a fixed length per kind, no optional
  * field, no nesting, no length prefix read off the air and no compression. The hop budget is the
@@ -47,6 +47,12 @@ object Wire {
     /** A summary's Bloom filter: the rest of a [GROUP_FRAME_BYTES] frame. */
     const val SUMMARY_FILTER_BYTES: Int = GROUP_FRAME_BYTES - HEADER_BYTES - SUMMARY_SALT_BYTES
 
+    /** A join's session tag: random per join, so two phones tell their messages apart (ADR-0009). */
+    const val JOIN_SESSION_BYTES: Int = 8
+
+    /** The Noise message in a join frame: the rest of a [GROUP_FRAME_BYTES] frame. */
+    const val JOIN_MESSAGE_BYTES: Int = GROUP_FRAME_BYTES - HEADER_BYTES - JOIN_SESSION_BYTES - 1
+
     /** The largest frame of any kind. A transport must carry at least this many bytes. */
     const val MAX_FRAME_BYTES: Int = GROUP_FRAME_BYTES
 }
@@ -64,6 +70,9 @@ enum class FrameKind(
 
     /** What a phone holds, as a salted Bloom filter; never relayed (ADR-0008). */
     SUMMARY(0x05, Wire.HEADER_BYTES + Wire.SUMMARY_SALT_BYTES + Wire.SUMMARY_FILTER_BYTES),
+
+    /** One step of joining a group in person, between two phones in direct range; never relayed (ADR-0009). */
+    JOIN(0x06, Wire.HEADER_BYTES + Wire.JOIN_SESSION_BYTES + 1 + Wire.JOIN_MESSAGE_BYTES),
     ;
 
     companion object {
@@ -206,6 +215,28 @@ data class SummaryFrame(
     /** A summary is never relayed, so it has no other hop budget. */
     override fun withHopBudget(hops: Int): SummaryFrame {
         require(hops == 0) { "a summary is never relayed" }
+        return this
+    }
+}
+
+/**
+ * One step of a join (ADR-0009): a Noise handshake or transport message, padded to one size. Not
+ * signed, not stored, never relayed: its hop budget is always 0.
+ */
+data class JoinFrame(
+    /** Random per join, picked by the joiner. */
+    val session: Bytes,
+    /** 1 and 2 are the handshake; 3 on carry the roster. */
+    val step: Int,
+    /** [Wire.JOIN_MESSAGE_BYTES] bytes, opaque to everyone but the two phones joining. */
+    val message: Bytes,
+) : Frame {
+    override val kind get() = FrameKind.JOIN
+    override val hopBudget: Int get() = 0
+
+    /** A join is never relayed, so it has no other hop budget. */
+    override fun withHopBudget(hops: Int): JoinFrame {
+        require(hops == 0) { "a join is never relayed" }
         return this
     }
 }

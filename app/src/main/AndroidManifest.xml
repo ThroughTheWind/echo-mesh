@@ -10,12 +10,23 @@
     <!-- The relay foreground service (FR-3.3) and its one notification, asked in context (FR-1.2). -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <!-- While a share runs, the same service keeps the fix coming with the screen off (NFR-10,
+         WI-075). Never ACCESS_BACKGROUND_LOCATION: checkManifestPermissions forbids it. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <!-- Also declared by core:map, which shows the fix; repeated here because the service's
+         location type needs them in this manifest (lint ForegroundServicePermission). -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Scanning a group's join code in person (FR-8.2), asked in context when the user taps Join. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
 
     <application
         android:name=".App"
         android:allowBackup="false"
         android:label="@string/app_name"
+        android:localeConfig="@xml/locales_config"
         android:supportsRtl="true"
         android:theme="@style/Theme.App">
         <activity
@@ -31,6 +42,30 @@
         <service
             android:name=".mesh.MeshService"
             android:exported="false"
-            android:foregroundServiceType="connectedDevice" />
+            android:foregroundServiceType="connectedDevice|location" />
+        <!-- The Quick Settings tile the user may add (FR-13.3): it only toggles discreet mode and
+             shows on or off. Echo never adds it or prompts for it. -->
+        <service
+            android:name=".mesh.DiscreetTile"
+            android:exported="true"
+            android:icon="@drawable/ic_neutral"
+            android:label="@string/tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service>
+        <!--
+          The field diagnostics file, handed to the app picked in the share sheet from memory,
+          never from storage (FR-17.3, FR-17.4). Not exported: readable only through the grant.
+        -->
+        <provider
+            android:name=".mesh.DiagnosticsProvider"
+            android:authorities="${applicationId}.diagnostics"
+            android:exported="false"
+            android:grantUriPermissions="true" />
     </application>
 </manifest>

@@ -3,14 +3,18 @@ package io.github.throughthewind.echo.core.mesh.relay
 import io.github.throughthewind.echo.core.mesh.MeshTransport
 import io.github.throughthewind.echo.core.mesh.PeerHandle
 import io.github.throughthewind.echo.core.mesh.TransportEvent
+import io.github.throughthewind.echo.core.mesh.diagnostics.FieldDiagnostics
 import io.github.throughthewind.echo.core.mesh.report.ClockCheck
 import io.github.throughthewind.echo.core.mesh.report.FrameRejection
 import io.github.throughthewind.echo.core.mesh.report.FrameValidator
 import io.github.throughthewind.echo.core.mesh.report.Validation
+import io.github.throughthewind.echo.core.mesh.report.instantOfWireMinute
 import io.github.throughthewind.echo.core.mesh.report.wireMinute
 import io.github.throughthewind.echo.core.mesh.wire.Bytes
 import io.github.throughthewind.echo.core.mesh.wire.DecodeResult
 import io.github.throughthewind.echo.core.mesh.wire.FrameKind
+import io.github.throughthewind.echo.core.mesh.wire.GroupFrame
+import io.github.throughthewind.echo.core.mesh.wire.JoinFrame
 import io.github.throughthewind.echo.core.mesh.wire.PublicReportFrame
 import io.github.throughthewind.echo.core.mesh.wire.SummaryFrame
 import io.github.throughthewind.echo.core.mesh.wire.Wire
@@ -20,10 +24,14 @@ import io.github.throughthewind.echo.core.model.ReportType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -32,6 +40,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
@@ -56,6 +65,8 @@ data class RelayConfig(
     val globalFramesPerSecond: Double = 500.0,
     val globalFrameBurst: Double = 2_000.0,
     val sweepEvery: Duration = 30.seconds,
+    /** How far back distinct peers are counted for the low-density state (FR-16.1; tuned in WI-028). */
+    val densityWindow: Duration = 5.minutes,
     /** Most severe first: the order a summary is answered in after recency (FR-5.1). */
     val severity: List<ReportType> = DEFAULT_SEVERITY,
 ) {
@@ -137,6 +148,27 @@ class Relay(
     /** Public reports to show: live and not withdrawn. Updated as frames arrive and expire. */
     val reports: StateFlow<List<HeldFrame>> = shown.asStateFlow()
 
+    private val heldVotes = MutableStateFlow<List<HeldFrame>>(emptyList())
+
+    /** Public votes held, for the tallies (FR-6.2). Updated with [reports]. */
+    val votes: StateFlow<List<HeldFrame>> = heldVotes.asStateFlow()
+
+    private fun publishHeld(minute: Long) {
+        shown.value = store.reports(minute)
+        heldVotes.value = store.votes(minute)
+    }
+
+    /** A group member confirmed the public report [id] at [minute]: this phone keeps it longer (FR-6.3). */
+    suspend fun groupConfirmed(
+        id: Bytes,
+        minute: Long,
+    ) {
+        mutex.withLock {
+            store.groupConfirmed(id, minute)
+            publishHeld(clock().wireMinute())
+        }
+    }
+
     private val inRange = MutableStateFlow(0)
 
     /**
@@ -145,12 +177,70 @@ class Relay(
      */
     val nearby: StateFlow<Int> = inRange.asStateFlow()
 
+    // Peer handles heard in the last densityWindow, with when, to count them (FR-16.1). In memory,
+    // for that window only; never stored, sent or shown.
+    private val heard = LinkedHashMap<PeerHandle, Long>()
+    private val recent = MutableStateFlow(0)
+
+    /** Distinct peer handles heard in the last [RelayConfig.densityWindow] (FR-16.1). Rotation may over-count. */
+    val recentPeers: StateFlow<Int> = recent.asStateFlow()
+
+    private fun heardFrom(
+        peer: PeerHandle,
+        millis: Long,
+    ) {
+        heard.remove(peer)
+        heard[peer] = millis
+        forgetHeard(millis)
+    }
+
+    private fun forgetHeard(millis: Long) {
+        val since = millis - config.densityWindow.inWholeMilliseconds
+        val old = heard.entries.iterator()
+        while (old.hasNext() && old.next().value < since) old.remove()
+        recent.value = heard.size
+    }
+
     private val lastArrival = MutableStateFlow<Instant?>(null)
 
     /** When a new report from another phone was last stored, for the mesh status (FR-3.2). */
     val lastReportReceived: StateFlow<Instant?> = lastArrival.asStateFlow()
 
     suspend fun stats(): Stats = mutex.withLock { stats }
+
+    /** Field diagnostics, when the user turned them on (FR-17.1); counts only, in memory. */
+    @Volatile
+    var diagnostics: FieldDiagnostics? = null
+
+    private val groupArrivals = MutableSharedFlow<HeldFrame>(extraBufferCapacity = 64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    /**
+     * Every new group frame this phone stores, from the air or its own, for the groups layer to
+     * try opening. Relaying does not wait for it: members and non-members relay alike (FR-5.4).
+     */
+    val groupFrames: SharedFlow<HeldFrame> = groupArrivals.asSharedFlow()
+
+    private val joinArrivals =
+        MutableSharedFlow<Pair<PeerHandle, JoinFrame>>(extraBufferCapacity = 32, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    /** Join steps from phones in direct range (ADR-0009). Never stored, never relayed. */
+    val joinFrames: SharedFlow<Pair<PeerHandle, JoinFrame>> = joinArrivals.asSharedFlow()
+
+    /** Group frames held now, for a group just joined to open what is already around. */
+    suspend fun heldGroupFrames(): List<HeldFrame> = mutex.withLock { store.groupFrames(clock().wireMinute()) }
+
+    /**
+     * Sends a join step to [peer], or to every phone in direct range when null (the joiner does not
+     * know which neighbour showed the code). One hop only, never relayed (ADR-0009).
+     */
+    suspend fun sendJoin(
+        peer: PeerHandle?,
+        frame: JoinFrame,
+    ) {
+        val bytes = WireCodec.encode(frame)
+        val targets = if (peer != null) listOf(peer) else mutex.withLock { links.keys.toList() }
+        transmit(targets.map { it to bytes })
+    }
 
     /** True when this phone holds the frame [id], live or withdrawn. */
     suspend fun holds(id: Bytes): Boolean = mutex.withLock { id in store }
@@ -183,6 +273,8 @@ class Relay(
                     mutex.withLock {
                         links.clear()
                         inRange.value = 0
+                        heard.clear()
+                        recent.value = 0
                     }
                 }
             }
@@ -196,8 +288,14 @@ class Relay(
         val now = clock()
         val (validation, sends) =
             mutex.withLock {
-                val v = FrameValidator.validate(frame, now.wireMinute(), transport.capabilities.maxFrameBytes, seen = { it in store })
-                v to if (v is Validation.Valid) accept(v, link = null, nowMinute = now.wireMinute()) else emptyList()
+                val minute = now.wireMinute()
+                val v = FrameValidator.validate(frame, minute, transport.capabilities.maxFrameBytes, seen = { it in store })
+                v to
+                    when (v) {
+                        is Validation.Valid -> accept(HeldFrame(v.id, v.frame, v.received, null), minute)
+                        is Validation.Opaque -> accept(HeldFrame(v, null, minute), minute)
+                        is Validation.Rejected -> emptyList()
+                    }
             }
         transmit(sends)
         return validation
@@ -206,18 +304,22 @@ class Relay(
     /** Drops expired frames now; [run] also does it every [RelayConfig.sweepEvery]. */
     suspend fun sweep() {
         mutex.withLock {
-            val minute = clock().wireMinute()
+            val now = clock()
+            val minute = now.wireMinute()
             store.sweep(minute)
-            shown.value = store.reports(minute)
+            publishHeld(minute)
+            forgetHeard(now.toEpochMilliseconds())
         }
     }
 
     private suspend fun handle(event: TransportEvent) {
         when (event) {
             is TransportEvent.PeerSeen -> {
+                diagnostics?.peer(event.peer, clock())
                 val summary =
                     mutex.withLock {
                         links.getOrPut(event.peer) { Link(clock().toEpochMilliseconds(), config) }
+                        heardFrom(event.peer, clock().toEpochMilliseconds())
                         inRange.value = links.size
                         summaryFrame(clock().wireMinute())
                     }
@@ -232,7 +334,12 @@ class Relay(
             }
 
             is TransportEvent.FrameReceived -> {
+                diagnostics?.peer(event.from, clock())
                 transmit(mutex.withLock { received(event.from, event.frame) })
+            }
+
+            is TransportEvent.LinkFailed -> {
+                diagnostics?.failed(event.kind, clock())
             }
         }
     }
@@ -245,6 +352,7 @@ class Relay(
         val millis = now.toEpochMilliseconds()
         val minute = now.wireMinute()
         stats = stats.copy(received = stats.received + 1)
+        heardFrom(from, millis)
         val link = links.getOrPut(from) { Link(millis, config) }
         inRange.value = links.size
         // The link's own budget first, so a flooder spends its budget, not everyone's.
@@ -259,6 +367,11 @@ class Relay(
         }
         if (bytes.size == FrameKind.SUMMARY.size && (bytes[1].toInt() and 0xFF) == FrameKind.SUMMARY.code) {
             return answer(from, link, bytes, millis, minute)
+        }
+        if (bytes.size == FrameKind.JOIN.size && (bytes[1].toInt() and 0xFF) == FrameKind.JOIN.code) {
+            val join = (WireCodec.decode(bytes, transport.capabilities.maxFrameBytes) as? DecodeResult.Accepted)?.frame as? JoinFrame
+            if (join == null) reject(FrameRejection.MALFORMED) else joinArrivals.tryEmit(from to join)
+            return emptyList()
         }
         val validation =
             FrameValidator.validate(
@@ -280,26 +393,36 @@ class Relay(
 
             is Validation.Valid -> {
                 clockCheck.observe(validation.frame.createdMinute, minute)
-                if (validation.frame is PublicReportFrame) lastArrival.value = now
-                accept(validation, from, minute)
+                if (validation.frame is PublicReportFrame) {
+                    lastArrival.value = now
+                    diagnostics?.received(now, instantOfWireMinute(validation.frame.createdMinute))
+                }
+                accept(HeldFrame(validation.id, validation.frame, validation.received, from), minute)
+            }
+
+            is Validation.Opaque -> {
+                // A group frame: members and others relay it alike, and its creation time is sealed.
+                diagnostics?.received(now, null)
+                accept(HeldFrame(validation, from, minute), minute)
             }
         }
     }
 
     /** Stores a valid frame and returns where to pass it on: every other neighbour, one hop less. */
     private fun accept(
-        valid: Validation.Valid,
-        link: PeerHandle?,
+        held: HeldFrame,
         nowMinute: Long,
     ): List<Pair<PeerHandle, ByteArray>> {
-        val held = HeldFrame(valid.id, valid.frame, valid.received, link)
+        val link = held.link
         store.put(held)
         stats = stats.copy(stored = stats.stored + 1)
-        shown.value = store.reports(nowMinute)
-        if (held.withdrawn || valid.id !in store) return emptyList()
+        publishHeld(nowMinute)
+        if (held.frame is GroupFrame && held.id in store) groupArrivals.tryEmit(held)
+        if (held.withdrawn || held.id !in store) return emptyList()
         val onward = onward(held) ?: return emptyList()
         val targets = links.keys.filter { it != link }
         stats = stats.copy(forwarded = stats.forwarded + targets.size)
+        if (link != null) diagnostics?.relayed(clock(), targets.size)
         return targets.map { it to onward }
     }
 
@@ -332,12 +455,13 @@ class Relay(
             out += from to onward
         }
         stats = stats.copy(answered = stats.answered + out.size)
+        diagnostics?.relayed(clock(), out.size)
         return out
     }
 
     private fun answerOrder(): Comparator<HeldFrame> =
         compareBy<HeldFrame> { if (it.frame is WithdrawalFrame) 0 else 1 }
-            .thenByDescending { it.frame.createdMinute }
+            .thenByDescending { it.sortMinute }
             .thenBy { (it.frame as? PublicReportFrame)?.let { r -> config.severity.indexOf(r.type) } ?: config.severity.size }
 
     /**

@@ -2,6 +2,7 @@ package io.github.throughthewind.echo.adapters.ble
 
 import io.github.throughthewind.echo.core.mesh.BandwidthClass
 import io.github.throughthewind.echo.core.mesh.FrameTooLargeException
+import io.github.throughthewind.echo.core.mesh.LinkFailure
 import io.github.throughthewind.echo.core.mesh.MeshTransport
 import io.github.throughthewind.echo.core.mesh.PeerHandle
 import io.github.throughthewind.echo.core.mesh.RangeClass
@@ -194,11 +195,13 @@ class BleTransport(
                 } catch (_: SecurityException) {
                     false
                 }
+            if (!started) channel.trySend(TransportEvent.LinkFailed(LinkFailure.SESSION_START))
             if (started) {
                 val share = 1.0 - config.rotateJitter * random.nextDouble()
                 val current = lock.withLock { session }
                 val broke = withTimeoutOrNull(config.rotateEvery * share) { current?.broken?.await() } != null
                 if (broke) {
+                    channel.trySend(TransportEvent.LinkFailed(LinkFailure.SESSION_START))
                     endSession()
                     delay(backoff(failures++))
                     continue
@@ -234,9 +237,9 @@ class BleTransport(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: IOException) {
-                // Refused: try again below.
+                channel.trySend(TransportEvent.LinkFailed(LinkFailure.ADVERTISE))
             } catch (_: SecurityException) {
-                // Refused: try again below.
+                channel.trySend(TransportEvent.LinkFailed(LinkFailure.ADVERTISE))
             }
             delay(backoff(failures++))
         }
@@ -252,9 +255,9 @@ class BleTransport(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: IOException) {
-                // Refused: try again below.
+                channel.trySend(TransportEvent.LinkFailed(LinkFailure.SCAN))
             } catch (_: SecurityException) {
-                // Refused: try again below.
+                channel.trySend(TransportEvent.LinkFailed(LinkFailure.SCAN))
             }
             // A scan that ran a while was healthy: the next failure starts the waits over.
             if (clockMillis() - began > SCAN_WINDOW_MILLIS) failures = 0
@@ -322,6 +325,7 @@ class BleTransport(
                 null
             }
         if (hello == null) {
+            channel.trySend(TransportEvent.LinkFailed(LinkFailure.HELLO))
             link.close()
             return
         }
@@ -381,6 +385,7 @@ class BleTransport(
             throw e
         } catch (_: IOException) {
             // Out of range or refused: the next advertisement heard tries again.
+            channel.trySend(TransportEvent.LinkFailed(LinkFailure.CONNECT))
         } catch (_: SecurityException) {
             // A permission withdrawn while on: the next session start finds it.
         } finally {
@@ -435,6 +440,7 @@ class BleTransport(
             throw e
         } catch (_: IOException) {
             // A bad length or a broken channel: the link goes, the phone stays on the mesh.
+            channel.trySend(TransportEvent.LinkFailed(LinkFailure.LINK_BROKEN))
         }
         drop(peer)
     }

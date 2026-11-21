@@ -18,11 +18,13 @@ data class GeoPoint(
 /**
  * The report catalog of spec FR-4.1, in its order, with its default lifetimes (to tune in field
  * tests, WI-028). [code] is the type's place in that order; ADR-0005 puts it on the air, so a new
- * type is a new wire version.
+ * type is a new wire version. [steering]: the type tells people where to go or that a place is safe,
+ * so a fake one can lead them into a trap (extended spec FR-15.1). Not on the air: the code says it.
  */
 enum class ReportType(
     val code: Int,
     val defaultLifetime: Duration,
+    val steering: Boolean = false,
 ) {
     POLICE_LINE(0, 20.minutes),
     KETTLE(1, 20.minutes),
@@ -30,9 +32,9 @@ enum class ReportType(
     ARRESTS(3, 15.minutes),
     MEDIC(4, 60.minutes),
     WATER_SUPPLIES(5, 90.minutes),
-    EXIT_OPEN(6, 15.minutes),
-    STREET_CLOSED(7, 30.minutes),
-    ALL_CLEAR(8, 15.minutes),
+    EXIT_OPEN(6, 15.minutes, steering = true),
+    STREET_CLOSED(7, 30.minutes, steering = true),
+    ALL_CLEAR(8, 15.minutes, steering = true),
     ;
 
     companion object {

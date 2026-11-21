@@ -124,13 +124,28 @@ class FrameValidatorTest {
     }
 
     @Test
-    fun `group frames are not acted on yet`() {
+    fun `a group frame is held by its id, unread, and a second copy is a duplicate`() {
         val group =
             ByteArray(Wire.GROUP_FRAME_BYTES).also {
                 it[0] = 1
                 it[1] = 4
+                it[Wire.HOP_BUDGET_OFFSET] = 3
             }
-        assertEquals(FrameRejection.UNSUPPORTED_KIND, rejection(validate(group)))
+        val opaque = assertIs<Validation.Opaque>(validate(group))
+        val relayed = group.copyOf().also { it[Wire.HOP_BUDGET_OFFSET] = 2 }
+        assertEquals(opaque.id, assertIs<Validation.Opaque>(validate(relayed)).id, "the id ignores the hop budget")
+        assertEquals(FrameRejection.DUPLICATE, rejection(FrameValidator.validate(group, 0, seen = { it == opaque.id })))
+    }
+
+    @Test
+    fun `a join step is never stored`() {
+        val join =
+            ByteArray(Wire.GROUP_FRAME_BYTES).also {
+                it[0] = 1
+                it[1] = 6
+                it[Wire.HEADER_BYTES + Wire.JOIN_SESSION_BYTES] = 1
+            }
+        assertEquals(FrameRejection.UNSUPPORTED_KIND, rejection(validate(join)))
     }
 
     @Test

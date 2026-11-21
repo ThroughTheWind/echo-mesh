@@ -50,17 +50,36 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-dev"
+            // en-XA and ar-XB in debug builds: a run in each catches truncation and hard-coded text (NFR-21).
+            isPseudoLocalesEnabled = true
         }
     }
 
     buildFeatures {
         compose = true
     }
+
+    // Accessibility tests render screens with Robolectric (WI-031): they need the app's resources,
+    // and run on the JUnit platform like every other module's tests. A failure prints its message,
+    // so CI says which control is unnamed or too small instead of only the line that asserted.
+    testOptions.unitTests {
+        isIncludeAndroidResources = true
+        all {
+            it.useJUnitPlatform()
+            it.testLogging {
+                events("failed")
+                exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+            }
+        }
+    }
 }
 
 // ADR-0003: the app never asks for INTERNET. A permission is added to `allowed` only by an ADR that
 // names it, cited on the same line. Today: none.
 manifestPermissions {
+    // No internet (ADR-0003), and never background location (NFR-10): sharing uses a `location`
+    // foreground service started from a tap instead (WI-075).
+    forbidden.set(setOf("android.permission.INTERNET", "android.permission.ACCESS_BACKGROUND_LOCATION"))
     allowed.set(emptySet())
 }
 
@@ -80,10 +99,24 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.zxing.core)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.material3)
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
+
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.compose.ui.test.junit4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.junit4)
+    testRuntimeOnly(platform(libs.junit.bom))
+    testRuntimeOnly(libs.junit.vintage.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    // The empty activity the Compose test rule starts. Debug only; release never links it.
+    debugImplementation(libs.compose.ui.test.manifest)
 }

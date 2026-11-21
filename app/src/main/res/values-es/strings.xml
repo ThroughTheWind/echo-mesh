@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spanish (WI-037). Draft: the safety set (onboarding, What Echo protects, wipe, QR warning,
+         steering warning) needs a fluent speaker's review against threat model §7 before it ships
+         (FR-18.3). Comments are the English file's, kept so the two read side by side. -->
+    <string name="app_name">Echo</string>
+
+    <!-- Common -->
+    <string name="back">Atrás</string>
+    <string name="close">Cerrar</string>
+    <string name="not_now">Ahora no</string>
+    <string name="continue_">Continuar</string>
+
+    <!-- Onboarding (patterns/OnboardingFlow). Every safety claim cites its threat model §7 row in the
+         comment above it; scripts/gates/claims.mjs checks it (NFR-14, WI-026). -->
+    <string name="onboarding_welcome_title">Mira lo que pasa a tu alrededor, sin internet</string>
+    <!-- §7 P6 -->
+    <string name="onboarding_welcome_body">Los teléfonos cerca de ti comparten avisos cortos entre sí por radio: un cordón policial, un médico, una salida abierta. Sin servidor, sin cuenta, sin internet.</string>
+    <string name="onboarding_get_started">Empezar</string>
+    <string name="onboarding_protects_title">Qué protege Echo, y qué no</string>
+    <string name="onboarding_protects_heading">Protege</string>
+    <!-- §7 P1 -->
+    <string name="onboarding_protects_1">Los avisos, posiciones y apodos de un grupo solo los pueden leer quienes se unieron al grupo en persona.</string>
+    <!-- §7 P3 -->
+    <string name="onboarding_protects_2">Nada de lo que envías lleva tu nombre, tu número ni un identificador fijo.</string>
+    <!-- §7 P4 -->
+    <string name="onboarding_protects_3">Echo no guarda ningún historial de dónde estuviste tú ni nadie. Los avisos desaparecen cuando caducan.</string>
+    <!-- §7 P6 -->
+    <string name="onboarding_protects_4">No hay servidor, ni cuenta, ni uso de internet, salvo la descarga de un mapa que inicias tú.</string>
+    <string name="onboarding_not_heading">No protege</string>
+    <!-- §7 N1 -->
+    <string name="onboarding_not_1">Cualquiera cerca con un receptor de radio puede saber que tu teléfono usa Echo.</string>
+    <!-- §7 N2 -->
+    <string name="onboarding_not_2">Los avisos públicos pueden ser falsos, y sus confirmaciones se pueden falsificar en masa.</string>
+    <!-- §7 N3 -->
+    <string name="onboarding_not_3">Cualquiera de tu grupo puede leer todo lo que se envía a él y reenviarlo.</string>
+    <!-- §7 N4 -->
+    <string name="onboarding_not_4">Si te quitan el teléfono desbloqueado, quien lo tenga puede leerlo hasta que lo borres.</string>
+    <string name="onboarding_understand">Entendido</string>
+    <string name="onboarding_read_everything">Leerlo todo</string>
+    <string name="onboarding_map_title">Consigue un mapa antes de salir</string>
+    <!-- §7 N6 -->
+    <string name="onboarding_map_body">Echo muestra un mapa sin conexión que descargas en casa, en una wifi de confianza. Descargarlo revela la región a tu red y al servidor del mapa.</string>
+    <string name="onboarding_skip">Más tarde</string>
+    <string name="onboarding_know_title">Antes de salir</string>
+    <string name="onboarding_know_mesh">La malla empieza apagada. Enciéndela desde el mapa cuando estés allí.</string>
+    <!-- §7 P4 -->
+    <string name="onboarding_know_expiry">Cada aviso desaparece solo al cabo de unos minutos, en todos los teléfonos.</string>
+    <string name="onboarding_know_carry">Pocos teléfonos alrededor significa menos avisos. Caminar con la malla encendida lleva los avisos a través de los huecos hasta las personas con las que te cruzas.</string>
+    <string name="onboarding_know_discreet">El botón del ojo en el mapa oscurece la pantalla, baja el brillo y silencia el teléfono. No oculta la app.</string>
+    <string name="onboarding_know_wipe">Para borrarlo todo, toca el botón de borrado arriba en el mapa y mantén pulsado 2 segundos.</string>
+    <string name="onboarding_open_map">Abrir el mapa</string>
+    <string name="onboarding_step">Paso %1$d de %2$d</string>
+
+    <!-- What Echo protects (screens/WhatEchoProtects): word for word from threat model §7, every row
+         once, with "Echo" for "the app". -->
+    <string name="protects_title">Qué protege Echo</string>
+    <string name="protects_heading">Protege</string>
+    <!-- §7 P1 -->
+    <string name="protects_1">Los avisos, posiciones y apodos de un grupo solo los pueden leer quienes se unieron al grupo en persona.</string>
+    <!-- §7 P2 -->
+    <string name="protects_2">Un aviso de grupo muestra qué miembro lo envió, y nadie puede falsificar el aviso de otro miembro.</string>
+    <!-- §7 P3 -->
+    <string name="protects_3">Nada de lo que envías lleva tu nombre, tu número ni un identificador fijo, y las señales de radio de Echo cambian con regularidad.</string>
+    <!-- §7 P4 -->
+    <string name="protects_4">Echo no guarda ningún historial de dónde estuviste tú ni nadie. Los avisos desaparecen cuando caducan.</string>
+    <!-- §7 P5 -->
+    <string name="protects_5">El borrado de emergencia deja ilegible todo lo que Echo guardó en menos de 2 segundos.</string>
+    <!-- §7 P6 -->
+    <string name="protects_6">No hay servidor, ni cuenta, ni uso de internet, salvo la descarga de un mapa que inicias tú.</string>
+    <string name="not_protects_heading">No protege</string>
+    <!-- §7 N1 -->
+    <string name="not_protects_1">Cualquiera cerca con un receptor de radio puede saber que tu teléfono usa Echo.</string>
+    <!-- §7 N2 -->
+    <string name="not_protects_2">Los avisos públicos pueden ser falsos, y sus confirmaciones se pueden falsificar en masa.</string>
+    <!-- §7 N3 -->
+    <string name="not_protects_3">Cualquiera de tu grupo puede leer todo lo que se envía a él, ver las posiciones compartidas y reenviarlas. Si le quitan el teléfono a un miembro, da el grupo por expuesto y crea uno nuevo en persona.</string>
+    <!-- §7 N4 -->
+    <string name="not_protects_4">Si te quitan el teléfono desbloqueado, quien lo tenga puede leer tus grupos y publicar como tú hasta que lo borres o tu grupo cree uno nuevo.</string>
+    <!-- §7 N5 -->
+    <string name="not_protects_5">Alguien con muchos receptores podría adivinar más o menos desde dónde se envió primero un aviso.</string>
+    <!-- §7 N6 -->
+    <string name="not_protects_6">Descargar un mapa revela la región a tu red y al servidor del mapa.</string>
+    <!-- §7 N7 -->
+    <string name="not_protects_7">Un aviso público que dice adónde ir, o que un lugar es seguro, puede ser una trampa. Echo lo marca como no confirmado y oculta sus confirmaciones públicas.</string>
+
+    <!-- Get a map (patterns/GetAMap) -->
+    <string name="get_map_title">Conseguir un mapa</string>
+    <string name="get_map_download">Descargar en tu navegador</string>
+    <string name="get_map_download_body">Abre un sitio de mapas gratuito en tu navegador. Elige tu región y guarda el archivo .map.</string>
+    <string name="get_map_open">Abrir un archivo de mapa</string>
+    <string name="get_map_open_body">De tus descargas, o un archivo que otro teléfono compartió contigo.</string>
+    <string name="get_map_added">Mapa añadido: %1$s</string>
+    <string name="get_map_refused">No se puede usar ese archivo: %1$s</string>
+    <string name="get_map_no_browser">Ningún navegador de este teléfono puede abrir el sitio de mapas.</string>
+
+    <!-- Map (screens/MapView) -->
+    <string name="map_no_map">No hay mapa aquí</string>
+    <string name="map_get_map">Conseguir un mapa</string>
+    <string name="map_report">Avisar</string>
+    <string name="map_centre_on_me">Centrar en mí</string>
+    <string name="map_reports_near_you">Avisos cerca de ti</string>
+    <string name="map_crosshair">El aviso se colocará en el centro del mapa</string>
+    <plurals name="map_described">
+        <item quantity="one">Mapa. %1$d aviso.</item>
+        <item quantity="other">Mapa. %1$d avisos.</item>
+    </plurals>
+
+    <!-- Location (patterns/PermissionsInContext) -->
+    <string name="location_title">¿Mostrarte en tu mapa?</string>
+    <string name="location_body">Solo para dibujarte en tu propio mapa. Tu posición nunca se guarda, y nunca se envía salvo que la compartas con un grupo.</string>
+    <string name="location_keep_off">No mostrarme</string>
+    <string name="location_refused">La ubicación está desactivada para Echo. Todo lo demás funciona.</string>
+    <string name="location_open_settings">Abrir Ajustes</string>
+
+    <!-- Report types (spec FR-4.1) -->
+    <string name="type_police_line">Cordón policial</string>
+    <string name="type_kettle">Encapsulamiento</string>
+    <string name="type_tear_gas">Gas lacrimógeno</string>
+    <string name="type_arrests">Detenciones</string>
+    <string name="type_medic">Médico</string>
+    <string name="type_water_supplies">Agua y suministros</string>
+    <string name="type_exit_open">Salida abierta</string>
+    <string name="type_street_closed">Calle cortada</string>
+    <string name="type_all_clear">Vía libre</string>
+
+    <!-- Drop a report (patterns/ReportPicker) -->
+    <string name="picker_title">¿Qué hay aquí?</string>
+    <string name="picker_audience_everyone">Todos los cercanos</string>
+    <string name="picker_unverified">Cualquiera puede enviarlos, y pueden ser falsos.</string>
+    <string name="picker_lasts">Dura %1$d min</string>
+    <string name="picker_send_everyone">Enviar a todos los cercanos</string>
+    <string name="picker_send_group">Enviar a %1$s</string>
+    <string name="picker_group_note">Firmado por ti y cifrado: solo %1$s puede leerlo.</string>
+    <string name="picker_audience">Quién lo ve</string>
+    <string name="picker_audience_group">Solo %1$s</string>
+    <string name="picker_change_type">Cambiar tipo</string>
+    <string name="picker_sent_ago">Enviado hace %1$d s</string>
+    <string name="picker_no_map">Consigue antes un mapa: un aviso va en el centro del mapa, nunca en tu posición.</string>
+    <string name="sending_in">%1$s: se envía en %2$d s</string>
+    <string name="sending_in_discreet">Se envía en %1$d s</string>
+    <string name="cancel">Cancelar</string>
+    <string name="sent">Enviado a todos los cercanos</string>
+
+    <!-- Report pins and rows (components/ReportPin) -->
+    <string name="source_nearby">de un teléfono cercano, sin verificar</string>
+    <string name="source_yours">tuyo</string>
+    <string name="source_group">de %1$s en %2$s</string>
+    <string name="pin_described">%1$s, %2$s, %3$s</string>
+    <plurals name="pin_confirmations">
+        <item quantity="one">%1$d confirmación</item>
+        <item quantity="many">%1$d confirmaciones</item>
+        <item quantity="other">%1$d confirmaciones</item>
+    </plurals>
+    <string name="pin_probably_gone">probablemente terminado</string>
+    <string name="pin_could_be_trap">sin confirmar, podría ser una trampa</string>
+    <string name="row_could_be_trap">Sin confirmar · podría ser una trampa</string>
+    <!-- §7 N7 -->
+    <string name="detail_could_be_trap">Sin confirmar: podría ser una trampa. Cualquiera cerca pudo enviarlo, y uno falso puede llevar a la gente a un encapsulamiento. Consulta con tu grupo antes de ir.</string>
+    <string name="direction_north">al norte</string>
+    <string name="direction_north_east">al noreste</string>
+    <string name="direction_east">al este</string>
+    <string name="direction_south_east">al sureste</string>
+    <string name="direction_south">al sur</string>
+    <string name="direction_south_west">al suroeste</string>
+    <string name="direction_west">al oeste</string>
+    <string name="direction_north_west">al noroeste</string>
+    <string name="distance_direction">Unos %1$d m %2$s</string>
+    <string name="distance_direction_km">Unos %1$s km %2$s</string>
+    <string name="reported_ago">avisado hace %1$d min</string>
+    <string name="reported_now">avisado ahora mismo</string>
+    <string name="row_source_nearby">cerca</string>
+    <string name="row_source_yours">tuyo</string>
+    <string name="row_source_group">%1$s en %2$s</string>
+
+    <!-- Reports near you (screens/ReportsNearYou) -->
+    <string name="reports_title">Avisos cerca de ti</string>
+    <string name="reports_empty_title">No hay avisos ahora</string>
+    <string name="reports_empty_body">Los avisos de los teléfonos cercanos aparecen aquí y en el mapa, y desaparecen cuando caducan.</string>
+    <string name="reports_from_centre">Ordenados por distancia al centro del mapa: tu ubicación está desactivada.</string>
+    <string name="reports_report_here">Avisar en el centro del mapa</string>
+
+    <!-- Report detail (patterns/ReportDetail) -->
+    <string name="detail_public_title">De un teléfono cercano.</string>
+    <string name="detail_public_body">Cualquiera que use Echo puede enviarlos, y este podría ser falso.</string>
+    <string name="detail_direct">Llegó directamente.</string>
+    <string name="detail_relayed">Retransmitido %1$d saltos.</string>
+    <string name="detail_yours_title">Tu aviso.</string>
+    <string name="detail_yours_body">Enviado a todos los cercanos. Retirarlo lo elimina de todos los teléfonos a los que llegó.</string>
+    <string name="detail_yours_group_body">Enviado solo a %1$s. Retirarlo lo elimina de todos los teléfonos a los que llegó.</string>
+    <string name="detail_group_title">De %1$s, en %2$s.</string>
+    <string name="detail_group_body">Firmado por el teléfono de %1$s y cifrado para tu grupo.</string>
+    <string name="detail_withdraw">Retirar aviso</string>
+    <string name="detail_withdrawn">Aviso retirado</string>
+    <string name="vote_still_there">Sigue ahí</string>
+    <string name="vote_gone">Ya no</string>
+    <string name="vote_said_there">Dijiste que sigue ahí</string>
+    <string name="vote_said_gone">Dijiste que ya no</string>
+    <string name="votes_from">%1$s: %2$s</string>
+    <string name="votes_confirmed">%1$d confirmaron</string>
+    <string name="votes_said_gone">%1$d dijeron que ya no</string>
+    <string name="votes_nearby">Cerca</string>
+    <string name="votes_your_groups">Tus grupos</string>
+    <string name="votes_none">Aún sin votos.</string>
+    <string name="detail_gone_public">Atenuado porque muchos más teléfonos cercanos dijeron que ya no está. Esos votos se pueden falsificar, así que sigue en el mapa hasta que caduque.</string>
+    <string name="detail_gone_group">Atenuado porque alguien de %1$s dijo que ya no está y nadie de %1$s lo ha confirmado desde entonces.</string>
+
+    <!-- Mesh (patterns/MeshOnOff, components/MeshStatus) -->
+    <string name="mesh_sheet_title">Malla</string>
+    <string name="mesh_switch_on">La malla está encendida</string>
+    <string name="mesh_switch_off">La malla está apagada</string>
+    <string name="mesh_switch_support">Se detiene cuando la apagas</string>
+    <string name="mesh_phones_in_range">Teléfonos al alcance (aproximado)</string>
+    <string name="mesh_last_report">Último aviso recibido</string>
+    <string name="mesh_last_report_none">Ninguno aún</string>
+    <string name="mesh_ago">hace %1$s</string>
+    <string name="mesh_radios">Radios en uso</string>
+    <string name="mesh_radio_short">Corto alcance, bajo consumo</string>
+    <string name="mesh_radio_street">Alcance de una calle</string>
+    <string name="mesh_radio_block">Alcance de una manzana</string>
+    <string name="mesh_radio_background">Funciona con la pantalla apagada</string>
+    <string name="mesh_radio_foreground">Funciona con Echo abierto</string>
+    <string name="mesh_radio_simulated">Esta versión de desarrollo usa una radio simulada y no llega a ningún otro teléfono.</string>
+    <string name="mesh_no_radio">Esta versión aún no tiene radio, así que no puede llegar a otros teléfonos.</string>
+    <string name="mesh_failed">La radio no arrancó</string>
+    <string name="mesh_failed_body">La radio no arrancó. Apaga y vuelve a encender la malla; si sigue fallando, reinicia el teléfono.</string>
+    <string name="mesh_radio_off">Bluetooth apagado</string>
+    <string name="mesh_radio_off_body">Echo habla con otros teléfonos por Bluetooth, y está apagado.</string>
+    <string name="mesh_radio_off_fix">Encender Bluetooth</string>
+    <string name="mesh_permission_needed">Falta un permiso</string>
+    <string name="mesh_permission_body">Echo necesita el permiso Dispositivos cercanos para hablar con otros teléfonos. No necesita tu ubicación.</string>
+    <string name="mesh_permission_fix">Permitir Dispositivos cercanos</string>
+    <string name="mesh_unsupported">No funciona aquí</string>
+    <string name="mesh_unsupported_body">El Bluetooth de este teléfono no puede hacer funcionar la malla. Los avisos que tienes siguen en tu mapa.</string>
+    <string name="mesh_stopped_body">Android detuvo Echo con la malla encendida, así que dejó de retransmitir. Vuelve a encender la malla y deja que Echo funcione en segundo plano para que no vuelva a pasar.</string>
+    <string name="mesh_stopped_fix">Permitir segundo plano</string>
+    <string name="nearby_title">¿Hablar con teléfonos cercanos?</string>
+    <string name="nearby_body">Echo habla con otros teléfonos por Bluetooth. Android lo llama Dispositivos cercanos. Echo no necesita tu ubicación para esto.</string>
+    <string name="notifications_title">¿Mostrar que Echo retransmite?</string>
+    <string name="notifications_body">Android muestra una notificación mientras Echo retransmite en segundo plano. Nunca muestra contenido en la pantalla de bloqueo.</string>
+    <string name="notification_channel">Malla</string>
+    <string name="notification_title">Malla encendida</string>
+    <string name="notification_searching">Buscando teléfonos · retransmitiendo</string>
+    <string name="notification_nearby">%1$s cerca · retransmitiendo</string>
+    <string name="notification_turn_off">Apagar</string>
+    <string name="notification_sharing_title">Compartes tu posición con %1$s</string>
+    <string name="notification_sharing_text">Actualizándose para tu grupo · %1$s</string>
+    <string name="notification_stops_in">termina en %1$d h %2$02d</string>
+    <string name="notification_stops_in_minutes">termina en %1$d min</string>
+    <string name="notification_stop_sharing">Dejar de compartir</string>
+    <string name="mesh_honesty">Cualquiera cerca con un receptor de radio puede saber que tu teléfono usa Echo. Nada de lo que envía lleva tu nombre, tu número ni un identificador fijo.</string>
+    <string name="mesh_on_snackbar">Malla encendida</string>
+    <string name="mesh_off_snackbar">Malla apagada. Los avisos que tienes se quedan hasta que caduquen.</string>
+    <!-- Groups (WI-017, WI-022): patterns/CreateGroup, patterns/QrJoinFlow, screens/GroupRoster. -->
+    <string name="groups_title">Grupos</string>
+    <string name="groups_empty">Aún no estás en ningún grupo. Un grupo comparte avisos cifrados que solo sus miembros pueden leer.</string>
+    <string name="groups_create">Crear un grupo</string>
+    <string name="groups_join">Unirse escaneando</string>
+    <string name="groups_full">Estás en 5 grupos, el máximo que permite Echo. Sal de uno antes.</string>
+    <string name="groups_cant_remove">No puedes echar a nadie de un grupo. Crea uno nuevo y compártelo en persona.</string>
+    <string name="groups_row">%1$d vistos hace poco · termina el %2$s</string>
+    <string name="groups_row_sharing">compartes tu posición</string>
+    <string name="groups_mesh_needed">Enciende primero la malla desde el mapa. Los dos teléfonos hablan a través de ella.</string>
+    <string name="groups_no_radio">Esta versión no tiene radio, así que no puede unirse a un grupo ni añadir a nadie.</string>
+    <string name="create_title">Nuevo grupo</string>
+    <string name="create_name_label">Nombre del grupo</string>
+    <string name="create_name_help">Se muestra en este teléfono y a las personas que añades en persona. Nunca a nadie más.</string>
+    <string name="create_lifetime">Cuánto dura</string>
+    <string name="lifetime_6h">6 h</string>
+    <string name="lifetime_24h">24 h</string>
+    <string name="lifetime_3d">3 días</string>
+    <string name="lifetime_7d">7 días</string>
+    <string name="create_lifetime_help">Cuando termina, sus claves se borran de todos los teléfonos. Más corto es más seguro: menos que exponer si se llevan un teléfono.</string>
+    <string name="nickname_label">Tu apodo en este grupo</string>
+    <string name="nickname_help">Todo el grupo lo ve. No uses nunca tu nombre real.</string>
+    <string name="nickname_new">Nuevo apodo</string>
+    <string name="nickname_too_long">Demasiado largo. Que sea corto.</string>
+    <string name="create_button">Crear %1$s</string>
+    <string name="create_button_plain">Crear</string>
+    <string name="roster_ends">Termina el %1$s</string>
+    <string name="roster_members">Miembros</string>
+    <string name="roster_you">%1$s (tú)</string>
+    <string name="roster_add">Añadir a alguien en persona</string>
+    <string name="roster_leave">Salir de %1$s</string>
+    <string name="leave_title">¿Salir de %1$s?</string>
+    <string name="leave_body">Sus claves se borran de este teléfono. Para volver, alguien tendrá que mostrarte el código otra vez.</string>
+    <string name="leave_confirm">Salir</string>
+    <string name="code_title">Añadir a alguien</string>
+    <string name="code_warning">Muéstralo solo cara a cara. Quien lo escanee puede leer los avisos de %1$s.</string>
+    <string name="code_description">Código para unirse a %1$s</string>
+    <string name="code_countdown">Una persona, un escaneo · código nuevo en %1$s</string>
+    <string name="code_joined">%1$s se unió a %2$s</string>
+    <string name="code_joined_check">¿No es la persona que tienes delante? Otra persona usó el código. Crea un grupo nuevo en persona y deja de usar este.</string>
+    <string name="scan_title">Unirse a un grupo</string>
+    <string name="scan_start">Escanear el código</string>
+    <string name="scan_camera_body">Echo necesita la cámara para leer el código. Solo lee el código, no hace fotos y no guarda nada.</string>
+    <string name="scan_camera_allow">Permitir la cámara</string>
+    <string name="scan_camera_denied">El permiso de cámara está desactivado. Actívalo en Ajustes para escanear un código.</string>
+    <string name="scan_open_settings">Abrir Ajustes</string>
+    <string name="scan_hint">Apunta la cámara al código del otro teléfono.</string>
+    <string name="scan_not_echo">Ese no es un código de grupo de Echo.</string>
+    <string name="joining">Uniéndote…</string>
+    <string name="joining_body">Mantén los dos teléfonos cerca. Hablan directamente entre sí, no a través de la malla.</string>
+    <string name="joined_title">Te uniste a %1$s</string>
+    <string name="joined_body">Todos en %1$s ven que te uniste. El grupo termina el %2$s.</string>
+    <string name="join_failed">No hay respuesta del otro teléfono. Puede que el código ya se usara o caducara, o que los teléfonos estén demasiado lejos. Pide un código nuevo.</string>
+    <string name="join_full">Ya estás en 5 grupos, el máximo que permite Echo. Sal de uno antes.</string>
+    <string name="join_again">Escanear otra vez</string>
+    <string name="joined_name_help">El nombre que usa el otro teléfono. Cámbialo si quieres: solo este teléfono ve lo que elijas.</string>
+    <string name="done">Listo</string>
+    <string name="share_title">Compartir tu posición con %1$s</string>
+    <string name="share_30_min">30 minutos</string>
+    <string name="share_1_hour">1 hora</string>
+    <string name="share_2_hours">2 horas</string>
+    <string name="share_until_off">Hasta apagar la malla</string>
+    <!-- §7 P1, P4 -->
+    <string name="share_callout">%1$s ve dónde estás, actualizado más o menos cada minuto. Cada actualización caduca a los pocos minutos, y nada se guarda en ningún teléfono.</string>
+    <string name="share_start">Empezar a compartir</string>
+    <string name="share_needs_location">Compartir necesita tu ubicación. Puedes permitirla en los ajustes del teléfono.</string>
+    <string name="share_mesh_off">Enciende la malla para compartir tu posición.</string>
+    <string name="sharing_bar">Compartes tu posición con %1$s · %2$s</string>
+    <string name="sharing_left_hours">quedan %1$d h %2$02d</string>
+    <string name="sharing_left_minutes">quedan %1$d min</string>
+    <string name="sharing_until_off">hasta apagar la malla</string>
+    <string name="sharing_stop">Parar</string>
+    <string name="sharing_stopped_time">Dejaste de compartir tu posición con %1$s: se acabó el tiempo.</string>
+    <string name="sharing_stopped_mesh">Dejaste de compartir tu posición con %1$s: la malla está apagada.</string>
+    <string name="sharing_stopped_group">Dejaste de compartir tu posición con %1$s: ya no estás en él.</string>
+    <string name="roster_share">Compartir mi posición</string>
+    <string name="roster_share_on">%1$s ve dónde estás · %2$s</string>
+    <string name="roster_share_off">Desactivado. Nadie ve dónde estás.</string>
+    <string name="member_sharing">Comparte · visto %1$s</string>
+    <string name="age_seconds">hace %1$d s</string>
+    <string name="age_minutes">hace %1$d min</string>
+    <string name="marker_described">%1$s en %2$s, visto %3$s</string>
+    <string name="member_muted">Silenciado · oculto en este teléfono</string>
+    <string name="member_mute">Silenciar a %1$s</string>
+    <string name="member_unmute">Dejar de silenciar a %1$s</string>
+    <string name="member_mute_body">Silenciar oculta los avisos, votos y posición de %1$s solo en este teléfono. %1$s sigue en %2$s y no se entera.</string>
+    <string name="roster_muted_callout">No puedes echar a nadie. Silencia a esa persona en tu teléfono, o crea un grupo nuevo y compártelo en persona.</string>
+    <string name="member_seen">Visto %1$s</string>
+    <string name="member_show_on_map">Ver en el mapa</string>
+    <string name="roster_seen_note">Los miembros que no se ven desde hace 15 min salen de esta lista. No se guarda el historial de nadie.</string>
+    <string name="joined_snackbar">%1$s se unió a %2$s</string>
+    <string name="filter_everything">Todo</string>
+    <string name="filter_my_groups">Mis grupos</string>
+    <string name="filter_groups_only">Mostrar solo mis grupos</string>
+    <string name="filter_show_everything">Mostrar todo</string>
+    <string name="wipe_button">Borrarlo todo</string>
+    <string name="wipe_title">¿Borrarlo todo?</string>
+    <!-- §7 P5 -->
+    <string name="wipe_body">Los grupos y sus claves, todos los avisos, los ajustes. Después parece recién instalada.</string>
+    <!-- §7 P5 -->
+    <string name="wipe_body_maps">Los grupos y sus claves, todos los avisos, los ajustes y los mapas. Después parece recién instalada.</string>
+    <string name="wipe_others">Las copias en otros teléfonos se quedan. No se envía nada para decir que borraste.</string>
+    <string name="wipe_include_maps">Borrar también los mapas</string>
+    <string name="wipe_hold">Mantén para borrar</string>
+    <string name="wipe_keep_holding">Sigue manteniendo · %1$.1f s</string>
+    <string name="wipe_cancel">Cancelar</string>
+    <string name="tile_label">Echo discreto</string>
+    <string name="discreet_on">Modo discreto activado. Toca para desactivarlo</string>
+    <string name="discreet_off">Modo discreto desactivado. Toca para activarlo</string>
+    <string name="notification_discreet_title">Echo</string>
+    <string name="notification_discreet_text">En marcha · Toca para abrir</string>
+
+    <!-- Low density (F16, WI-035) -->
+    <string name="mesh_low_density">Pocos teléfonos oídos últimamente. Al mapa le pueden faltar avisos: un mapa vacío no significa vía libre.</string>
+    <string name="map_alone">Ningún teléfono cerca. Los avisos no pueden llegarte, así que un mapa vacío no significa vía libre.</string>
+    <string name="map_pins_stacked">%1$d avisos aquí</string>
+    <string name="map_pin_open">Abrir: %1$s</string>
+
+    <!-- Field diagnostics (F17, WI-036) -->
+    <string name="diagnostics_title">Diagnóstico de campo</string>
+    <string name="diagnostics_switch">Contar cómo se comporta la malla</string>
+    <string name="diagnostics_open">Diagnóstico de campo</string>
+    <string name="diagnostics_on">Activado</string>
+    <string name="diagnostics_off">Desactivado</string>
+    <string name="diagnostics_counts">Para pruebas de campo. Mientras está activado, Echo cuenta cada minuto los teléfonos cercanos, los avisos recibidos y retransmitidos, cuánto tardaron en llegar, las conexiones fallidas, el nivel de batería y si Android detuvo la malla.</string>
+    <!-- §7 P4, P6 -->
+    <string name="diagnostics_never">Nunca registra una posición, un aviso, una zona del mapa, un grupo, un apodo, una clave ni la hora del día. Los recuentos van en minutos desde que lo activaste.</string>
+    <!-- §7 P4, P6 -->
+    <string name="diagnostics_kept">Los recuentos se quedan en la memoria y nunca se envían. Se olvidan al desactivar esto, cuando Echo deja de funcionar o con el borrado de emergencia. Puedes compartirlos tú abajo.</string>
+    <string name="diagnostics_review">El archivo completo</string>
+    <string name="diagnostics_share">Compartir este archivo</string>
+    <string name="diagnostics_refresh">Actualizar</string>
+
+    <!-- Settings (WI-074) -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_mesh_section">Malla</string>
+    <string name="settings_background">Seguir en segundo plano</string>
+    <string name="settings_background_on">Permitido: Android deja que Echo retransmita con la pantalla apagada</string>
+    <string name="settings_background_off">No permitido: Android puede detener Echo con la pantalla apagada. Toca para cambiarlo</string>
+    <string name="settings_on">Activado</string>
+    <string name="settings_off">Desactivado</string>
+    <string name="settings_groups_section">Grupos y mapas</string>
+    <string name="settings_groups_support">Crear, unirte o salir de un grupo</string>
+    <string name="settings_maps">Mapas</string>
+    <string name="settings_maps_support">Consigue un mapa del lugar al que vas</string>
+    <string name="settings_display_section">Pantalla</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_theme_auto">Automático, según la luz ambiente</string>
+    <string name="settings_theme_dark">Oscuro</string>
+    <string name="settings_theme_sun">Pleno sol</string>
+    <string name="settings_theme_overridden">Discreto mientras el modo discreto esté activado</string>
+    <string name="settings_discreet">Modo discreto</string>
+    <string name="settings_discreet_support">El tema más oscuro, brillo bajo, sin vibración, notificación neutra</string>
+    <string name="settings_large_pins">Marcadores grandes</string>
+    <string name="settings_large_pins_support">Marcadores más grandes, más fáciles de ver y tocar</string>
+    <string name="settings_overridden">Desactivado mientras el modo discreto esté activado</string>
+    <string name="settings_privacy_section">Privacidad</string>
+    <string name="settings_feedback_section">Respuesta háptica</string>
+    <string name="settings_haptics">Vibración</string>
+    <string name="settings_haptics_off">Desactivada</string>
+    <string name="settings_haptics_light">Suave</string>
+    <string name="settings_haptics_strong">Fuerte</string>
+    <string name="settings_language_section">Idioma</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_language_support">%1$s. Abre el ajuste de idioma de Android para Echo</string>
+    <string name="settings_language_follows">%1$s, el idioma del teléfono. Cámbialo en los ajustes de Android</string>
+    <string name="settings_wipe_section">Borrado de emergencia</string>
+    <string name="settings_about_section">Acerca de</string>
+    <string name="settings_version">Versión</string>
+    <string name="settings_licence">Licencia</string>
+    <string name="settings_licence_value">GPL-3.0: software libre, sin anuncios, sin rastreo y sin servidores</string>
+    <string name="settings_source">Código fuente</string>
+    <string name="settings_security">¿Encontraste un problema de seguridad?</string>
+    <string name="settings_security_value">Infórmalo en privado: pestaña Security de la página del código fuente, luego Report a vulnerability. Nunca en una incidencia pública.</string>
+    <string name="settings_open">Ajustes</string>
+</resources>

@@ -16,7 +16,8 @@ Thanks for helping out. Issues and pull requests are welcome. **Security issues 
 2. Create a branch off `main`: `feature/WI-###-slug` for tracked work, or `fix/`, `chore/` or
    `docs/` otherwise. How work is tracked is explained in the [backlog guide](docs/backlog/README.md).
 3. Keep radio-specific code inside its `adapters/<radio>` module, and cryptography inside
-   `core/crypto`. The build fails otherwise.
+   `core/crypto`. The build fails otherwise. Adding a radio: follow
+   [`docs/transports.md`](docs/transports.md).
 4. Run the checks:
 
    ```bash

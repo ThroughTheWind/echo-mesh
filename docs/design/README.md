@@ -47,7 +47,7 @@ Every entry is a folder with a `README.md` (the spec) and a `preview.html` (a fr
 
 ## Screens
 
-[Map](screens/MapView/README.md) (home) · [Reports near you](screens/ReportsNearYou/README.md) · [Group roster](screens/GroupRoster/README.md) · [Maps](screens/MapsScreen/README.md) · [Settings](screens/SettingsScreen/README.md) · [What Echo protects](screens/WhatEchoProtects/README.md)
+[Map](screens/MapView/README.md) (home) · [Reports near you](screens/ReportsNearYou/README.md) · [Group roster](screens/GroupRoster/README.md) · [Maps](screens/MapsScreen/README.md) · [Settings](screens/SettingsScreen/README.md) · [What Echo protects](screens/WhatEchoProtects/README.md) · [Field diagnostics](screens/FieldDiagnostics/README.md)
 
 ## Spec coverage
 

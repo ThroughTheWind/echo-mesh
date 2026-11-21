@@ -1,5 +1,6 @@
 package io.github.throughthewind.echo.adapters.ble
 
+import io.github.throughthewind.echo.core.mesh.LinkFailure
 import io.github.throughthewind.echo.core.mesh.PeerHandle
 import io.github.throughthewind.echo.core.mesh.TransportEvent
 import io.github.throughthewind.echo.core.mesh.TransportUnavailableException
@@ -90,6 +91,7 @@ class BleTransportTest {
             val b = BleTransport(two, Random(2), patient, coroutineContext.minusKey(Job))
             a.start()
             b.start()
+            assertEquals(TransportEvent.LinkFailed(LinkFailure.SCAN), withTimeout(10_000) { a.events.first() })
             withTimeout(patient.retryAfter + 5.seconds) { a.events.filterIsInstance<TransportEvent.PeerSeen>().first() }
             a.stop()
             b.stop()
@@ -143,7 +145,7 @@ class BleTransportTest {
             testScheduler.runCurrent()
             val before = air.advertised.size
             air.dropListeners()
-            testScheduler.runCurrent()
+            assertEquals(TransportEvent.LinkFailed(LinkFailure.SESSION_START), withTimeout(10_000) { a.events.first() })
             testScheduler.advanceTimeBy((slow.retryAfter + 1.seconds).inWholeMilliseconds)
             testScheduler.runCurrent()
             assertTrue(air.advertised.size > before, "a new session is on the air within seconds")
@@ -173,6 +175,8 @@ class BleTransportTest {
             hostile.writeRaw(Advertisement.tokenBytes(7))
             val peer = a.nextSeen()
             hostile.writeRaw(byteArrayOf(0xFF.toByte(), 0xFF.toByte()))
+            // Field diagnostics count the broken link by its kind, never by the phone (FR-17.1).
+            assertEquals(TransportEvent.LinkFailed(LinkFailure.LINK_BROKEN), a.next())
             assertEquals(TransportEvent.PeerLost(peer), a.next())
 
             // Still on the mesh: an honest phone gets through afterwards.

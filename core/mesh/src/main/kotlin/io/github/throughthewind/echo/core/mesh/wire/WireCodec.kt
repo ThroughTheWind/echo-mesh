@@ -14,6 +14,9 @@ enum class Rejection {
     POSITION_OUT_OF_RANGE,
     LIFETIME_OUT_OF_RANGE,
     UNKNOWN_VOTE,
+
+    /** A join step outside 1 to [WireCodec.MAX_JOIN_STEP]. */
+    JOIN_STEP_OUT_OF_RANGE,
 }
 
 sealed interface DecodeResult {
@@ -101,6 +104,14 @@ object WireCodec {
                     if (hops != 0) return reject(Rejection.HOP_BUDGET_OUT_OF_RANGE)
                     SummaryFrame(r.bytes(Wire.SUMMARY_SALT_BYTES), r.bytes(Wire.SUMMARY_FILTER_BYTES))
                 }
+
+                FrameKind.JOIN -> {
+                    if (hops != 0) return reject(Rejection.HOP_BUDGET_OUT_OF_RANGE)
+                    val session = r.bytes(Wire.JOIN_SESSION_BYTES)
+                    val step = r.u8()
+                    if (step !in 1..MAX_JOIN_STEP) return reject(Rejection.JOIN_STEP_OUT_OF_RANGE)
+                    JoinFrame(session, step, r.bytes(Wire.JOIN_MESSAGE_BYTES))
+                }
             }
         check(r.offset == bytes.size) { "layout of $kind does not add up to its size" }
 
@@ -154,6 +165,12 @@ object WireCodec {
                 w.bytes(frame.salt, Wire.SUMMARY_SALT_BYTES)
                 w.bytes(frame.filter, Wire.SUMMARY_FILTER_BYTES)
             }
+
+            is JoinFrame -> {
+                w.bytes(frame.session, Wire.JOIN_SESSION_BYTES)
+                w.u8(frame.step)
+                w.bytes(frame.message, Wire.JOIN_MESSAGE_BYTES)
+            }
         }
         check(w.offset == out.size) { "layout of ${frame.kind} does not add up to its size" }
         return out
@@ -192,6 +209,10 @@ object WireCodec {
             is SummaryFrame -> {
                 require(frame.hopBudget == 0) { "a summary is never relayed" }
             }
+
+            is JoinFrame -> {
+                require(frame.step in 1..MAX_JOIN_STEP) { "join step out of range: ${frame.step}" }
+            }
         }
     }
 
@@ -215,6 +236,9 @@ object WireCodec {
     }
 
     private const val U32_MAX = 0xFFFF_FFFFL
+
+    /** Two handshake steps and at most 16 roster steps (ADR-0009). */
+    const val MAX_JOIN_STEP = 18
 
     /** Reads big-endian fields at fixed offsets of a buffer whose length was checked beforehand. */
     private class Reader(

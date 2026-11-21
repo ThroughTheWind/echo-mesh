@@ -9,7 +9,7 @@
 | State | Icon | Title | Text | Actions |
 |---|---|---|---|---|
 | Mesh on | `radar` | Mesh on | "12 phones nearby · relaying" | Turn off |
-| Sharing position | `share_location` | Sharing your position with Crew | "Stops in 1 h 42" | Stop sharing, Turn mesh off |
+| Sharing position | `share_location` | Sharing your position with Crew | "Updating for your group · stops in 1 h 42" | Stop sharing, Turn mesh off |
 | Discreet mode | a neutral `sync` glyph | Running | "Tap to open" | none |
 | Lock screen (always) | app icon | Content hidden | none | none |
 

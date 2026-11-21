@@ -154,7 +154,7 @@ automatic "I've been arrested" broadcast.
 - FR-18.5 Report type labels always ship with their icon, so a report reads without words.
 
 ### F19 — Release key custody and security process (1.0)
-- FR-19.1 Antoine holds the release signing key (decided). The key is stored offline with an encrypted offline backup, and the procedure is written in `docs/releasing.md`.
+- FR-19.1 Antoine holds the release signing key (decided). The key is stored offline with an encrypted offline backup, and the procedure is written in `docs/releasing.md`. A second copy sits in the repository's encrypted Actions secrets so the release workflow can sign (decided by Antoine, 2026-11-19); SECURITY.md states what that exposes.
 - FR-19.2 The signing certificate's SHA-256 fingerprint is published in the README, `SECURITY.md` and every release note, and shown in the app's About screen as text and as a QR code.
 - FR-19.3 `SECURITY.md` names a private reporting route, a response target, and how fixes are disclosed.
 - FR-19.4 Every release is built reproducibly, and the steps to verify it independently are documented.

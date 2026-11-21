@@ -290,7 +290,13 @@ def render_kotlin(tokens):
         out.append("    )")
         out.append("")
     street = [n for n in next(iter(tv.values())) if n not in dict(M3_ROLES)]
-    out.append("/** Report families, group halos and the map style: not part of Material's ColorScheme. */")
+    out.append("/**")
+    out.append(" * Report families, group halos and the map style: not part of Material's ColorScheme.")
+    out.append(" *")
+    out.append(" * Material cannot work out the text colour for these, so a `Surface` on a `…Container` colour must")
+    out.append(" * pass its `on…Container` as `contentColor`: without it the text keeps the screen's colour, and the")
+    out.append(" * \"No phones nearby\" banner shipped pale text on amber that way.")
+    out.append(" */")
     out.append("@Immutable")
     out.append("data class StreetColors(")
     out += [f"    val {kt_name(n)}: Color," for n in street]

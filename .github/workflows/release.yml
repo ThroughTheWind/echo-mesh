@@ -97,6 +97,11 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: ./gradlew :app:assembleRelease
 
+      # AC-31 and NFR-24: before anything is published, a second build of the same commit, unsigned,
+      # from a separate copy, must contain exactly the files the signed APK does (WI-032).
+      - name: Rebuild independently and compare
+        run: scripts/reproducible.sh --against app/build/outputs/apk/release/app-release.apk "$GITHUB_SHA"
+
       - name: Verify the APK and write the release notes
         env:
           VERSION: ${{ steps.version.outputs.version }}
@@ -138,6 +143,21 @@ jobs:
             echo "::error::Could not read the signing certificate digest from apksigner --print-certs:"
             echo "$certs"
             exit 1
+          fi
+          # The published fingerprint (FR-19.2) is the one the APK carries, or nothing ships.
+          expected_file="docs/signing-certificate.sha256"
+          got="$(tr -d ':' <<< "$cert_sha256" | tr '[:lower:]' '[:upper:]')"
+          if [[ -f "$expected_file" ]]; then
+            want="$(tr -d ' :\n' < "$expected_file" | tr '[:lower:]' '[:upper:]')"
+            if [[ "$want" != "$got" ]]; then
+              echo "::error::The APK is signed with certificate $got, not the published $want ($expected_file). Wrong key?"
+              exit 1
+            fi
+          elif [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            echo "::error::$expected_file is missing: publish the fingerprint from a dry run first (docs/releasing.md)."
+            exit 1
+          else
+            echo "::notice::Signing certificate SHA-256: $cert_sha256. Before the first release, put it in $expected_file, README.md and SECURITY.md (docs/releasing.md)."
           fi
           if ! scripts/release-notes.sh "$VERSION" "$apk_sha256" "$cert_sha256" > dist/release-notes.md; then
             # Only a dry run gets this far without notes; a tag was refused before the build.

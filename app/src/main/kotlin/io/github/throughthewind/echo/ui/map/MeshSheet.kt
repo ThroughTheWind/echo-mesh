@@ -1,6 +1,7 @@
 package io.github.throughthewind.echo.ui.map
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -27,6 +30,7 @@ import io.github.throughthewind.echo.core.designsystem.component.MeshChip
 import io.github.throughthewind.echo.core.designsystem.component.ageLabel
 import io.github.throughthewind.echo.core.designsystem.component.nearbyCount
 import io.github.throughthewind.echo.core.designsystem.theme.LocalSpacing
+import io.github.throughthewind.echo.core.designsystem.theme.LocalStreetColors
 import io.github.throughthewind.echo.core.designsystem.theme.Touch
 import io.github.throughthewind.echo.core.mesh.RangeClass
 import io.github.throughthewind.echo.core.mesh.TransportCapabilities
@@ -109,7 +113,7 @@ fun MeshState.chip(
         is MeshState.On -> {
             val age = lastReport?.let { now - it }
             when {
-                nearby > 0 -> MeshChip.On(nearby, age)
+                nearby > 0 -> MeshChip.On(nearby, age, lowDensity = lowDensity(now))
                 now - since < MeshNode.SEARCHING -> MeshChip.Searching
                 else -> MeshChip.Alone(age)
             }
@@ -141,11 +145,14 @@ fun MeshSheet(
     onToggle: (Boolean) -> Unit,
     onFix: (MeshProblem) -> Unit,
     onDismiss: () -> Unit,
+    diagnosticsOn: Boolean = false,
+    onOpenDiagnostics: (() -> Unit)? = null,
 ) {
     val spacing = LocalSpacing.current
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             Modifier
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = spacing.xxl)
                 .navigationBarsPadding()
                 .padding(bottom = spacing.xxl),
@@ -181,6 +188,21 @@ fun MeshSheet(
                     }
                     Switch(checked = on, onCheckedChange = null)
                 }
+                if (state is MeshState.On && state.lowDensity(now)) {
+                    // FR-16.1: an empty map in a thin crowd is not "all clear".
+                    Surface(
+                        color = LocalStreetColors.current.blockedContainer,
+                        contentColor = LocalStreetColors.current.onBlockedContainer,
+                        shape = MaterialTheme.shapes.medium,
+                    ) {
+                        IconLine(
+                            DS.drawable.ic_warning,
+                            LocalStreetColors.current.onBlockedContainer,
+                            stringResource(R.string.mesh_low_density),
+                            Modifier.padding(spacing.lg),
+                        )
+                    }
+                }
                 if (state is MeshState.On) {
                     Fact(stringResource(R.string.mesh_phones_in_range), nearbyCount(state.nearby))
                     Fact(
@@ -204,6 +226,27 @@ fun MeshSheet(
                 }
                 if (simulatedRadio) {
                     Text(stringResource(R.string.mesh_radio_simulated), style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+            if (onOpenDiagnostics != null) {
+                // Field diagnostics (F17): off by default, opened from here, where the mesh is.
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = Touch.min)
+                        .clickable(role = Role.Button, onClick = onOpenDiagnostics),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        stringResource(R.string.diagnostics_open),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text(
+                        stringResource(if (diagnosticsOn) R.string.diagnostics_on else R.string.diagnostics_off),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
             Surface(color = MaterialTheme.colorScheme.surfaceContainerHigh, shape = MaterialTheme.shapes.medium) {
