@@ -57,6 +57,100 @@ class BleTransportTest {
         }
 
     @Test
+    fun `a phone that hears nothing still gets a link, from the other phone, without waiting for a rotation`() =
+        runTest {
+            // Both orders, so the deaf phone is the lower token once and the higher once.
+            for (deafFirst in listOf(true, false)) {
+                val air = FakeAir()
+                val slow = BleConfig(rotateEvery = 10.minutes, rotateJitter = 0.0)
+                val one = air.radio().also { it.deaf = deafFirst }
+                val two = air.radio().also { it.deaf = !deafFirst }
+                val a = BleTransport(one, Random(1), slow, coroutineContext.minusKey(Job))
+                val b = BleTransport(two, Random(2), slow, coroutineContext.minusKey(Job))
+                a.start()
+                b.start()
+                withTimeout(slow.fallbackAfter + 5.seconds) {
+                    a.events.filterIsInstance<TransportEvent.PeerSeen>().first()
+                    b.events.filterIsInstance<TransportEvent.PeerSeen>().first()
+                }
+                a.stop()
+                b.stop()
+            }
+        }
+
+    @Test
+    fun `a scan the stack stops is started again`() =
+        runTest {
+            val air = FakeAir()
+            // The fallback is out of the way, so only a restarted scan can make the link.
+            val patient = BleConfig(rotateEvery = 10.minutes, rotateJitter = 0.0, fallbackAfter = 9.minutes)
+            val one = air.radio().also { it.scanFailures = 1 }
+            val two = air.radio().also { it.scanFailures = 1 }
+            val a = BleTransport(one, Random(1), patient, coroutineContext.minusKey(Job))
+            val b = BleTransport(two, Random(2), patient, coroutineContext.minusKey(Job))
+            a.start()
+            b.start()
+            withTimeout(patient.retryAfter + 5.seconds) { a.events.filterIsInstance<TransportEvent.PeerSeen>().first() }
+            a.stop()
+            b.stop()
+        }
+
+    @Test
+    fun `a phone the stack will not let advertise still connects out, and keeps trying to advertise`() =
+        runTest {
+            for (refusedFirst in listOf(true, false)) {
+                val air = FakeAir()
+                val slow = BleConfig(rotateEvery = 10.minutes, rotateJitter = 0.0)
+                val one = air.radio().also { if (refusedFirst) it.advertiseFailures = 1_000 }
+                val two = air.radio().also { if (!refusedFirst) it.advertiseFailures = 1_000 }
+                val a = BleTransport(one, Random(1), slow, coroutineContext.minusKey(Job))
+                val b = BleTransport(two, Random(2), slow, coroutineContext.minusKey(Job))
+                a.start()
+                b.start()
+                withTimeout(slow.fallbackAfter + 5.seconds) {
+                    a.events.filterIsInstance<TransportEvent.PeerSeen>().first()
+                    b.events.filterIsInstance<TransportEvent.PeerSeen>().first()
+                }
+                a.stop()
+                b.stop()
+            }
+        }
+
+    @Test
+    fun `a radio that keeps failing is retried less and less often`() =
+        runTest {
+            val air = FakeAir()
+            val radio = air.radio().also { it.scanFailures = 1_000 }
+            val a = BleTransport(radio, Random(1), BleConfig(rotateEvery = 10.minutes, rotateJitter = 0.0), coroutineContext.minusKey(Job))
+            a.start()
+            testScheduler.advanceTimeBy(30_000)
+            testScheduler.runCurrent()
+            // Android blocks an app that starts more than five scans in 30 s.
+            assertTrue(radio.scansStarted <= 5, "${radio.scansStarted} scans started in 30 s")
+            testScheduler.advanceTimeBy(10 * 60_000)
+            testScheduler.runCurrent()
+            assertTrue(radio.scansStarted <= 12, "${radio.scansStarted} scans started in 10 min")
+            a.stop()
+        }
+
+    @Test
+    fun `a server that dies under a session starts a new one, not at the next rotation`() =
+        runTest {
+            val air = FakeAir()
+            val slow = BleConfig(rotateEvery = 10.minutes, rotateJitter = 0.0)
+            val a = BleTransport(air.radio(), Random(1), slow, coroutineContext.minusKey(Job))
+            a.start()
+            testScheduler.runCurrent()
+            val before = air.advertised.size
+            air.dropListeners()
+            testScheduler.runCurrent()
+            testScheduler.advanceTimeBy((slow.retryAfter + 1.seconds).inWholeMilliseconds)
+            testScheduler.runCurrent()
+            assertTrue(air.advertised.size > before, "a new session is on the air within seconds")
+            a.stop()
+        }
+
+    @Test
     fun `stopping takes the advertisement off the air`() =
         runTest {
             val air = FakeAir()
