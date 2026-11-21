@@ -1,7 +1,7 @@
 [versions]
 # The app version. The version code is derived from it in app/build.gradle.kts, and a release
 # tag must be "v" + this value (checked by .github/workflows/release.yml).
-app = "0.1.0"
+app = "0.2.0"
 
 # SDK levels. minSdk 31 (Android 12) so Bluetooth never needs location permission (Antoine,
 # 2026-11-16, ADR-0001). compileSdk 37 is required by Compose 1.12+.
