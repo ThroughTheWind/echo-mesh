@@ -36,6 +36,7 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-075](items/WI-075-share-position-off-screen.md) | Keep sharing your position while Echo is off screen | feature | `claude/project-thread-67cn4e` |
 | [WI-076](items/WI-076-ble-link-recovery.md) | Keep two phones in range linked over Bluetooth | bug | `claude/project-thread-67cn4e` |
 | [WI-077](items/WI-077-survive-locked-keystore.md) | Keep Echo running while the phone is locked and its storage key refuses | bug | `claude/project-thread-67cn4e` |
+| [WI-040](items/WI-040-accept-threat-model-1-1.md) | Review and accept the threat model's 1.1 section | docs | `feature/WI-040-threat-model-1-1` |
 
 ## Review
 
@@ -59,7 +60,6 @@ The board. One row per live work item, grouped by status. Items live in
 | [WI-030](items/WI-030-independent-security-review.md) | Independent security review and fixes | chore |
 | [WI-033](items/WI-033-release-1-0.md) | Final docs and cut 1.0.0 | chore |
 | [WI-039](items/WI-039-phase-5-release-1-1.md) | Phase 5 — Release 1.1: groups through the whole day | epic |
-| [WI-040](items/WI-040-accept-threat-model-1-1.md) | Review and accept the threat model's 1.1 section | docs |
 | [WI-041](items/WI-041-canned-group-phrases.md) | Send canned phrases inside a group | feature |
 | [WI-042](items/WI-042-group-rally-point.md) | Keep one rally point per group | feature |
 | [WI-043](items/WI-043-nearby-danger-alerts.md) | Vibrate on danger reported nearby | feature |
