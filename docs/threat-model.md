@@ -1,6 +1,7 @@
 **Authoritative for:** who the app defends against, what each adversary can and cannot learn or do,
 the security design that answers each, the Bridgefy attack checklist, the honest-claims list for the
-UI, and what must be reviewed by an outside expert before 1.0.
+UI, and what must be reviewed by an outside expert before each release that changes the security
+design (1.0, 1.1).
 **Not authoritative for:** the choice of crypto library and protocol, and why (see
 [ADR-0004](decisions/ADR-0004-crypto-design.md)); product behaviour (see [SPEC.md](SPEC.md)); radio
 details (see [research/](research/)).
@@ -9,9 +10,9 @@ details (see [research/](research/)).
 
 | | |
 |---|---|
-| **Status** | v0.1 draft, 2026-11-16. Not reviewed by an outside expert. |
-| **Applies to** | MVP (spec v0.1): public reports, votes, affinity groups, group reports, position sharing, panic wipe |
-| **Design it pairs with** | [ADR-0004](decisions/ADR-0004-crypto-design.md) (accepted) |
+| **Status** | v0.2 draft, 2026-11-21: §11 (1.1) added for review (WI-040). Not reviewed by an outside expert. |
+| **Applies to** | MVP (spec v0.1): public reports, votes, affinity groups, group reports, position sharing, panic wipe; and 1.1 of the [extended spec](SPEC-EXTENDED.md) (§11) |
+| **Design it pairs with** | [ADR-0004](decisions/ADR-0004-crypto-design.md) (accepted), [ADR-0009](decisions/ADR-0009-group-frames-and-join.md) (accepted), [ADR-0010](decisions/ADR-0010-durable-group-items-and-report-cache.md) (proposed, 1.1) |
 
 > Everything in this document is a design target until a test or the outside review shows it holds.
 > The UI may only claim what §7 lists as protected (spec NFR-14).
@@ -44,6 +45,9 @@ phone runs the app (see §7).
 | Members' positions | Memory only, latest per member | A few minutes |
 | The user's own position | Never stored, never sent unless sharing is on | — |
 | Offline map files | Plain files | Until deleted; optional in the wipe (spec FR-2.6) |
+| *1.1:* rally point, group phrases, check-in state | Memory; cached encrypted (§11.4) | Phrases 15 min; rally point as long as the group |
+| *1.1:* jail-support card, app PIN and duress PIN check data | Encrypted at rest | Until the user deletes it or wipes |
+| *1.1:* report cache | Disk, envelope-encrypted per hourly bucket (§11.4) | Until the bucket key is deleted (≤ 3 h) |
 
 ## 3. Adversaries
 
@@ -96,6 +100,8 @@ group lifetimes, and honest copy at the QR screen.
 | Locked (after first unlock), forensic extraction of storage | Map files (which city). That the app is installed. | Group keys, rosters, nicknames: they are encrypted with a Keystore key that requires the device to be unlocked (§5.6). Reports and positions: never written to disk. |
 | Locked, memory extraction while the mesh runs (advanced) | Whatever is in memory: current group keys, live reports, latest positions. | Anything older than the current epochs. |
 | Unlocked or coerced unlock, before a panic wipe | Current groups, rosters, nicknames, live reports and positions. Can read and post in the user's groups as the user until the groups expire or are re-formed. | Past group traffic captured by A1 before the retained epochs (forward secrecy by the hourly ratchet, §5.3). Location history: there is none. |
+| *From 1.1:* locked, with the report cache on (§11.4) | Encrypted cache entries: that the phone held some live reports. | Their contents, without a device unlock. Expired entries, ever: their hourly bucket key is deleted from the Keystore. |
+| *From 1.1:* made to open the app, with a duress PIN set (§11.3) | A fresh app, after a silent wipe. | The data, even from an image taken before. But see §11.3 for what a duress PIN does not hide. |
 | After a panic wipe | A fresh install. | Anything: the storage key is destroyed first (crypto-erase), so leftovers on flash are unreadable. |
 
 **Answer:** memory-only reports, Keystore key bound to an unlocked device, epoch ratchet, panic
@@ -198,7 +204,14 @@ This section states what each part must achieve.
   fixed frame size plus the missing group id keep what a relay learns to "a group frame passed
   here". Non-members cannot authenticate them, so they are relayed under the same rate limits as
   everything else.
-- Payload types inside a group frame: report, vote, withdrawal, position, member-added, nickname.
+- Payload types inside a group frame: report, vote, withdrawal, position, member-added, nickname;
+  from 1.1 also phrase, rally point and check-in (§11.1).
+- **Durable items** (from 1.1: the rally point, and re-shared roster entries) must reach members who
+  were out of range for longer than the retained epochs. Their inner signature covers the item's own
+  set time instead of the epoch, so any member can re-wrap the original signed item in a
+  current-epoch frame (§11.1, [ADR-0010](decisions/ADR-0010-durable-group-items-and-report-cache.md)).
+  Everything else stays bound to its epoch, as [ADR-0009](decisions/ADR-0009-group-frames-and-join.md)
+  lays it out.
 
 ### 5.4 Wire format and decoder
 
@@ -362,9 +375,32 @@ exist, or when a row is missing from the app's "What Echo protects" page.
   people somewhere. The app marks it unconfirmed and does not show its public confirmations
   (extended spec FR-15).
 
-## 8. Before 1.0: outside review
+**Planned for 1.1** (spec F20–F27). Not rows yet: each becomes a P or N row, on the "What Echo
+protects" page, in the change that ships its feature, so the claims gate never lists a claim for
+something the app does not do.
+- *Group phrases and check-ins:* "Your group sees these, including anyone in it you don't fully
+  trust. 'I'm OK' proves your phone answered, not that you did. A missed check-in may only mean an
+  empty battery or no phones nearby." §11.1.
+- *Jail-support card:* "Stored encrypted on this phone, never sent. Anyone who gets your phone
+  unlocked can read it." §11.1.
+- *Danger alerts:* "Alerts vibrate. Turn them off when you need to stay silent." With public alerts
+  on: "Public reports can be fake and can set off alerts." §11.2.
+- *App lock:* "Stops someone from opening the app on an unlocked phone. It does not stop forensic
+  tools." §11.3.
+- *Duress PIN:* "Entering it erases Echo silently and opens a fresh app. Its existence is public,
+  in our source code, and in some countries using it can be treated as destroying evidence." §11.3.
+- *Auto-wipe:* "Erases Echo if it hasn't been unlocked for the time you choose, while the phone is
+  on." §11.3.
+- *Report cache:* "Live reports are kept on this phone, encrypted, so the map survives a restart.
+  They can only be read after the phone is unlocked, and each hour's reports become unreadable
+  forever once they expire. Positions are never kept." §11.4.
 
-An independent review by a cryptographer and a mobile-security reviewer, results published. Scope:
+## 8. Outside reviews
+
+An independent review by a cryptographer and a mobile-security reviewer, results published, before
+each release that changes the security design.
+
+**Before 1.0.** Scope:
 
 1. The Noise `NKpsk0` handshake implementation in `:core:crypto` against the Noise spec revision 34
    and published test vectors (cacophony).
@@ -381,15 +417,21 @@ The review is cheaper and better once 1–7 have their own tests. Funding is ope
 programmes that fund audits of open-source tools for at-risk users); ask Antoine before contacting
 anyone.
 
+**Before 1.1** (can be a smaller follow-up review):
+1. The report cache envelope: hourly Keystore RSA-OAEP buckets, per-entry keys, deletion at expiry,
+   behaviour while locked (§11.4).
+2. Durable group items and their re-wrapping across epochs (§11.1).
+3. App PIN and duress PIN: attempt limits, wipe path, and what a forensic image shows (§11.3).
+
 ## 9. Open questions
 
-None of these blocks Phase 1 or Phase 2: 1 is for v1.1, 2 and 3 are settled in the spec, and 4 and
+None of these blocks Phase 1 or Phase 2: 1, 2 and 3 are settled in the spec, and 4 and
 5 are tuned by the field test (WI-028).
 
 1. **App lock and duress PIN** (spec v1.1). An app lock that defers to the Android device
    credential adds little over the lock screen. A duress PIN that wipes is useful but can be read as
    destroying evidence in some jurisdictions, and its existence is discoverable in the open-source
-   code. Proposal: v1.1, opt-in, with that warning. Needs Antoine's call.
+   code. Proposal: v1.1, opt-in, with that warning. *Settled: spec F24, designed in §11.3.*
 2. **Launcher disguise** (spec FR-13.2). Proposal: no disguise. The app is still visible in system
    settings and the open-source code documents the disguise, so a disguised protest app that is
    found looks worse than an honest one. Discreet mode covers what is on screen. *Settled: spec
@@ -400,3 +442,106 @@ None of these blocks Phase 1 or Phase 2: 1 is for v1.1, 2 and 3 are settled in t
    often, the fallback is a two-way QR exchange (both phones scan each other), which needs no radio.
 5. **Rotation period** of 10 minutes and **epoch length** of 1 hour are first guesses; tune with the
    transport research and field tests.
+
+## 10. 1.0 additions
+
+Not in this document yet: the 1.0 section (steering reports, low density, diagnostics, languages
+and release key custody) was drafted beside the repo and never brought in, although the features it
+answers were built (finding F-011).
+
+## 11. 1.1 (spec F20–F27)
+
+### 11.1 Canned group messages, rally point and check-ins (F20, F21, F23)
+
+**Design.**
+- Phrases, the rally point, check-in reminders and "I'm OK" are new payload types inside the group
+  frame (§5.3), with the same fixed size and encryption. Outsiders learn nothing new; a relay cannot
+  tell a phrase from a position.
+- **Durable group items.** The rally point (and, already in the MVP, roster entries) must outlive
+  the hourly epochs, because it can be set days before the event and is re-shared to new joiners.
+  Their inner signature therefore covers `group context ‖ item type ‖ set time ‖ payload`, **not**
+  the epoch, so any member can re-wrap the original signed item in a current-epoch frame without
+  re-signing it. The newest set time wins. This changes §5.3 for these items only; ordinary
+  reports, votes, positions and phrases stay bound to their epoch. The layout, and how 0.2.0 phones
+  that do not know these items treat them, is [ADR-0010](decisions/ADR-0010-durable-group-items-and-report-cache.md).
+- **New exposure to A2:** an infiltrator learns the rally point, who says they are leaving or
+  safe, and, through missed check-ins, who was probably arrested and when. That is the cost of the
+  feature, and the copy at check-in start says so.
+- **A3 unlocked:** whoever holds a member's unlocked phone can send "I'm OK" for them. Copy: an
+  "I'm OK" proves the phone, not the person. A duress PIN (§11.3) stops the phone's check-ins, so a
+  missed check-in still raises the alarm.
+- Phrases that carry a pin, like "Need help here", reveal a position to the group, exactly like
+  position sharing. The pin defaults to the map centre, like reports (spec FR-4.2), so sending one
+  never silently reveals where the user stands.
+- **Jail-support card:** stored with the other encrypted data (§5.6), never sent, wiped by the panic
+  wipe. Because its key needs an unlocked device, it opens after a device unlock, never on a locked
+  screen. A lawyer's number on a seized unlocked phone shows affiliation with a legal team; the
+  setup screen says so.
+
+### 11.2 Nearby danger alerts (F22)
+
+- The user's own position is read while the mesh is on, used in memory to compare distances, and
+  never stored or sent (unchanged from FR-2.5).
+- A4 can trigger alerts with fake public reports if the user opted in to public alerts: this is a
+  nuisance and battery drain, bounded by the rate limit (FR-22.4). The opt-in screen says so.
+- A vibration can give away someone who is hiding. Copy in the setting: turn alerts off when you
+  need to stay silent.
+
+### 11.3 App lock, duress PIN and auto-wipe (F24)
+
+What each one really buys, which is what the UI may claim:
+
+| Control | Protects against | Does not protect against |
+|---|---|---|
+| **App lock** | Someone handed an unlocked phone opening the app casually. | Forensic extraction: tools read storage, not the app's screen. Data protection still rests on the device lock and the Keystore key (§5.6). |
+| **Duress PIN** | Being made to open the app on the spot: it runs a silent panic wipe and shows a fresh app. Because stored data is crypto-erased by deleting a hardware-backed Keystore key, even a storage image taken earlier becomes unreadable once the wipe runs. | An examiner who knows the feature exists (it is in the open-source code) and asks for "the other PIN". Traces outside the app: Android's app usage records and notifications history show the app was used. The legal risk: in some jurisdictions this is destroying evidence. |
+| **Auto-wipe** | A phone kept powered on and unopened beyond the chosen time. | A phone kept powered off. That is less of a gap than it looks: before first unlock, Android's file encryption already keeps the data unreadable. |
+
+**Design.**
+- The app PIN and the duress PIN are not encryption keys and must not pretend to be. They are
+  checked with a hard attempt limit; after the limit the app wipes (opt-in, stated at setup).
+- The duress wipe is the normal panic wipe (§5.6): it sends nothing, and the fresh app it shows is
+  a real fresh install state, not a decoy with hidden data.
+- The setup screen carries the evidence-destruction warning (spec FR-24.2).
+- Crypto-erase depends on hardware-backed Keystore keys. On a phone whose Keystore is software-only,
+  the wipe still deletes the key, but a storage image taken before the wipe might retain it; the
+  app checks `KeyInfo` security level and the settings say which case applies.
+
+### 11.4 Short-lived encrypted report cache (F25) — changes A3
+
+**Change to A3.** A locked phone, after first unlock, will hold encrypted live reports, votes,
+phrases and the rally point (never positions). They stay unreadable without a device unlock.
+
+**Constraint found while designing it.** A Keystore key created with `setUnlockedDeviceRequired`
+cannot be used at all while the phone is locked, and the phone is locked most of the time at a
+protest. A cache keyed that way could not be written when it matters. The design therefore splits
+writing from reading:
+
+- **Time buckets.** One bucket per hour. Each has a Keystore **RSA-OAEP (SHA-256)** key pair with
+  `setUnlockedDeviceRequired`. Encrypting to a public key needs no Keystore operation, so it works
+  while locked; decrypting needs the private key, so only after unlock. Bucket keys are generated
+  ahead of time while the phone is unlocked.
+- **Per entry:** a fresh data key encrypts the entry with XChaCha20-Poly1305 (Tink, ADR-0004); the
+  data key is wrapped with the bucket's public key. Nothing new is invented: this is the standard
+  envelope-encryption pattern with the Keystore holding the key-encryption key.
+- **Expiry is key deletion.** A bucket's Keystore key is deleted when the last entry it can hold
+  has expired (at most the longest lifetime after the bucket ends: 3 hours; crisis groups, a 2.0
+  feature, will need their own limit). Deleting the per-entry blob alone would not be enough, because flash keeps old
+  copies; deleting the hardware-held bucket key makes those copies unreadable even to someone who
+  later obtains the unlock.
+- **After a kill while locked,** the service restarts but cannot read the cache (or the group keys,
+  §5.6) until the user unlocks. Group traffic received in the meantime is relayed but not shown.
+  The map comes back at unlock (refines spec AC-38: "reopening after unlock").
+- The panic wipe deletes every bucket key first.
+
+**What it still does not protect.** A phone seized while unlocked shows the cached reports, as it
+already showed the in-memory ones. This envelope construction goes on the 1.1 review list (§8).
+
+### 11.5 Adaptive scanning (F26) and Briar handoff (F27)
+
+- Adaptive scanning changes when the phone listens and advertises, not what it sends. Its duty
+  cycle reflects local density, which A1 can already see directly. No new exposure; it must not
+  add any stable pattern, such as a per-device fixed offset.
+- The Briar handoff sends nothing and stores nothing (FR-27.2). The app makes no claim about
+  Briar's security. Briar announced maintenance mode in July 2026; the one-line description should
+  not promise more than "an encrypted messenger that works without internet".

@@ -20,6 +20,7 @@ it is superseded by a new record that names it.
 | [ADR-0006](ADR-0006-offline-map.md) | Draw the map with VTM from Mapsforge files that the user downloads in a browser and imports | accepted | 2026-11-17 |
 | [ADR-0008](ADR-0008-gossip-summary-frame.md) | Swap what each phone holds as a salted Bloom filter in one fixed-size summary frame, added to wire version 1 | accepted | 2026-11-18 |
 | [ADR-0009](ADR-0009-group-frames-and-join.md) | Lay out group frames as signed, padded inner messages, and join over a fixed-size, never-relayed join frame added to wire version 1 | accepted | 2026-11-19 |
+| [ADR-0010](ADR-0010-durable-group-items-and-report-cache.md) | Sign durable group items over their set time, and cache live reports under hourly Keystore RSA-OAEP envelopes | proposed | 2026-11-21 |
 <!-- rungs:end adr-index -->
 
 ## Admission rule
