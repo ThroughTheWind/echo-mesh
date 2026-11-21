@@ -10,7 +10,7 @@ All notable changes are listed here. The format follows
 
 ### Added
 
-- Groups of up to six, joined in person: one phone shows a join code that lasts two minutes and
+- Groups, joined in person: one phone shows a join code that lasts two minutes and
   works once, the other scans it, and the two phones agree on keys over one direct Bluetooth hop.
   Every join is announced to the group.
 - Group reports: encrypted, relayed by every phone, readable only by members, and shown as
